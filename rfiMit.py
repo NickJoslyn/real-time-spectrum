@@ -7,6 +7,7 @@
 ## 	Running FFTs and plotting spectra
 
 import numpy as np
+import matplotlib.pylab as plt
 import os
 import time
 
@@ -15,105 +16,17 @@ startTime = time.time()
 #-------------------------
 #Program parameters
 
-inputFileName = "../Downloads/blc05_guppi_58100_78802_OUMUAMUA_0011.0000.raw"
-outputFileName = 'deletethis.raw'
+inputFileName = "../../Downloads/blc05_guppi_58100_78802_OUMUAMUA_0011.0000.raw"
+cardLength = 80 #BL Raw Information
 
-#GUPPI Information
-cardLength = 80
 
 #FFT Information
 numberOfTransforms = 800
 samplesPerTransform = 4096
-edgeOffset = 500
-
-#MAD Information
-normalDistributionScale = 1.4826
-outlierDistance = 3
-
+#edgeOffset = 500
 
 #------------------------
 #Functions
-
-## Likely will not need any of these functions
-
-#Function to identify data points outside of 3 standard deviations
-def findOutliers(array):
-
-	#Median of input array
-	median = np.median(array)
-
-	# Second array to hold absolute deviations from median
-	array2 = abs(array-median)
-	mad = np.median(array2)
-
-	# Find Robust Standard Deviation
-	rstd = mad*normalDistributionScale
-
-	#Random Number Generator fails with 0
-	if rstd == 0:
-		rstd = 0.01
-
-	# Identify outlier criteria:
-	top = median + outlierDistance*rstd
-	bottom = median - outlierDistance*rstd
-
-	replacementList, = np.where(array>top)
-	replacementList2, = np.where(array<bottom)
-
-	arrayToReplace = np.concatenate([replacementList, replacementList2])
-	return arrayToReplace
-
-
-#Function to replace data points outside of 3 standard deviations
-def replaceOutliers(array):
-
-	median = np.median(array)
-
-	array2 = np.abs(array-median)
-
-	mad = np.median(array2)
-
-	# Find Robust Standard Deviation
-	rstd = mad*normalDistributionScale
-
-	# Random Number Generator fails with 0
-	if rstd == 0:
-		rstd = 0.01
-
-	# Identify outlier criteria:
-	top = median + outlierDistance*rstd
-	bottom = median - outlierDistance*rstd
-
-	replacementList, = np.where(array>top)
-	for i in replacementList:
-		array[i] = int(np.random.normal(median,rstd))
-
-	replacementList2, = np.where(array<bottom)
-	for i in replacementList2:
-		array[i] = int(np.random.normal(median, rstd))
-
-	return array
-
-def findRSTD(array):
-
-	arrayToReplace = []
-
-	#Median of input array
-	median = np.median(array)
-
-	# Second array to hold absolute deviations from median
-	array2 =abs(array-median)
-
-	mad = np.median(array2)
-
-	# Find Robust Standard Deviation
-	rstd = mad*normalDistributionScale
-
-	# Random Number Generator fails with 0
-	if rstd == 0:
-		rstd = 0.1
-
-	return rstd
 
 #-------------------------
 #Begin Program
@@ -122,8 +35,6 @@ def findRSTD(array):
 #File Information
 readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
 fileBytes = os.path.getsize(inputFileName)
-writeOutFile = np.memmap(outputFileName, dtype = 'int8', mode = 'w+', shape = fileBytes)
-
 
 #Initialize Loop Break to 0 "bytes"
 currentBytesPassed = 0
@@ -172,33 +83,64 @@ while(currentBytesPassed < fileBytes):
 			elif(cardString[:8] == 'DIRECTIO'):
 				DIRECTIO = int(cardString[9:].strip())
 
+			elif(cardString[:7] == 'OBSFREQ'):
+				OBSFREQ = float(cardString[9:].strip())
+
+			elif(cardString[:7] == 'CHAN_BW'):
+				CHAN_BW = float(cardString[9:].strip())
+
+			elif(cardString[:5] == 'OBSBW'):
+				OBSBW = float(cardString[9:].strip())
+
 			lineCounter += 1    #Go to Next Card in Header
 
-
+		#Padding Bytes
 		if (DIRECTIO != 0):
 			DIRECTIO_offset = 512 - (cardLength*lineCounter)%512
 		else:
 			DIRECTIO_offset = 0
-		print(NPOL)
+
 		#Calculate once -- NDIM is number of samples per channel
 		headerOffset = cardLength * lineCounter + DIRECTIO_offset
 		NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8)))
+
 	##-----Done With Header Information Extraction------------------------------
 
-	#Write out header unaltered
-	writeOutFile[currentBytesPassed:(currentBytesPassed+headerOffset)] = readIn[currentBytesPassed:(currentBytesPassed + headerOffset)]
+	#Skip header unaltered
 	currentBytesPassed += headerOffset
 
+	#Put data into an easily parsed array
 	dataBuffer = readIn[currentBytesPassed:currentBytesPassed + BLOCSIZE].reshape(OBSNCHAN, NDIM, NPOL)
 
 	for CHANNEL in range(OBSNCHAN):
 
-		#Write out overlapping samples
-		writeOutFile[currentBytesPassed: currentBytesPassed + OVERLAP*NPOL] = dataBuffer[CHANNEL, :OVERLAP, :].reshape(-1)
-		currentBytesPassed += OVERLAP*NPOL
-
 		#Make a writeable copy of the buffer for the time domain MAD
 		copyBuffer = np.copy(dataBuffer[CHANNEL, :, :])
+		xrTime = copyBuffer[:, 0]
+		xiTime = copyBuffer[:, 1]
+		yrTime = copyBuffer[:, 2]
+		yiTime = copyBuffer[:, 3]
+
+		tempFFTx = np.fft.fftshift(np.fft.fft(xrTime + 1j*xiTime))
+		tempFFTy = np.fft.fftshift(np.fft.fft(yrTime + 1j*yiTime))
+
+		#Plot here#####################################
+		centerFrequency = OBSFREQ + (np.abs(OBSBW)/2) - (CHANNEL + 0.5)*np.abs(CHAN_BW)
+		print(CHAN_BW)
+		print(np.abs(CHAN_BW))
+		print(centerFrequency)
+		print(OBSFREQ)
+		plt.plot(np.linspace(centerFrequency + CHAN_BW/2, centerFrequency - CHAN_BW/2, len(tempFFTx)), np.abs(tempFFTx)**2)
+		plt.title("X")
+		plt.show()
+		plt.plot(np.linspace(centerFrequency + CHAN_BW/2, centerFrequency - CHAN_BW/2, len(tempFFTx)), np.abs(tempFFTy)**2)
+		plt.title('Y')
+		plt.show()
+
+
+		###############################################33
+
+		print("STOP")
 
 		for i in range( (NDIM-OVERLAP)//(samplesPerTransform*numberOfTransforms) ):
 
@@ -354,3 +296,91 @@ del writeOutFile
 endTime = time.time()
 
 print("Time: " + str(round(endTime - startTime)))
+
+#----------------------------------------------------------
+#----------------------------------------------------------
+#----------------------------------------------------------
+
+
+#MAD Information
+normalDistributionScale = 1.4826
+outlierDistance = 3
+
+#Function to identify data points outside of 3 standard deviations
+def findOutliers(array):
+
+	#Median of input array
+	median = np.median(array)
+
+	# Second array to hold absolute deviations from median
+	array2 = abs(array-median)
+	mad = np.median(array2)
+
+	# Find Robust Standard Deviation
+	rstd = mad*normalDistributionScale
+
+	#Random Number Generator fails with 0
+	if rstd == 0:
+		rstd = 0.01
+
+	# Identify outlier criteria:
+	top = median + outlierDistance*rstd
+	bottom = median - outlierDistance*rstd
+
+	replacementList, = np.where(array>top)
+	replacementList2, = np.where(array<bottom)
+
+	arrayToReplace = np.concatenate([replacementList, replacementList2])
+	return arrayToReplace
+
+
+#Function to replace data points outside of 3 standard deviations
+def replaceOutliers(array):
+
+	median = np.median(array)
+
+	array2 = np.abs(array-median)
+
+	mad = np.median(array2)
+
+	# Find Robust Standard Deviation
+	rstd = mad*normalDistributionScale
+
+	# Random Number Generator fails with 0
+	if rstd == 0:
+		rstd = 0.01
+
+	# Identify outlier criteria:
+	top = median + outlierDistance*rstd
+	bottom = median - outlierDistance*rstd
+
+	replacementList, = np.where(array>top)
+	for i in replacementList:
+		array[i] = int(np.random.normal(median,rstd))
+
+	replacementList2, = np.where(array<bottom)
+	for i in replacementList2:
+		array[i] = int(np.random.normal(median, rstd))
+
+	return array
+
+def findRSTD(array):
+
+	arrayToReplace = []
+
+	#Median of input array
+	median = np.median(array)
+
+	# Second array to hold absolute deviations from median
+	array2 =abs(array-median)
+
+	mad = np.median(array2)
+
+	# Find Robust Standard Deviation
+	rstd = mad*normalDistributionScale
+
+	# Random Number Generator fails with 0
+	if rstd == 0:
+		rstd = 0.1
+
+	return rstd
