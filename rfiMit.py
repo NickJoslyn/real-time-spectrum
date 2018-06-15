@@ -92,6 +92,9 @@ while(currentBytesPassed < fileBytes):
 			elif(cardString[:5] == 'OBSBW'):
 				OBSBW = float(cardString[9:].strip())
 
+			elif(cardString[:4] == 'TBIN'):
+				TBIN = float(cardString[9:].strip())
+
 			lineCounter += 1    #Go to Next Card in Header
 
 		#Padding Bytes
@@ -113,7 +116,7 @@ while(currentBytesPassed < fileBytes):
 	dataBuffer = readIn[currentBytesPassed:currentBytesPassed + BLOCSIZE].reshape(OBSNCHAN, NDIM, NPOL)
 
 	for CHANNEL in range(OBSNCHAN):
-
+		CHANNEL +=10
 		#Make a writeable copy of the buffer for the time domain MAD
 		copyBuffer = np.copy(dataBuffer[CHANNEL, :, :])
 		xrTime = copyBuffer[:, 0]
@@ -121,26 +124,47 @@ while(currentBytesPassed < fileBytes):
 		yrTime = copyBuffer[:, 2]
 		yiTime = copyBuffer[:, 3]
 
-		tempFFTx = np.fft.fftshift(np.fft.fft(xrTime + 1j*xiTime))
-		tempFFTy = np.fft.fftshift(np.fft.fft(yrTime + 1j*yiTime))
 
-		#Plot here#####################################
+		##### Plots -- Make functions ################
+		#########FFT##################################
+
+		integrate = 512
+
+		tempFFTx = np.zeros(NDIM//integrate, dtype = 'complex')
+		tempFFTy = np.zeros(NDIM//integrate, dtype = 'complex')
+		for numTrans in range(integrate):
+			print("First: ", numTrans*(NDIM//integrate))
+			print("Second: ", (numTrans+1)*(NDIM//integrate))
+			tempFFTx += np.abs(np.fft.fftshift(np.fft.fft(xrTime[numTrans*(NDIM//integrate):(numTrans+1)*(NDIM//integrate)] + 1j*xiTime[numTrans*(NDIM//integrate):(numTrans+1)*(NDIM//integrate)])))**2
+			tempFFTy += np.abs(np.fft.fftshift(np.fft.fft(yrTime[numTrans*(NDIM//integrate):(numTrans+1)*(NDIM//integrate)] + 1j*yiTime[numTrans*(NDIM//integrate):(numTrans+1)*(NDIM//integrate)])))**2
+
+
 		centerFrequency = OBSFREQ + (np.abs(OBSBW)/2) - (CHANNEL + 0.5)*np.abs(CHAN_BW)
 		print(CHAN_BW)
 		print(np.abs(CHAN_BW))
 		print(centerFrequency)
 		print(OBSFREQ)
-		plt.plot(np.linspace(centerFrequency + CHAN_BW/2, centerFrequency - CHAN_BW/2, len(tempFFTx)), np.abs(tempFFTx)**2)
-		plt.title("X")
+		plt.plot(np.linspace(centerFrequency + CHAN_BW/2, centerFrequency - CHAN_BW/2, len(tempFFTx)), tempFFTx)
+		plt.title("FFT: Channel " + str(CHANNEL) + ": X Polarization")
 		plt.show()
-		plt.plot(np.linspace(centerFrequency + CHAN_BW/2, centerFrequency - CHAN_BW/2, len(tempFFTx)), np.abs(tempFFTy)**2)
-		plt.title('Y')
+		plt.plot(np.linspace(centerFrequency + CHAN_BW/2, centerFrequency - CHAN_BW/2, len(tempFFTx)), tempFFTy)
+		plt.title("FFT: Channel " + str(CHANNEL) + ': Y Polarization')
 		plt.show()
 
 
-		###############################################33
+		###############################################
+		##############Periodogram######################
 
-		print("STOP")
+		from scipy import signal
+		fx, periodox = signal.periodogram(xrTime + 1j*xiTime, 1/TBIN)
+		plt.plot(fx, periodox)
+		plt.title("Periodogram: Channel " + str(CHANNEL) + ': X Polarization')
+		plt.show()
+
+		fy, periodoy = signal.periodogram(yrTime + 1j*yiTime, 1/TBIN)
+		plt.plot(fy, periodoy)
+		plt.title("Periodogram: Channel " + str(CHANNEL) + ": Y Polarization")
+		plt.show()
 
 		for i in range( (NDIM-OVERLAP)//(samplesPerTransform*numberOfTransforms) ):
 
