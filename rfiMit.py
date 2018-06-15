@@ -112,11 +112,15 @@ while(currentBytesPassed < fileBytes):
 	#Skip header unaltered
 	currentBytesPassed += headerOffset
 
+	print("Current bytes: ", currentBytesPassed)
+	print("Block size: ", BLOCSIZE)
+	currentBytesPassed += BLOCSIZE
+	print("currentBytesPassed: ", currentBytesPassed)
 	#Put data into an easily parsed array
 	dataBuffer = readIn[currentBytesPassed:currentBytesPassed + BLOCSIZE].reshape(OBSNCHAN, NDIM, NPOL)
 
 	for CHANNEL in range(OBSNCHAN):
-		CHANNEL +=10
+
 		#Make a writeable copy of the buffer for the time domain MAD
 		copyBuffer = np.copy(dataBuffer[CHANNEL, :, :])
 		xrTime = copyBuffer[:, 0]
@@ -133,24 +137,26 @@ while(currentBytesPassed < fileBytes):
 		tempFFTx = np.zeros(NDIM//integrate, dtype = 'complex')
 		tempFFTy = np.zeros(NDIM//integrate, dtype = 'complex')
 		for numTrans in range(integrate):
-			print("First: ", numTrans*(NDIM//integrate))
-			print("Second: ", (numTrans+1)*(NDIM//integrate))
+			#print("First: ", numTrans*(NDIM//integrate))
+			#print("Second: ", (numTrans+1)*(NDIM//integrate))
 			tempFFTx += np.abs(np.fft.fftshift(np.fft.fft(xrTime[numTrans*(NDIM//integrate):(numTrans+1)*(NDIM//integrate)] + 1j*xiTime[numTrans*(NDIM//integrate):(numTrans+1)*(NDIM//integrate)])))**2
 			tempFFTy += np.abs(np.fft.fftshift(np.fft.fft(yrTime[numTrans*(NDIM//integrate):(numTrans+1)*(NDIM//integrate)] + 1j*yiTime[numTrans*(NDIM//integrate):(numTrans+1)*(NDIM//integrate)])))**2
 
 
 		centerFrequency = OBSFREQ + (np.abs(OBSBW)/2) - (CHANNEL + 0.5)*np.abs(CHAN_BW)
-		print(CHAN_BW)
-		print(np.abs(CHAN_BW))
-		print(centerFrequency)
-		print(OBSFREQ)
-		plt.plot(np.linspace(centerFrequency + CHAN_BW/2, centerFrequency - CHAN_BW/2, len(tempFFTx)), tempFFTx)
+		#print(CHAN_BW)
+		#print(np.abs(CHAN_BW))
+		#print(centerFrequency)
+		#print(OBSFREQ)
+		plt.plot(np.linspace(centerFrequency + CHAN_BW/2, centerFrequency - CHAN_BW/2, len(tempFFTx)), tempFFTx/len(tempFFTx))
 		plt.title("FFT: Channel " + str(CHANNEL) + ": X Polarization")
-		plt.show()
-		plt.plot(np.linspace(centerFrequency + CHAN_BW/2, centerFrequency - CHAN_BW/2, len(tempFFTx)), tempFFTy)
+		#plt.show()
+		plt.plot(np.linspace(centerFrequency + CHAN_BW/2, centerFrequency - CHAN_BW/2, len(tempFFTx)), tempFFTy/len(tempFFTx))
 		plt.title("FFT: Channel " + str(CHANNEL) + ': Y Polarization')
-		plt.show()
-
+		#plt.show()
+		plt.plot(np.linspace(centerFrequency + CHAN_BW/2, centerFrequency - CHAN_BW/2, len(tempFFTx)), (tempFFTx**2 + tempFFTy**2)**0.5)
+		plt.title("Combine Polariations?")
+		#plt.show()
 
 		###############################################
 		##############Periodogram######################
@@ -159,156 +165,156 @@ while(currentBytesPassed < fileBytes):
 		fx, periodox = signal.periodogram(xrTime + 1j*xiTime, 1/TBIN)
 		plt.plot(fx, periodox)
 		plt.title("Periodogram: Channel " + str(CHANNEL) + ': X Polarization')
-		plt.show()
+		#plt.show()
 
 		fy, periodoy = signal.periodogram(yrTime + 1j*yiTime, 1/TBIN)
 		plt.plot(fy, periodoy)
 		plt.title("Periodogram: Channel " + str(CHANNEL) + ": Y Polarization")
-		plt.show()
+		#plt.show()
 
-		for i in range( (NDIM-OVERLAP)//(samplesPerTransform*numberOfTransforms) ):
-
-			FFTx = np.zeros(samplesPerTransform)
-			FFTy = np.zeros(samplesPerTransform)
-			FFTSTOREx = np.zeros((numberOfTransforms, samplesPerTransform), dtype = 'complex')
-			FFTSTOREy = np.zeros((numberOfTransforms, samplesPerTransform), dtype = 'complex')
-
-			for k in range(numberOfTransforms):
-
-				#Keeps track of byte location while looping through FFTs(inner loop)
-				#and groups of FFTs (outer loop)
-				indexOffset = OVERLAP + i*samplesPerTransform*numberOfTransforms + k*samplesPerTransform
-
-				#Time Domain
-				xrTimeMAD = replaceOutliers(copyBuffer[indexOffset:indexOffset + samplesPerTransform, 0])
-				xiTimeMAD = replaceOutliers(copyBuffer[indexOffset:indexOffset + samplesPerTransform, 1])
-				yrTimeMAD = replaceOutliers(copyBuffer[indexOffset:indexOffset + samplesPerTransform, 2])
-				yiTimeMAD = replaceOutliers(copyBuffer[indexOffset:indexOffset + samplesPerTransform, 3])
-
-
-				tempFFTx = np.fft.fftshift(np.fft.fft(xrTimeMAD + 1j*xiTimeMAD))
-				FFTSTOREx[k,:] = tempFFTx
-
-				tempFFTy = np.fft.fftshift(np.fft.fft(yrTimeMAD + 1j*yiTimeMAD))
-				FFTSTOREy[k,:] = tempFFTy
-
-				FFTx += np.abs(tempFFTx)**2
-				FFTy += np.abs(tempFFTy)**2
-
-			#Find Outlying Bins
-			replacerx = findOutliers(FFTx[edgeOffset:-edgeOffset])
-			replacery = findOutliers(FFTy[edgeOffset:-edgeOffset])
-
-			#Parameters for Gaussian Random Number Generator
-			realMedianx = np.median(FFTSTOREx[:, edgeOffset:-edgeOffset].real)
-			realSTDx = findRSTD(FFTSTOREx[:, edgeOffset:-edgeOffset].real)
-			imagMedianx = np.median(FFTSTOREx[:, edgeOffset:-edgeOffset].imag)
-			imagSTDx = findRSTD(FFTSTOREx[:, edgeOffset:-edgeOffset].imag)
-			realMediany = np.median(FFTSTOREy[:, edgeOffset:-edgeOffset].real)
-			realSTDy = findRSTD(FFTSTOREy[:, edgeOffset:-edgeOffset].real)
-			imagMediany = np.median(FFTSTOREy[:, edgeOffset:-edgeOffset].imag)
-			imagSTDy = findRSTD(FFTSTOREy[:, edgeOffset:-edgeOffset].imag)
-
-
-			#Mitigation
-			for xz in replacerx:
-				FFTSTOREx[:, xz + edgeOffset].real = np.random.normal(realMedianx, realSTDx, numberOfTransforms)
-				FFTSTOREx[:, xz + edgeOffset].imag = np.random.normal(imagMedianx, imagSTDx, numberOfTransforms)
-
-			for yz in replacery:
-				FFTSTOREy[:, yz + edgeOffset].real = np.random.normal(realMediany, realSTDy, numberOfTransforms)
-				FFTSTOREy[:, yz + edgeOffset].imag = np.random.normal(imagMediany, imagSTDy, numberOfTransforms)
-
-			#Write Out in the correct order
-			writeOutBuffer = np.zeros(numberOfTransforms*samplesPerTransform*NPOL)
-			for k in range(numberOfTransforms):
-
-				tempX = np.fft.ifft(np.fft.ifftshift(FFTSTOREx[k,:]))
-				tempY = np.fft.ifft(np.fft.ifftshift(FFTSTOREy[k,:]))
-
-				writeOutOffset = k*samplesPerTransform*NPOL
-				writeOutBuffer[writeOutOffset:writeOutOffset + samplesPerTransform*NPOL] = np.column_stack((tempX.real.astype('int8'), tempX.imag.astype('int8'), tempY.real.astype('int8'), tempY.imag.astype('int8'))).reshape(-1)
-
-
-			writeOutFile[currentBytesPassed:currentBytesPassed + numberOfTransforms*samplesPerTransform*NPOL] = writeOutBuffer
-			currentBytesPassed += numberOfTransforms*samplesPerTransform*NPOL
-
-
-		#Bytes left over before end of block
-
-		leftOverSamples = NDIM - OVERLAP - ( (NDIM-OVERLAP)//(numberOfTransforms*samplesPerTransform) ) * numberOfTransforms*samplesPerTransform
-
-		dataLeftOver = copyBuffer[-leftOverSamples:, :].reshape(leftOverSamples,NPOL)
-
-		#Number of samplesPerTransform-point FFTs left
-		windowsLeft = leftOverSamples//samplesPerTransform
-		FFTx = np.zeros(samplesPerTransform)
-		FFTy = np.zeros(samplesPerTransform)
-		FFTSTOREx = np.zeros((windowsLeft, samplesPerTransform), dtype = 'complex')
-		FFTSTOREy = np.zeros((windowsLeft, samplesPerTransform), dtype = 'complex')
-
-		for i in range(windowsLeft):
-
-			#Time Domain
-			xrTimeMAD = replaceOutliers(dataLeftOver[i*samplesPerTransform:i*samplesPerTransform + samplesPerTransform, 0])
-			xiTimeMAD = replaceOutliers(dataLeftOver[i*samplesPerTransform:i*samplesPerTransform + samplesPerTransform, 1])
-			yrTimeMAD = replaceOutliers(dataLeftOver[i*samplesPerTransform:i*samplesPerTransform + samplesPerTransform, 2])
-			yiTimeMAD = replaceOutliers(dataLeftOver[i*samplesPerTransform:i*samplesPerTransform + samplesPerTransform, 3])
-
-			tempFFTx = np.fft.fftshift(np.fft.fft(xrTimeMAD + 1j*xiTimeMAD))
-			FFTSTOREx[i,:] = tempFFTx
-
-			tempFFTy = np.fft.fftshift(np.fft.fft(yrTimeMAD + 1j*yiTimeMAD))
-			FFTSTOREy[i,:] = tempFFTy
-
-			FFTx += np.abs(tempFFTx)**2
-			FFTy += np.abs(tempFFTy)**2
-
-		replacerx = findOutliers(FFTx[edgeOffset:-edgeOffset])
-		replacery = findOutliers(FFTy[edgeOffset:-edgeOffset])
-
-		realMedianx = np.median(FFTSTOREx[:, edgeOffset:-edgeOffset].real)
-		realSTDx = findRSTD(FFTSTOREx[:, edgeOffset:-edgeOffset].real)
-		imagMedianx = np.median(FFTSTOREx[:, edgeOffset:-edgeOffset].imag)
-		imagSTDx = findRSTD(FFTSTOREx[:, edgeOffset:-edgeOffset].imag)
-
-		realMediany = np.median(FFTSTOREy[:, edgeOffset:-edgeOffset].real)
-		realSTDy = findRSTD(FFTSTOREy[:, edgeOffset:-edgeOffset].real)
-		imagMediany = np.median(FFTSTOREy[:, edgeOffset:-edgeOffset].imag)
-		imagSTDy = findRSTD(FFTSTOREy[:, edgeOffset:-edgeOffset].imag)
-
-
-		#Mitigation
-		for xz in replacerx:
-			FFTSTOREx[:, xz + edgeOffset].real = np.random.normal(realMedianx, realSTDx, windowsLeft)
-			FFTSTOREx[:, xz + edgeOffset].imag = np.random.normal(imagMedianx, imagSTDx, windowsLeft)
-
-		for yz in replacery:
-			FFTSTOREy[:, yz + edgeOffset].real = np.random.normal(realMediany, realSTDy, windowsLeft)
-			FFTSTOREy[:, yz + edgeOffset].imag = np.random.normal(imagMediany, imagSTDy, windowsLeft)
-
-
-		writeOutBuffer = np.zeros(windowsLeft*samplesPerTransform*NPOL)
-		for k in range(windowsLeft):
-
-			tempX = np.fft.ifft(np.fft.ifftshift(FFTSTOREx[k,:]))
-			tempY = np.fft.ifft(np.fft.ifftshift(FFTSTOREy[k,:]))
-
-			writeOutOffset = k*samplesPerTransform*NPOL
-			writeOutBuffer[writeOutOffset:writeOutOffset + samplesPerTransform*NPOL] = np.column_stack((tempX.real.astype('int8'), tempX.imag.astype('int8'), tempY.real.astype('int8'), tempY.imag.astype('int8'))).reshape(-1)
-
-
-		writeOutFile[currentBytesPassed:currentBytesPassed + windowsLeft*samplesPerTransform*NPOL] = writeOutBuffer
-		currentBytesPassed += windowsLeft*samplesPerTransform*NPOL
-
-		#Write out the remaining < 4096 time samples
-		bytesRemaining = NPOL * (leftOverSamples - windowsLeft * samplesPerTransform)
-		if(bytesRemaining > 0):
-			writeOutFile[currentBytesPassed:currentBytesPassed + bytesRemaining] = replaceOutliers(dataLeftOver[-(bytesRemaining/NPOL):, :].reshape(-1))
-			currentBytesPassed += bytesRemaining
-
-	writeOutFile.flush()
-
+	# 	for i in range( (NDIM-OVERLAP)//(samplesPerTransform*numberOfTransforms) ):
+	#
+	# 		FFTx = np.zeros(samplesPerTransform)
+	# 		FFTy = np.zeros(samplesPerTransform)
+	# 		FFTSTOREx = np.zeros((numberOfTransforms, samplesPerTransform), dtype = 'complex')
+	# 		FFTSTOREy = np.zeros((numberOfTransforms, samplesPerTransform), dtype = 'complex')
+	#
+	# 		for k in range(numberOfTransforms):
+	#
+	# 			#Keeps track of byte location while looping through FFTs(inner loop)
+	# 			#and groups of FFTs (outer loop)
+	# 			indexOffset = OVERLAP + i*samplesPerTransform*numberOfTransforms + k*samplesPerTransform
+	#
+	# 			#Time Domain
+	# 			xrTimeMAD = replaceOutliers(copyBuffer[indexOffset:indexOffset + samplesPerTransform, 0])
+	# 			xiTimeMAD = replaceOutliers(copyBuffer[indexOffset:indexOffset + samplesPerTransform, 1])
+	# 			yrTimeMAD = replaceOutliers(copyBuffer[indexOffset:indexOffset + samplesPerTransform, 2])
+	# 			yiTimeMAD = replaceOutliers(copyBuffer[indexOffset:indexOffset + samplesPerTransform, 3])
+	#
+	#
+	# 			tempFFTx = np.fft.fftshift(np.fft.fft(xrTimeMAD + 1j*xiTimeMAD))
+	# 			FFTSTOREx[k,:] = tempFFTx
+	#
+	# 			tempFFTy = np.fft.fftshift(np.fft.fft(yrTimeMAD + 1j*yiTimeMAD))
+	# 			FFTSTOREy[k,:] = tempFFTy
+	#
+	# 			FFTx += np.abs(tempFFTx)**2
+	# 			FFTy += np.abs(tempFFTy)**2
+	#
+	# 		#Find Outlying Bins
+	# 		replacerx = findOutliers(FFTx[edgeOffset:-edgeOffset])
+	# 		replacery = findOutliers(FFTy[edgeOffset:-edgeOffset])
+	#
+	# 		#Parameters for Gaussian Random Number Generator
+	# 		realMedianx = np.median(FFTSTOREx[:, edgeOffset:-edgeOffset].real)
+	# 		realSTDx = findRSTD(FFTSTOREx[:, edgeOffset:-edgeOffset].real)
+	# 		imagMedianx = np.median(FFTSTOREx[:, edgeOffset:-edgeOffset].imag)
+	# 		imagSTDx = findRSTD(FFTSTOREx[:, edgeOffset:-edgeOffset].imag)
+	# 		realMediany = np.median(FFTSTOREy[:, edgeOffset:-edgeOffset].real)
+	# 		realSTDy = findRSTD(FFTSTOREy[:, edgeOffset:-edgeOffset].real)
+	# 		imagMediany = np.median(FFTSTOREy[:, edgeOffset:-edgeOffset].imag)
+	# 		imagSTDy = findRSTD(FFTSTOREy[:, edgeOffset:-edgeOffset].imag)
+	#
+	#
+	# 		#Mitigation
+	# 		for xz in replacerx:
+	# 			FFTSTOREx[:, xz + edgeOffset].real = np.random.normal(realMedianx, realSTDx, numberOfTransforms)
+	# 			FFTSTOREx[:, xz + edgeOffset].imag = np.random.normal(imagMedianx, imagSTDx, numberOfTransforms)
+	#
+	# 		for yz in replacery:
+	# 			FFTSTOREy[:, yz + edgeOffset].real = np.random.normal(realMediany, realSTDy, numberOfTransforms)
+	# 			FFTSTOREy[:, yz + edgeOffset].imag = np.random.normal(imagMediany, imagSTDy, numberOfTransforms)
+	#
+	# 		#Write Out in the correct order
+	# 		writeOutBuffer = np.zeros(numberOfTransforms*samplesPerTransform*NPOL)
+	# 		for k in range(numberOfTransforms):
+	#
+	# 			tempX = np.fft.ifft(np.fft.ifftshift(FFTSTOREx[k,:]))
+	# 			tempY = np.fft.ifft(np.fft.ifftshift(FFTSTOREy[k,:]))
+	#
+	# 			writeOutOffset = k*samplesPerTransform*NPOL
+	# 			writeOutBuffer[writeOutOffset:writeOutOffset + samplesPerTransform*NPOL] = np.column_stack((tempX.real.astype('int8'), tempX.imag.astype('int8'), tempY.real.astype('int8'), tempY.imag.astype('int8'))).reshape(-1)
+	#
+	#
+	# 		writeOutFile[currentBytesPassed:currentBytesPassed + numberOfTransforms*samplesPerTransform*NPOL] = writeOutBuffer
+	# 		currentBytesPassed += numberOfTransforms*samplesPerTransform*NPOL
+	#
+	#
+	# 	#Bytes left over before end of block
+	#
+	# 	leftOverSamples = NDIM - OVERLAP - ( (NDIM-OVERLAP)//(numberOfTransforms*samplesPerTransform) ) * numberOfTransforms*samplesPerTransform
+	#
+	# 	dataLeftOver = copyBuffer[-leftOverSamples:, :].reshape(leftOverSamples,NPOL)
+	#
+	# 	#Number of samplesPerTransform-point FFTs left
+	# 	windowsLeft = leftOverSamples//samplesPerTransform
+	# 	FFTx = np.zeros(samplesPerTransform)
+	# 	FFTy = np.zeros(samplesPerTransform)
+	# 	FFTSTOREx = np.zeros((windowsLeft, samplesPerTransform), dtype = 'complex')
+	# 	FFTSTOREy = np.zeros((windowsLeft, samplesPerTransform), dtype = 'complex')
+	#
+	# 	for i in range(windowsLeft):
+	#
+	# 		#Time Domain
+	# 		xrTimeMAD = replaceOutliers(dataLeftOver[i*samplesPerTransform:i*samplesPerTransform + samplesPerTransform, 0])
+	# 		xiTimeMAD = replaceOutliers(dataLeftOver[i*samplesPerTransform:i*samplesPerTransform + samplesPerTransform, 1])
+	# 		yrTimeMAD = replaceOutliers(dataLeftOver[i*samplesPerTransform:i*samplesPerTransform + samplesPerTransform, 2])
+	# 		yiTimeMAD = replaceOutliers(dataLeftOver[i*samplesPerTransform:i*samplesPerTransform + samplesPerTransform, 3])
+	#
+	# 		tempFFTx = np.fft.fftshift(np.fft.fft(xrTimeMAD + 1j*xiTimeMAD))
+	# 		FFTSTOREx[i,:] = tempFFTx
+	#
+	# 		tempFFTy = np.fft.fftshift(np.fft.fft(yrTimeMAD + 1j*yiTimeMAD))
+	# 		FFTSTOREy[i,:] = tempFFTy
+	#
+	# 		FFTx += np.abs(tempFFTx)**2
+	# 		FFTy += np.abs(tempFFTy)**2
+	#
+	# 	replacerx = findOutliers(FFTx[edgeOffset:-edgeOffset])
+	# 	replacery = findOutliers(FFTy[edgeOffset:-edgeOffset])
+	#
+	# 	realMedianx = np.median(FFTSTOREx[:, edgeOffset:-edgeOffset].real)
+	# 	realSTDx = findRSTD(FFTSTOREx[:, edgeOffset:-edgeOffset].real)
+	# 	imagMedianx = np.median(FFTSTOREx[:, edgeOffset:-edgeOffset].imag)
+	# 	imagSTDx = findRSTD(FFTSTOREx[:, edgeOffset:-edgeOffset].imag)
+	#
+	# 	realMediany = np.median(FFTSTOREy[:, edgeOffset:-edgeOffset].real)
+	# 	realSTDy = findRSTD(FFTSTOREy[:, edgeOffset:-edgeOffset].real)
+	# 	imagMediany = np.median(FFTSTOREy[:, edgeOffset:-edgeOffset].imag)
+	# 	imagSTDy = findRSTD(FFTSTOREy[:, edgeOffset:-edgeOffset].imag)
+	#
+	#
+	# 	#Mitigation
+	# 	for xz in replacerx:
+	# 		FFTSTOREx[:, xz + edgeOffset].real = np.random.normal(realMedianx, realSTDx, windowsLeft)
+	# 		FFTSTOREx[:, xz + edgeOffset].imag = np.random.normal(imagMedianx, imagSTDx, windowsLeft)
+	#
+	# 	for yz in replacery:
+	# 		FFTSTOREy[:, yz + edgeOffset].real = np.random.normal(realMediany, realSTDy, windowsLeft)
+	# 		FFTSTOREy[:, yz + edgeOffset].imag = np.random.normal(imagMediany, imagSTDy, windowsLeft)
+	#
+	#
+	# 	writeOutBuffer = np.zeros(windowsLeft*samplesPerTransform*NPOL)
+	# 	for k in range(windowsLeft):
+	#
+	# 		tempX = np.fft.ifft(np.fft.ifftshift(FFTSTOREx[k,:]))
+	# 		tempY = np.fft.ifft(np.fft.ifftshift(FFTSTOREy[k,:]))
+	#
+	# 		writeOutOffset = k*samplesPerTransform*NPOL
+	# 		writeOutBuffer[writeOutOffset:writeOutOffset + samplesPerTransform*NPOL] = np.column_stack((tempX.real.astype('int8'), tempX.imag.astype('int8'), tempY.real.astype('int8'), tempY.imag.astype('int8'))).reshape(-1)
+	#
+	#
+	# 	writeOutFile[currentBytesPassed:currentBytesPassed + windowsLeft*samplesPerTransform*NPOL] = writeOutBuffer
+	# 	currentBytesPassed += windowsLeft*samplesPerTransform*NPOL
+	#
+	# 	#Write out the remaining < 4096 time samples
+	# 	bytesRemaining = NPOL * (leftOverSamples - windowsLeft * samplesPerTransform)
+	# 	if(bytesRemaining > 0):
+	# 		writeOutFile[currentBytesPassed:currentBytesPassed + bytesRemaining] = replaceOutliers(dataLeftOver[-(bytesRemaining/NPOL):, :].reshape(-1))
+	# 		currentBytesPassed += bytesRemaining
+	#
+	# writeOutFile.flush()
+	print ("HERE")
 	if (blockNumber%10 == 0):
 		print("Percent Complete (approximate): " + str(round((currentBytesPassed/fileBytes) * 100, 2)) + "%:")
 
