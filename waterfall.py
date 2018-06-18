@@ -101,14 +101,13 @@ while(currentBytesPassed < fileBytes):
 		#Calculate once -- NDIM is number of samples per channel
 		headerOffset = cardLength * lineCounter + DIRECTIO_offset
 		NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8)))
-		print(NDIM)
 ##-----Done With Header Information Extraction------------------------------
 
 	#Skip header unaltered
 	currentBytesPassed += headerOffset
 	dataBuffer = readIn[currentBytesPassed:currentBytesPassed + BLOCSIZE].reshape(OBSNCHAN, NDIM, NPOL)
 	for CHANNEL in range(OBSNCHAN):
-		#Make a writeable copy of the buffer for the time domain MAD
+		#Make a writeable copy of the buffer
 		copyBuffer = np.copy(dataBuffer[CHANNEL, :, :])
 		xrTime = copyBuffer[:, 0]
 		xiTime = copyBuffer[:, 1]
@@ -127,7 +126,7 @@ while(currentBytesPassed < fileBytes):
 		for integration in range(lengthOfPlot):
 			summedFFT = np.zeros(numberOfSamples)
 			for window in range(numberOfFFTs):
-				FFTxPol = np.fft.fftshift(np.fft.fft(xrTime[window*numberOfSamples:(window+1)*numberOfSamples] + 1j*xiTime[window*numberOfSamples:(window+1)*numberOfSamples]))
+				FFTxPol = np.fft.fftshift(np.fft.fft(xrTime[(integration * numberOfFFTs * numberOfSamples) + window*numberOfSamples:(integration * numberOfFFTs * numberOfSamples) + (window+1)*numberOfSamples] + 1j*xiTime[(integration * numberOfFFTs * numberOfSamples)+ window*numberOfSamples:(integration * numberOfFFTs * numberOfSamples)+(window+1)*numberOfSamples]))
 				summedFFT += np.absolute(FFTxPol)**2
 			waterfallData[integration, :] = summedFFT
 
