@@ -109,35 +109,32 @@ while(currentBytesPassed < fileBytes):
 	dataBuffer = readIn[currentBytesPassed:currentBytesPassed + BLOCSIZE].reshape(OBSNCHAN, NDIM, NPOL)
 	for CHANNEL in range(OBSNCHAN):
 		#Make a writeable copy of the buffer for the time domain MAD
-		if (CHANNEL == 0):
-			copyBuffer = np.copy(dataBuffer[CHANNEL, :, :])
-			xrTime = copyBuffer[:, 0]
-			xiTime = copyBuffer[:, 1]
-			yrTime = copyBuffer[:, 2]
-			yiTime = copyBuffer[:, 3]
+		copyBuffer = np.copy(dataBuffer[CHANNEL, :, :])
+		xrTime = copyBuffer[:, 0]
+		xiTime = copyBuffer[:, 1]
+		yrTime = copyBuffer[:, 2]
+		yiTime = copyBuffer[:, 3]
 
-			centerFrequency = OBSFREQ + (np.abs(OBSBW)/2) - (CHANNEL + 0.5)*np.abs(CHAN_BW)
+		centerFrequency = OBSFREQ + (np.abs(OBSBW)/2) - (CHANNEL + 0.5)*np.abs(CHAN_BW)
 
 
-			numberOfSamples = int((1/customFrequencyResolution)/TBIN)
-			print(numberOfSamples)
-			numberOfFFTs = int(customTimeResolution * customFrequencyResolution)
-			print(numberOfFFTs)
+		numberOfSamples = int((1/customFrequencyResolution)/TBIN)
+		numberOfFFTs = int(customTimeResolution * customFrequencyResolution)
 
-			lengthOfPlot = 1
-			waterfallData = np.zeros((lengthOfPlot, numberOfSamples))
+		lengthOfPlot = 1
+		waterfallData = np.zeros((lengthOfPlot, numberOfSamples))
 
-			for integration in range(lengthOfPlot):
-				summedFFT = np.zeros(numberOfSamples)
-				for window in range(numberOfFFTs):
-					FFTxPol = np.fft.fftshift(np.fft.fft(xrTime[window*numberOfSamples:(window+1)*numberOfSamples] + 1j*xiTime[window*numberOfSamples:(window+1)*numberOfSamples]))
-					summedFFT += np.absolute(FFTxPol)**2
-				waterfallData[integration, :] = summedFFT
+		for integration in range(lengthOfPlot):
+			summedFFT = np.zeros(numberOfSamples)
+			for window in range(numberOfFFTs):
+				FFTxPol = np.fft.fftshift(np.fft.fft(xrTime[window*numberOfSamples:(window+1)*numberOfSamples] + 1j*xiTime[window*numberOfSamples:(window+1)*numberOfSamples]))
+				summedFFT += np.absolute(FFTxPol)**2
+			waterfallData[integration, :] = summedFFT
 
 			plt.figure()
 			plt.imshow(waterfallData, cmap = 'gray', aspect = 'auto', extent = [centerFrequency + CHAN_BW/2, centerFrequency - CHAN_BW/2, 0, customTimeResolution * lengthOfPlot])
 			plt.title("Waterfall")
 			plt.xlabel("Frequency")
 			plt.ylabel("Time")
-			plt.tight_layout()
-			plt.show()
+			plt.savefig("Figures/" + str(CHANNEL) + ".pdf")
+			plt.close()
