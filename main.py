@@ -33,8 +33,11 @@ if __name__ == "__main__":
 
         for CHANNEL in range(OBSNCHAN):
             centerFrequency = OBSFREQ + (np.abs(OBSBW)/2) - (CHANNEL + 0.5)*np.abs(CHAN_BW)
-            spectrumEstimators.RAW_periodogram(dataBuffer[CHANNEL,:,:], TBIN, CHANNEL, 'density')
-            spectrumEstimators.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW)
+            spectrumEstimators.RAW_periodogram(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, TBIN)
+            # spectrumEstimators.RAW_periodogram(dataBuffer[CHANNEL,:,:], CHANNEL, TBIN, 'spectrum')
+            # spectrumEstimators.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW)
+            # spectrumEstimators.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, 'power spectrum')
+            # spectrumEstimators.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, 'power density')
 
         del readIn
         exit()
