@@ -1,12 +1,31 @@
-# Goal:
-## Extract important information from ASCII header of a BL RAW data file
+# Nicholas Joslyn
+# Breakthrough Listen UC Berkeley SETI Intern 2018
 
-# Process:
-##  Loop through 80 character cards
-##  Identify useful parameters
-##  Find last line of header, calculate DIRECTIO padding, and return values
+# Function to parse the header of BL RAW data
 
 def extractHeader(RAW_file, currentBytesPassed):
+    """
+    Extracts important information from the ASCII text header of a BL RAW data file.
+
+    The BL RAW data format consists of an ASCII text header followed by a binary
+    data segment. The header must be parsed effectively to understand the data.
+    This function identifies the necessary information from the header.
+
+    Parameters:
+    RAW_file (memmap):          The BL RAW data file location (memmap-ed)
+    currentBytesPassed (int):   The current location in file (likely 0)
+
+    Returns:
+    OBSNCHAN (int):     Number of channels in each data block
+    NPOL (int):         Number of polarizations
+    NBITS (int):        Number of bits per real/imaginary value
+    BLOCSIZE (int):     The size of the data block in bytes
+    OBSFREQ (float):    The central frequency observed (MHz)
+    CHAN_BW (float):    The bandwidth of a channel (MHz)
+    OBSBW (float):      The bandwidth of the observation (MHz)
+    TBIN (float):       The sampling period (seconds)
+    headerOffset (int): The number of bytes (padding included) in the header
+    """
 
     loop = True
     lineCounter = 0
