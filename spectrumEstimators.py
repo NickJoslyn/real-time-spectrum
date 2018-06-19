@@ -5,7 +5,7 @@ from scipy import signal
 import matplotlib.pyplot as plt
 import numpy as np
 
-def RAW_periodogram(RAW_CHANNEL, CHANNEL, centerFrequency, TBIN, type = 'density'):
+def RAW_periodogram(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, type = 'density'):
 
     # Put in help definer as shown on Kaggle
 
@@ -15,17 +15,21 @@ def RAW_periodogram(RAW_CHANNEL, CHANNEL, centerFrequency, TBIN, type = 'density
     yiTime = RAW_CHANNEL[:,3]
 
     samplingFrequency = 1/TBIN
+    lowerBound = centerFrequency + CHAN_BW/2
+    upperBound = centerFrequency - CHAN_BW/2
 
     #Units V**2/Hz -- density
     #Units V**2 -- spectrum
 
     fx, periodox = signal.periodogram(xrTime + 1j*xiTime, samplingFrequency, scaling = type, return_onesided = False)
-    plt.plot(centerFrequency + fx, periodox)
+    plt.plot(fx, periodox)
+    plt.xticks(np.linspace(min(fx), max(fx), 7), np.round(np.linspace(lowerBound, upperBound, 7), 1))
     plt.title("Periodogram " + str(type) + ": Channel " + str(CHANNEL) + ': X Polarization')
     plt.show()
 
     fy, periodoy = signal.periodogram(yrTime + 1j*yiTime, samplingFrequency, scaling = type, return_onesided = False)
     plt.plot(fy, periodoy)
+    plt.xticks(np.linspace(min(fy), max(fy), 7), np.round(np.linspace(lowerBound, upperBound, 7), 1))
     plt.title("Periodogram " + str(type) + ": Channel " + str(CHANNEL) + ": Y Polarization")
     plt.show()
 
