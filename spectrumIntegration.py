@@ -85,23 +85,24 @@ def RAW_waterfall(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, frequenc
     # Convert frequencyResolution and integrationTime to FFT representation
     samplesPerTransform = int((1/frequencyResolution)/TBIN)
     fftsPerIntegration = int(integrationTime * frequencyResolution)
-    print(len(xrTime)/(samplesPerTransform*fftsPerIntegration))
     numberOfIntegrations = len(xrTime)//(samplesPerTransform*fftsPerIntegration)
-    print(numberOfIntegrations)
-    waterfallData = np.zeros((numberOfIntegrations, samplesPerTransform))
+
+    waterfallData_x = np.zeros((numberOfIntegrations, samplesPerTransform))
     # add 1 to number of integrations to get the remaining samples
+    # add y polarization as well
     for integration in range(numberOfIntegrations):
-        summedFFT = np.zeros(samplesPerTransform)
+        summedFFT_x = np.zeros(samplesPerTransform)
         for individualFFT in range(fftsPerIntegration):
-            index = integration * numberOfIntegrations * samplesPerTransform
+            index = integration * fftsPerIntegration * samplesPerTransform
 
             FFTxPol = np.fft.fftshift(np.fft.fft(xrTime[index + individualFFT*samplesPerTransform: index + (individualFFT+1)*samplesPerTransform] + 1j*xiTime[index + individualFFT*samplesPerTransform: index + (individualFFT+1)*samplesPerTransform]))
-            summedFFT += np.absolute(FFTxPol)**2
-        waterfallData[integration, :] = summedFFT
+            summedFFT_x += np.absolute(FFTxPol)**2
+        waterfallData_x[integration, :] = summedFFT_x
 
     plt.figure()
-    plt.imshow(waterfallData, cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, 0, integrationTime * numberOfIntegrations])
-    plt.title("Waterfall Plot")
+    plt.imshow(waterfallData_x, cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, 0, integrationTime * numberOfIntegrations])
+    plt.title("Waterfall Plot: Channel " + str(CHANNEL) + ": X Polarization")
     plt.xlabel("Frequency (MHz)")
     plt.ylabel("Time")
+    plt.colorbar()
     plt.show()
