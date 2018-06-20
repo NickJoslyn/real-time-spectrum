@@ -85,18 +85,23 @@ def RAW_waterfall(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, frequenc
     # Convert frequencyResolution and integrationTime to FFT representation
     samplesPerTransform = int((1/frequencyResolution)/TBIN)
     fftsPerIntegration = int(integrationTime * frequencyResolution)
-
+    print(len(xrTime)/(samplesPerTransform*fftsPerIntegration))
     numberOfIntegrations = len(xrTime)//(samplesPerTransform*fftsPerIntegration)
+    print(numberOfIntegrations)
+    waterfallData = np.zeros((numberOfIntegrations, samplesPerTransform))
+    # add 1 to number of integrations to get the remaining samples
+    for integration in range(numberOfIntegrations):
+        summedFFT = np.zeros(samplesPerTransform)
+        for individualFFT in range(fftsPerIntegration):
+            index = integration * numberOfIntegrations * samplesPerTransform
 
+            FFTxPol = np.fft.fftshift(np.fft.fft(xrTime[index + individualFFT*samplesPerTransform: index + (individualFFT+1)*samplesPerTransform] + 1j*xiTime[index + individualFFT*samplesPerTransform: index + (individualFFT+1)*samplesPerTransform]))
+            summedFFT += np.absolute(FFTxPol)**2
+        waterfallData[integration, :] = summedFFT
 
-    spectrum_x, freqs_x, _, _ = plt.specgram(xrTime + 1j*xiTime, FFT_size, samplingFrequency)
-    plt.imshow(np.transpose(spectrum_x))
-    plt.title("Spec Transpose")
-    plt.ylabel("Time (s)")
-    plt.xticks(np.linspace(min(freqs_x), max(freqs_x), numberTicks), np.round(np.linspace(lowerBound, upperBound, numberTicks), 1))
+    plt.figure()
+    plt.imshow(waterfallData, cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, 0, integrationTime * numberOfIntegrations])
+    plt.title("Waterfall Plot")
     plt.xlabel("Frequency (MHz)")
-    plt.colorbar()
+    plt.ylabel("Time")
     plt.show()
-
-    #plt.specgram(yrTime + 1j*yiTime, FFT_size, samplingFrequency)
-    plt.close()
