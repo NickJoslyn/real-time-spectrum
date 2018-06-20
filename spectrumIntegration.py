@@ -82,26 +82,59 @@ def RAW_waterfall(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, frequenc
     upperBound = centerFrequency - CHAN_BW/2
     numberTicks = 7
 
+    NDIM = len(xrTime)
+
     # Convert frequencyResolution and integrationTime to FFT representation
     samplesPerTransform = int((1/frequencyResolution)/TBIN)
     fftsPerIntegration = int(integrationTime * frequencyResolution)
-    numberOfIntegrations = len(xrTime)//(samplesPerTransform*fftsPerIntegration)
+    numberOfIntegrations = NDIM//(samplesPerTransform*fftsPerIntegration)
 
-    waterfallData_x = np.zeros((numberOfIntegrations, samplesPerTransform))
-    # add 1 to number of integrations to get the remaining samples
-    # add y polarization as well
+    waterfallData_x = np.zeros((1 + numberOfIntegrations, samplesPerTransform))
+    waterfallData_y = np.zeros((1 + numberOfIntegrations, samplesPerTransform))
+
     for integration in range(numberOfIntegrations):
         summedFFT_x = np.zeros(samplesPerTransform)
+        summedFFT_y = np.zeros(samplesPerTransform)
+
         for individualFFT in range(fftsPerIntegration):
             index = integration * fftsPerIntegration * samplesPerTransform
 
-            FFTxPol = np.fft.fftshift(np.fft.fft(xrTime[index + individualFFT*samplesPerTransform: index + (individualFFT+1)*samplesPerTransform] + 1j*xiTime[index + individualFFT*samplesPerTransform: index + (individualFFT+1)*samplesPerTransform]))
-            summedFFT_x += np.absolute(FFTxPol)**2
+            summedFFT_x += np.abs(np.fft.fftshift(np.fft.fft(xrTime[index + individualFFT*samplesPerTransform: index + (individualFFT+1)*samplesPerTransform] + 1j*xiTime[index + individualFFT*samplesPerTransform: index + (individualFFT+1)*samplesPerTransform])))**2
+            summedFFT_y += np.abs(np.fft.fftshift(np.fft.fft(yrTime[index + individualFFT*samplesPerTransform: index + (individualFFT+1)*samplesPerTransform] + 1j*yiTime[index + individualFFT*samplesPerTransform: index + (individualFFT+1)*samplesPerTransform])))**2
+
         waterfallData_x[integration, :] = summedFFT_x
+        waterfallData_y[integration, :] = summedFFT_y
+
+    currentLocation = fftsPerIntegration * numberOfIntegrations * samplesPerTransform
+    samplesRemaining = NDIM-currentLocation
+
+    if (samplesRemaining % samplesPerTransform == 0):
+        FFTs_remaining = samplesRemaining/samplesPerTransform
+    else:
+        FFTs_remaining = 1 + samplesRemaining//samplesPerTransform
+
+    remainingSum_x = np.zeros(samplesPerTransform)
+    remainingSum_y = np.zeros(samplesPerTransform)
+
+    for individualFFT in range(FFTs_remaining):
+        remainingSum_x += np.abs(np.fft.fftshift(np.fft.fft(xrTime[currentLocation + individualFFT*samplesPerTransform:currentLocation + (individualFFT+1)*samplesPerTransform] + 1j*xiTime[currentLocation + individualFFT*samplesPerTransform:currentLocation + (individualFFT+1)*samplesPerTransform], samplesPerTransform)))**2
+        remainingSum_y += np.abs(np.fft.fftshift(np.fft.fft(yrTime[currentLocation + individualFFT*samplesPerTransform:currentLocation + (individualFFT+1)*samplesPerTransform] + 1j*yiTime[currentLocation + individualFFT*samplesPerTransform:currentLocation + (individualFFT+1)*samplesPerTransform], samplesPerTransform)))**2
+
+    waterfallData_x[-1, :] = remainingSum_x
+    waterfallData_y[-1, :] = remainingSum_y
+
 
     plt.figure()
     plt.imshow(waterfallData_x, cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, 0, integrationTime * numberOfIntegrations])
     plt.title("Waterfall Plot: Channel " + str(CHANNEL) + ": X Polarization")
+    plt.xlabel("Frequency (MHz)")
+    plt.ylabel("Time")
+    plt.colorbar()
+    plt.show()
+
+    plt.figure()
+    plt.imshow(waterfallData_y, cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, 0, integrationTime * numberOfIntegrations])
+    plt.title("Waterfall Plot: Channel " + str(CHANNEL) + ": Y Polarization")
     plt.xlabel("Frequency (MHz)")
     plt.ylabel("Time")
     plt.colorbar()
