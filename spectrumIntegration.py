@@ -7,6 +7,26 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def RAW_PSD(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, FFT_size=512):
+    """
+    Plot the PSD of complex, dual-polarized voltage time series.
+
+    The Power Spectral Density shows the power of a signal present in time
+    series data. Pyplot defines a function to plot the PSD. This function
+    wraps it conveniently to match the other functions while allowing for
+    different FFT lengths.
+
+    Parameters:
+    RAW_CHANNEL (2D Array):     The time series data for the channel
+    CHANNEL (int):              The channel to be analyzed
+    centerFrequency (float):    Center frequency of the channel (MHz)
+    CHAN_BW (float):            Bandwidth of the channel (MHz)
+    TBIN (float):               Sampling period (seconds)
+    FFT_size (int):             Number of samples in each FFT (default, 512)
+
+    Returns:
+    Nothing
+    """
+
 
     # Divide channel into polarizations
     xrTime = RAW_CHANNEL[:,0]
@@ -36,6 +56,26 @@ def RAW_PSD(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, FFT_size=512):
 
 
 def RAW_spectrogram(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, FFT_size=512):
+    """
+    Plot the spectrogram of complex, dual-polarized voltage time series.
+
+    A spectrogram displays time (x-axis), frequency (y-axis), and intensity
+    (colormap) on one plot. Pyplot defines a function to plot the spectrogram of
+    time series data. This function wraps it conveniently to match the other
+    functions while allowing for different FFT lengths.
+
+    Parameters:
+    RAW_CHANNEL (2D Array):     The time series data for the channel
+    CHANNEL (int):              The channel to be analyzed
+    centerFrequency (float):    Center frequency of the channel (MHz)
+    CHAN_BW (float):            Bandwidth of the channel (MHz)
+    TBIN (float):               Sampling period (seconds)
+    FFT_size (int):          Number of samples in each FFT (default, 512)
+
+    Returns:
+    Nothing
+    """
+
 
     # Divide channel into polarizations
     xrTime = RAW_CHANNEL[:,0]
@@ -69,7 +109,26 @@ def RAW_spectrogram(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, FFT_si
 
 
 def RAW_waterfall(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, frequencyResolution, integrationTime):
+    """
+    Plot the waterfall plot of complex, dual-polarized voltage time series.
 
+    A waterfall plot is similar to a spectrogram. The waterfall plot displays
+    frequency (x-axis), time (y-axis), and intensity (colormap) on one plot.
+    This function allows for custom time and frequency resolution to be used
+    on a complex dual-polarized time series.
+
+    Parameters:
+    RAW_CHANNEL (2D Array):         The time series data for the channel
+    CHANNEL (int):                  The channel to be analyzed
+    centerFrequency (float):        Center frequency of the channel (MHz)
+    CHAN_BW (float):                Bandwidth of the channel (MHz)
+    TBIN (float):                   Sampling period (seconds)
+    frequencyResolution (float):    Desired FFT bin width (Hz)
+    integrationTime (float):        Desired FFT integration time (s)
+
+    Returns:
+    Nothing
+    """
     # Divide channel into polarizations
     xrTime = RAW_CHANNEL[:,0]
     xiTime = RAW_CHANNEL[:,1]
@@ -138,4 +197,65 @@ def RAW_waterfall(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, frequenc
     plt.xlabel("Frequency (MHz)")
     plt.ylabel("Time")
     plt.colorbar()
+    plt.show()
+
+
+def RAW_integratedFFT(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, frequencyResolution):
+    """
+    Plot the integrated FFT of complex, dual-polarized voltage time series.
+
+    The integrated FFT is a series of summed FFTs with desired frequency
+    resolution. This allows weaker, periodic signals to rise above the noise
+    floor. This function allows for custom frequency resolution on time
+    series data.
+
+    Parameters:
+    RAW_CHANNEL (2D Array):         The time series data for the channel
+    CHANNEL (int):                  The channel to be analyzed
+    centerFrequency (float):        Center frequency of the channel (MHz)
+    CHAN_BW (float):                Bandwidth of the channel (MHz)
+    TBIN (float):                   Sampling period (seconds)
+    frequencyResolution (float):    Desired FFT bin width (Hz)
+
+    Returns:
+    Nothing
+    """
+
+    # Divide channel into polarizations
+    xrTime = RAW_CHANNEL[:,0]
+    xiTime = RAW_CHANNEL[:,1]
+    yrTime = RAW_CHANNEL[:,2]
+    yiTime = RAW_CHANNEL[:,3]
+
+    # Variables for plotting
+    samplingFrequency = 1/TBIN
+    lowerBound = centerFrequency + CHAN_BW/2
+    upperBound = centerFrequency - CHAN_BW/2
+    numberTicks = 7
+
+    NDIM = len(xrTime)
+
+    # Convert frequencyResolution to FFT representation
+    samplesPerTransform = int((1/frequencyResolution)/TBIN)
+    numberOfFFTs = NDIM//samplesPerTransform
+    if (NDIM%samplesPerTransform != 0):
+        numberOfFFTs+=1
+
+    integrated_x = np.zeros(samplesPerTransform)
+    integrated_y = np.zeros(samplesPerTransform)
+
+    for individualFFT in range(numberOfFFTs):
+        integrated_x += np.abs(np.fft.fftshift(np.fft.fft(xrTime[individualFFT*samplesPerTransform:(individualFFT+1)*samplesPerTransform] + 1j*xiTime[individualFFT*samplesPerTransform:(individualFFT+1)*samplesPerTransform], samplesPerTransform)))**2
+        integrated_y += np.abs(np.fft.fftshift(np.fft.fft(yrTime[individualFFT*samplesPerTransform:(individualFFT+1)*samplesPerTransform] + 1j*yiTime[individualFFT*samplesPerTransform:(individualFFT+1)*samplesPerTransform], samplesPerTransform)))**2
+
+    plt.plot(np.linspace(lowerBound, upperBound, samplesPerTransform), integrated_x)
+    plt.title("Channel " + str(CHANNEL) + ": X Polarization")
+    plt.xlabel("Frequency (MHz)")
+    plt.ylabel("Integrated FFT: Power")
+    plt.show()
+
+    plt.plot(np.linspace(lowerBound, upperBound, samplesPerTransform), integrated_y)
+    plt.title("Channel " + str(CHANNEL) + ": Y Polarization")
+    plt.xlabel("Frequency (MHz)")
+    plt.ylabel("Integrated FFT: Power")
     plt.show()
