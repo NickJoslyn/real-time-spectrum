@@ -96,8 +96,8 @@ def RAW_spectrogram(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, FFT_si
     plt.xlabel ("Time (s)")
     cb = plt.colorbar()
     cb.set_label("dB")
-    plt.show()
-
+    plt.savefig("Figures/X/" + str(CHANNEL) + ".pdf")
+    plt.close()
     _, freqs_y, _, _ = plt.specgram(yrTime + 1j*yiTime, FFT_size, samplingFrequency)
     plt.title("Channel " + str(CHANNEL) + ": Y Polarization")
     plt.yticks(np.linspace(min(freqs_y), max(freqs_y), numberTicks), np.round(np.linspace(lowerBound, upperBound, numberTicks), 1))
@@ -105,7 +105,9 @@ def RAW_spectrogram(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, FFT_si
     plt.xlabel("Time (s)")
     cb = plt.colorbar()
     cb.set_label("dB")
-    plt.show()
+    plt.savefig("Figures/Y/" + str(CHANNEL) + ".pdf")
+    plt.close()
+
 
 
 def RAW_waterfall(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, frequencyResolution, integrationTime):
@@ -139,7 +141,6 @@ def RAW_waterfall(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, frequenc
     samplingFrequency = 1/TBIN
     lowerBound = centerFrequency + CHAN_BW/2
     upperBound = centerFrequency - CHAN_BW/2
-    numberTicks = 7
 
     NDIM = len(xrTime)
 
@@ -164,6 +165,7 @@ def RAW_waterfall(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, frequenc
         waterfallData_x[integration, :] = summedFFT_x
         waterfallData_y[integration, :] = summedFFT_y
 
+    # Find FFT of remaining samples that were not perfect integer of freq and time resolution
     currentLocation = fftsPerIntegration * numberOfIntegrations * samplesPerTransform
     samplesRemaining = NDIM-currentLocation
 
@@ -181,7 +183,6 @@ def RAW_waterfall(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, frequenc
 
     waterfallData_x[-1, :] = remainingSum_x
     waterfallData_y[-1, :] = remainingSum_y
-
 
     plt.figure()
     plt.imshow(waterfallData_x, cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, 0, integrationTime * numberOfIntegrations])
@@ -231,7 +232,6 @@ def RAW_integratedFFT(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, TBIN, freq
     samplingFrequency = 1/TBIN
     lowerBound = centerFrequency + CHAN_BW/2
     upperBound = centerFrequency - CHAN_BW/2
-    numberTicks = 7
 
     NDIM = len(xrTime)
 

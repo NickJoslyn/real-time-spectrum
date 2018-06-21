@@ -5,9 +5,10 @@
 
 import numpy as np
 import os
-import spectrumEstimators
+import spectrumEstimation
 from header import extractHeader
 import time
+import spectrumIntegration
 
 startTime = time.time()
 
@@ -21,8 +22,6 @@ if __name__ == "__main__":
     #Initial location
     currentBytesPassed = 0
     blockNumber = 0
-
-    startTime
 
     while (currentBytesPassed < fileBytes):
 
@@ -38,15 +37,27 @@ if __name__ == "__main__":
         dataBuffer = readIn[currentBytesPassed:currentBytesPassed + BLOCSIZE].reshape(OBSNCHAN, NDIM, NPOL)
 
         for CHANNEL in range(OBSNCHAN):
-            centerFrequency = OBSFREQ + (np.abs(OBSBW)/2) - (CHANNEL + 0.5)*np.abs(CHAN_BW)
-            spectrumEstimators.RAW_periodogram(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, TBIN)
-            spectrumEstimators.RAW_periodogram(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, TBIN, 'spectrum')
-            spectrumEstimators.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW)
-            spectrumEstimators.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, 'power spectrum')
-            spectrumEstimators.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, 'power normalized')
-            spectrumEstimators.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, 'magnitude normalized')
-            spectrumEstimators.RAW_pyplot_magnitude(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, TBIN)
+                if (CHANNEL == 3 or CHANNEL == 5):
+                    centerFrequency = OBSFREQ + (np.abs(OBSBW)/2) - (CHANNEL + 0.5)*np.abs(CHAN_BW)
+
+            # Spectrum Integration Function Testing --------------------------------------
+            #spectrumIntegration.RAW_PSD(dataBuffer[CHANNEL, :, :], CHANNEL, centerFrequency, CHAN_BW, TBIN)
+            #spectrumIntegration.RAW_PSD(dataBuffer[CHANNEL, :, :], CHANNEL, centerFrequency, CHAN_BW, TBIN, 256)
+            #spectrumIntegration.RAW_PSD(dataBuffer[CHANNEL, :, :], CHANNEL, centerFrequency, CHAN_BW, TBIN, 4096)
+            #spectrumIntegration.RAW_spectrogram(dataBuffer[CHANNEL, :, :], CHANNEL, centerFrequency, CHAN_BW, TBIN)
+            #spectrumIntegration.RAW_waterfall(dataBuffer[CHANNEL, :, :], CHANNEL, centerFrequency, CHAN_BW, TBIN, 5722.6, .003)
+                    #spectrumIntegration.RAW_integratedFFT(dataBuffer[CHANNEL, :, :], CHANNEL, centerFrequency, CHAN_BW, TBIN, 5722.6)
+
+
+            # Spectrum Estimation Function Tests-----------------------------------------
+            #    spectrumEstimation.RAW_periodogram(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, TBIN)
+            #    spectrumEstimation.RAW_periodogram(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, TBIN, 'spectrum')
+                    spectrumEstimation.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW)
+            # spectrumEstimation.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, 'power spectrum')
+            #    spectrumEstimation.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, 'power normalized')
+            # spectrumEstimation.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, 'magnitude normalized')
+            #    spectrumEstimation.RAW_pyplot_magnitude(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, TBIN)
         del readIn
         endTime = time.time()
-        print("Time:" + str(round(endTime - startTime)))
+        print("Time:" + str(round(endTime - startTime, 8)))
         exit()

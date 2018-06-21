@@ -118,6 +118,7 @@ def RAW_FFT(RAW_CHANNEL, CHANNEL, centerFrequency, CHAN_BW, type = 'magnitude'):
     plt.title("Channel " + str(CHANNEL) + ": X Polarization")
     plt.xlabel("Frequency (MHz)")
     plt.ylabel("FFT: " + str(type))
+    plt.yscale('log')
     plt.show()
 
     plt.plot(np.linspace(lowerBound, upperBound, transformLength), yFFT)
