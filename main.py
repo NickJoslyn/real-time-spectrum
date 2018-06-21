@@ -15,7 +15,8 @@ startTime = time.time()
 if __name__ == "__main__":
 
     #Memmap the RAW file and find the number of bytes
-    inputFileName = "../../Downloads/blc05_guppi_58100_78802_OUMUAMUA_0011.0000.raw"
+    #inputFileName = "../../Downloads/blc05_guppi_58100_78802_OUMUAMUA_0011.0000.raw"
+    inputFileName = "/mnt_blc00/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP00/blc00_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.0002.raw"
     readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
     fileBytes = os.path.getsize(inputFileName)
 
@@ -39,8 +40,8 @@ if __name__ == "__main__":
         for CHANNEL in range(OBSNCHAN):
                 if (CHANNEL == 3 or CHANNEL == 5):
                     centerFrequency = OBSFREQ + (np.abs(OBSBW)/2) - (CHANNEL + 0.5)*np.abs(CHAN_BW)
-
-            # Spectrum Integration Function Testing --------------------------------------
+		    spectrumIntegration.RAW_waterfall(dataBuffer[CHANNEL, :, :], CHANNEL, centerFrequency, CHAN_BW, TBIN, 5722.6, 0.003)		    
+           # Spectrum Integration Function Testing --------------------------------------
             #spectrumIntegration.RAW_PSD(dataBuffer[CHANNEL, :, :], CHANNEL, centerFrequency, CHAN_BW, TBIN)
             #spectrumIntegration.RAW_PSD(dataBuffer[CHANNEL, :, :], CHANNEL, centerFrequency, CHAN_BW, TBIN, 256)
             #spectrumIntegration.RAW_PSD(dataBuffer[CHANNEL, :, :], CHANNEL, centerFrequency, CHAN_BW, TBIN, 4096)
@@ -52,7 +53,7 @@ if __name__ == "__main__":
             # Spectrum Estimation Function Tests-----------------------------------------
             #    spectrumEstimation.RAW_periodogram(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, TBIN)
             #    spectrumEstimation.RAW_periodogram(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, TBIN, 'spectrum')
-                    spectrumEstimation.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW)
+                    #spectrumEstimation.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW)
             # spectrumEstimation.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, 'power spectrum')
             #    spectrumEstimation.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, 'power normalized')
             # spectrumEstimation.RAW_FFT(dataBuffer[CHANNEL,:,:], CHANNEL, centerFrequency, CHAN_BW, 'magnitude normalized')
