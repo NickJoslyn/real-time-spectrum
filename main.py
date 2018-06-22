@@ -47,7 +47,7 @@ if __name__ == "__main__":
         #smallBLOCSIZE = OBSNCHAN * NPOL * NDIMsmall
 
         dataBuffer = readIn[currentBytesPassed:currentBytesPassed + BLOCSIZE].reshape(OBSNCHAN, NDIM, NPOL)
-        RealTime.real_time_spectra(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, desiredChannel, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, integrations)
+        RealTime.real_time_spectra(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, desiredChannel, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, integrations, OBSFREQ, OBSBW)
 
         for CHANNEL in range(OBSNCHAN):
                 if (CHANNEL == 5):
