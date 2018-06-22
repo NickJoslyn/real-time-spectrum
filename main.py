@@ -9,14 +9,17 @@ import spectrumEstimation
 from header import extractHeader
 import time
 import spectrumIntegration
+import RealTime
 
 startTime = time.time()
 
 if __name__ == "__main__":
 
     #Memmap the RAW file and find the number of bytes
-    #inputFileName = "../../Downloads/blc05_guppi_58100_78802_OUMUAMUA_0011.0000.raw"
-    inputFileName = "/mnt_blc00/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP00/blc00_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.0002.raw"
+    # Desktop Ubuntu
+    inputFileName = "../../Downloads/blc05_guppi_58100_78802_OUMUAMUA_0011.0000.raw"
+    #Green Bank
+    #inputFileName = "/mnt_blc00/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP00/blc00_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.0002.raw"
     readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
     fileBytes = os.path.getsize(inputFileName)
 
@@ -35,12 +38,21 @@ if __name__ == "__main__":
 
         #Skip header and put data in easily parsed array
         currentBytesPassed += headerOffset
+        samplesPerTransform, fftsPerIntegration = RealTime.convert_resolution(45776, 0.0003, TBIN)
+        desiredChannel = 5
+        integrations = 10
+
+        NDIMsmall = samplesPerTransform * fftsPerIntegration * integrations
+
+        #smallBLOCSIZE = OBSNCHAN * NPOL * NDIMsmall
+
         dataBuffer = readIn[currentBytesPassed:currentBytesPassed + BLOCSIZE].reshape(OBSNCHAN, NDIM, NPOL)
+        RealTime.real_time_spectra(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, desiredChannel, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, integrations)
 
         for CHANNEL in range(OBSNCHAN):
-                if (CHANNEL == 3 or CHANNEL == 5):
+                if (CHANNEL == 5):
                     centerFrequency = OBSFREQ + (np.abs(OBSBW)/2) - (CHANNEL + 0.5)*np.abs(CHAN_BW)
-		    spectrumIntegration.RAW_waterfall(dataBuffer[CHANNEL, :, :], CHANNEL, centerFrequency, CHAN_BW, TBIN, 5722.6, 0.003)		    
+                    RealTime.real_time_spectra_Channel(dataBuffer[CHANNEL, :, :], CHANNEL, centerFrequency, CHAN_BW, TBIN, 45776.36, 0.0003, 10)
            # Spectrum Integration Function Testing --------------------------------------
             #spectrumIntegration.RAW_PSD(dataBuffer[CHANNEL, :, :], CHANNEL, centerFrequency, CHAN_BW, TBIN)
             #spectrumIntegration.RAW_PSD(dataBuffer[CHANNEL, :, :], CHANNEL, centerFrequency, CHAN_BW, TBIN, 256)

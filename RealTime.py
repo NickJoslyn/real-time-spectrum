@@ -27,7 +27,7 @@ def remove_DCoffset(BLOCK):
     return (BLOCK - DC_offset)
 
 
-def real_time_spectra(BLOCK, CHANNEL, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, numberOfIntegrations):
+def real_time_spectra(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, numberOfIntegrations):
     """
     Plot spectra and stats of real-time observational BL data on block.
 
@@ -36,14 +36,64 @@ def real_time_spectra(BLOCK, CHANNEL, CHAN_BW, TBIN, samplesPerTransform, fftsPe
     #Need to expand from channel analysis to full compute node analysis (i.e. band analysis)
 
     ###################Prepare Data
-    print(samplesPerTransform, fftsPerIntegration, numberOfIntegrations)
-    print(BLOCK.shape)
-    print(np.mean(BLOCK, axis =1))
+
     BLOCK = remove_DCoffset(BLOCK)
-    print(BLOCK.shape)
-    print(np.mean(BLOCK, axis =1))
+
+    waterfallData_x = np.zeros((OBSNCHAN, numberOfIntegrations, samplesPerTransform))
+    waterfallData_y = np.zeros((OBSNCHAN, numberOfIntegrations, samplesPerTransform))
+
+    for channel in range(OBSNCHAN):
+        for integration in range(numberOfIntegrations):
+
+            initialIndex = integration * samplesPerTransform * fftsPerIntegration
+            finalIndex = (integration + 1) * samplesPerTransform * fftsPerIntegration
+
+            waterfallData_x[channel, integration, :] = np.sum(np.abs(np.fft.fftshift(np.fft.fft(np.split(BLOCK[channel,initialIndex:finalIndex, 0] + 1j*BLOCK[channel,initialIndex:finalIndex,1], fftsPerIntegration))))**2, axis = 0)
+            waterfallData_y[channel, integration, :] = np.sum(np.abs(np.fft.fftshift(np.fft.fft(np.split(BLOCK[channel,initialIndex:finalIndex,2] + 1j*BLOCK[channel,initialIndex:finalIndex, 3], fftsPerIntegration))))**2, axis = 0)
+
+    print(waterfallData_x.shape)
+    print(waterfallData_y.shape)
+
+
+    plt.figure()
+    plt.imshow(waterfallData_x[CHANNEL, :, :], cmap = 'viridis', aspect = 'auto', extent = [0, 10, 0, 0.18])
+    plt.title("Waterfall Plot: Channel " + str(CHANNEL) + ": X Polarization")
+    plt.xlabel("Frequency (MHz)")
+    plt.ylabel("Time")
+    plt.colorbar()
+    plt.show()
+
+    plt.figure()
+    plt.imshow(waterfallData_y[CHANNEL,:,:], cmap = 'viridis', aspect = 'auto', extent = [5, 10, 0, 0.18])
+    plt.title("Waterfall Plot: Channel " + str(CHANNEL) + ": Y Polarization")
+    plt.xlabel("Frequency (MHz)")
+    plt.ylabel("Time")
+    plt.colorbar()
+    plt.show()
+
+    ###################Channel Spectrum
+
+    integrated_spectrum_x = np.sum(waterfallData_x, axis = 1).reshape(-1)
+    integrated_spectrum_y = np.sum(waterfallData_y, axis=1).reshape(-1)
+
+    plt.plot(np.linspace(0, 10, OBSNCHAN *samplesPerTransform), integrated_spectrum_x, color = 'black')
+    plt.title("Channel " + str(CHANNEL) + ": X Polarization")
+    plt.xlabel("Frequency (MHz)")
+    plt.ylabel("Spectrum_X")
+    plt.show()
+
+    plt.plot(np.linspace(0, 10, OBSNCHAN * samplesPerTransform), integrated_spectrum_y, color = 'black')
+    plt.title("Channel " + str(CHANNEL) + ": Y Polarization")
+    plt.xlabel("Frequency (MHz)")
+    plt.ylabel("Spectrum_Y")
+    plt.show()
+
+
 
     quit()
+
+
+
 
     # Divide channel into polarizations
     xrTime = RAW_CHANNEL[:,0]
