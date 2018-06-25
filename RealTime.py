@@ -2,6 +2,7 @@
 # Breakthrough Listen UC Berkeley SETI Intern 2018
 
 # Functions for real-time spectra of BL Observations
+from __future__ import division
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
@@ -18,7 +19,7 @@ def convert_resolution(customFrequencyResolution, customTimeResolution, TBIN):
 
     samplesPerTransform = int((1/customFrequencyResolution)/TBIN)
     fftsPerIntegration = int(customTimeResolution * customFrequencyResolution)
-
+    
     return samplesPerTransform, fftsPerIntegration
 
 def remove_DCoffset(BLOCK):
@@ -162,7 +163,7 @@ def real_time_spectra(BLOCK, OBSNCHAN, CHAN_BW, TBIN, samplesPerTransform, fftsP
     for BL observations. The RAW datastream is very fast, so the algorithms and
     resolution are computationally inexpensive.
     """
-
+    
     # Frequency Domain
     BLOCK = remove_DCoffset(BLOCK)
     spectralData_x, spectralData_y = calculate_spectra(BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTransform)
