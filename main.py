@@ -38,16 +38,17 @@ if __name__ == "__main__":
 
         #Skip header and put data in easily parsed array
         currentBytesPassed += headerOffset
-        samplesPerTransform, fftsPerIntegration = RealTime.convert_resolution(45776, 0.0003, TBIN)
+        samplesPerTransform, fftsPerIntegration = RealTime.convert_resolution(183105, 0.0003, TBIN)
         desiredChannel = 5
-        integrations = 10
+        #integrations = 10
 
-        NDIMsmall = samplesPerTransform * fftsPerIntegration * integrations
+        NDIMsmall = samplesPerTransform * fftsPerIntegration
 
         #smallBLOCSIZE = OBSNCHAN * NPOL * NDIMsmall
 
         dataBuffer = readIn[currentBytesPassed:currentBytesPassed + BLOCSIZE].reshape(OBSNCHAN, NDIM, NPOL)
-        RealTime.real_time_spectra(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, desiredChannel, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, integrations, OBSFREQ, OBSBW)
+        RealTime.real_time_spectra(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, desiredChannel, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+        #RealTime.real_time_spectra_multiple_Integrations(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, desiredChannel, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, 1, OBSFREQ, OBSBW)
 
         for CHANNEL in range(OBSNCHAN):
                 if (CHANNEL == 5):

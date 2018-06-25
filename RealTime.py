@@ -17,7 +17,7 @@ def convert_resolution(customFrequencyResolution, customTimeResolution, TBIN):
 
     samplesPerTransform = int((1/customFrequencyResolution)/TBIN)
     fftsPerIntegration = int(customTimeResolution * customFrequencyResolution)
-
+    print(samplesPerTransform, fftsPerIntegration)
     return samplesPerTransform, fftsPerIntegration
 
 def remove_DCoffset(BLOCK):
@@ -94,106 +94,44 @@ def real_time_spectra(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransfo
     plt.yscale('log')
     plt.show()
 
-
-
-    quit()
-
-
-
-
-    # Divide channel into polarizations
-    xrTime = RAW_CHANNEL[:,0]
-    xiTime = RAW_CHANNEL[:,1]
-    yrTime = RAW_CHANNEL[:,2]
-    yiTime = RAW_CHANNEL[:,3]
-
-    # Remove DC
-    xrTime_noDC = xrTime - np.mean(xrTime)
-    xiTime_noDC = xiTime - np.mean(xiTime)
-    yrTime_noDC = yrTime - np.mean(yrTime)
-    yiTime_noDC = yiTime - np.mean(yiTime)
-
-    # Variables for plotting
-    samplingFrequency = 1/TBIN
-    lowerBound = centerFrequency + CHAN_BW/2
-    upperBound = centerFrequency - CHAN_BW/2
-
-    ###################Waterfall
-
-    waterfallData_x = np.zeros((numberOfIntegrations,samplesPerTransform))
-    waterfallData_y = np.zeros((numberOfIntegrations,samplesPerTransform))
-
-    for integration in range(numberOfIntegrations):
-        index = integration * fftsPerIntegration * samplesPerTransform
-        for individualFFT in range(fftsPerIntegration):
-            waterfallData_x[integration,:] += np.abs(np.fft.fftshift(np.fft.fft(xrTime_noDC[index + individualFFT*samplesPerTransform:index + (individualFFT+1)*samplesPerTransform] + 1j*xiTime_noDC[index + individualFFT*samplesPerTransform:index + (individualFFT+1)*samplesPerTransform])))**2
-            waterfallData_y[integration,:] += np.abs(np.fft.fftshift(np.fft.fft(yrTime_noDC[index + individualFFT*samplesPerTransform:index + (individualFFT+1)*samplesPerTransform] + 1j*yiTime_noDC[index + individualFFT*samplesPerTransform:index + (individualFFT+1)*samplesPerTransform])))**2
-
-    plt.figure()
-    plt.imshow(waterfallData_x, cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, 0, 0.18])
-    plt.title("Waterfall Plot: Channel " + str(CHANNEL) + ": X Polarization")
-    plt.xlabel("Frequency (MHz)")
-    plt.ylabel("Time")
-    plt.colorbar()
-    plt.show()
-
-    plt.figure()
-    plt.imshow(waterfallData_y, cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, 0, 0.18])
-    plt.title("Waterfall Plot: Channel " + str(CHANNEL) + ": Y Polarization")
-    plt.xlabel("Frequency (MHz)")
-    plt.ylabel("Time")
-    plt.colorbar()
-    plt.show()
-
-    ###################Chanel Spectrum
-
-    integrated_spectrum_x = np.sum(waterfallData_x, axis = 0)
-    integrated_spectrum_y = np.sum(waterfallData_y, axis=0)
-
-    plt.plot(np.linspace(lowerBound, upperBound, samplesPerTransform), integrated_spectrum_x)
-    plt.title("Channel " + str(CHANNEL) + ": X Polarization")
-    plt.xlabel("Frequency (MHz)")
-    plt.ylabel("Spectrum_X")
-    plt.show()
-
-    plt.plot(np.linspace(lowerBound, upperBound, samplesPerTransform), integrated_spectrum_y)
-    plt.title("Channel " + str(CHANNEL) + ": Y Polarization")
-    plt.xlabel("Frequency (MHz)")
-    plt.ylabel("Spectrum_Y")
-    plt.show()
-
-
-
     #SET UP Big Plot
-    plt.figure(0)
+    plt.figure("Template")
 
     # Full Bandpass
     ax1 = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
-    ax1.set_title("Full Bandpass")
+    ax1.set_title("Full Observation Spectrum")
 
-    # Channel Spectra
+    # Spectra
     ax2 = plt.subplot2grid((18,5), (5,0), colspan=2, rowspan=3)
-    ax2.set_title("Channel Spectrum: X")
+    ax2.set_title("Node Spectrum: X")
     ax2.set_xlabel("Frequency (MHz)")
-    ax2.plot(np.linspace(lowerBound, upperBound, samplesPerTransform), integrated_spectrum_x)
+    ax2.set_ylabel("Power")
+    ax2.set_yscale('log')
+    ax2.margins(x=0)
+    ax2.plot(np.linspace(lowerBound, upperBound, OBSNCHAN * samplesPerTransform), bandPass_x, color = 'black')
     ax3 = plt.subplot2grid((18,5), (5, 3), colspan=2, rowspan=3)
-    ax3.set_title("Channel Spectrum: Y")
+    ax3.set_title("Node Spectrum: Y")
     ax3.set_xlabel("Frequency (MHz)")
-    ax3.plot(np.linspace(lowerBound, upperBound, samplesPerTransform), integrated_spectrum_y)
+    ax3.set_ylabel("Power")
+    ax3.set_yscale('log')
+    ax3.margins(x=0)
+    ax3.plot(np.linspace(lowerBound, upperBound, OBSNCHAN * samplesPerTransform), bandPass_y)
 
-    # Channel Waterfall
+    # Waterfall
     ax4 = plt.subplot2grid((18,5), (10, 0), colspan=2, rowspan=3)
-    ax4.set_title("Waterfall: X")
-    ax4.imshow(waterfallData_x, cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, 0, 0.003])
+    ax4.set_title("Node Waterfall: X")
+    ax4.imshow(integrated_spectrum_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
     ax4.set_xlabel("Frequency (MHz)")
-    ax4.set_ylabel("Time")
-
+    ax4.set_ylabel("Time (s)")
+    ax4.margins(x=0)
+    #plt.colorbar(im, ax=ax4)
 
     ax5 = plt.subplot2grid((18,5), (10, 3), colspan=2, rowspan=3)
-    ax5.set_title("Waterfall: Y")
-    ax5.imshow(waterfallData_y, cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, 0, 0.003])
+    ax5.set_title("Node Waterfall: Y")
+    ax5.imshow(integrated_spectrum_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
     ax5.set_xlabel("Frequency (MHz)")
-    ax5.set_ylabel("Time")
+    ax5.set_ylabel("Time (s)")
+    ax5.margins(x=0)
 
 
     # Spectral Kurtosis
@@ -204,8 +142,9 @@ def real_time_spectra(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransfo
     plt.suptitle("Real-Time Spectra of Observation")
 
     plt.show()
-    exit()
 
+
+    quit()
 
 
 def real_time_spectra_multiple_Integrations(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, numberOfIntegrations, OBSFREQ, OBSBW):
