@@ -27,6 +27,14 @@ def remove_DCoffset(BLOCK):
     _, DC_offset = np.broadcast_arrays(BLOCK, DC_offset)
     return (BLOCK - DC_offset)
 
+def calculate_spectralKurtosis(SPECTRA, fftsPerIntegration):
+
+    S_1 = np.sum(SPECTRA, axis = 1)
+    S_2 = np.sum(SPECTRA**2, axis = 1)
+
+    SK_estimate = (fftsPerIntegration + 1)/(fftsPerIntegration - 1)*((fftsPerIntegration * S_2)/(S_1**2) - 1)
+
+    return SK_estimate
 
 def real_time_spectra(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
     """
@@ -40,19 +48,28 @@ def real_time_spectra(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransfo
 
     BLOCK = remove_DCoffset(BLOCK)
 
-    waterfallData_x = np.zeros((OBSNCHAN, samplesPerTransform))
-    waterfallData_y = np.zeros((OBSNCHAN, samplesPerTransform))
+    waterfallData_x = np.zeros((OBSNCHAN, fftsPerIntegration, samplesPerTransform))
+    waterfallData_y = np.zeros((OBSNCHAN, fftsPerIntegration, samplesPerTransform))
 
     for channel in range(OBSNCHAN):
-        waterfallData_x[channel, :] = np.sum(np.abs(np.fft.fftshift(np.fft.fft(np.split(BLOCK[channel,:, 0] + 1j*BLOCK[channel,:,1], fftsPerIntegration))))**2, axis = 0)
-        waterfallData_y[channel, :] = np.sum(np.abs(np.fft.fftshift(np.fft.fft(np.split(BLOCK[channel,:,2] + 1j*BLOCK[channel,:, 3], fftsPerIntegration))))**2, axis = 0)
+        waterfallData_x[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(BLOCK[channel,:, 0] + 1j*BLOCK[channel,:,1], fftsPerIntegration))))**2
+        waterfallData_y[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(BLOCK[channel,:,2] + 1j*BLOCK[channel,:, 3], fftsPerIntegration))))**2
 
-    # print(waterfallData_x.shape)
-    # print(waterfallData_y.shape)
+    ##
+
+    SK_x = calculate_spectralKurtosis(waterfallData_x, fftsPerIntegration)
+    SK_y = calculate_spectralKurtosis(waterfallData_y, fftsPerIntegration)
+
+    ##
+    waterfallData_x = np.sum(waterfallData_x, axis = 1)
+    waterfallData_y = np.sum(waterfallData_y, axis = 1)
 
     lowerBound = OBSFREQ + OBSBW/2
     upperBound = OBSFREQ - OBSBW/2
     totalTime = TBIN * samplesPerTransform * fftsPerIntegration
+
+    SK_x = np.flip(SK_x, 0).reshape(-1)
+    SK_y = np.flip(SK_y, 0).reshape(-1)
     waterfallData_x = np.flip(waterfallData_x, 0)
     waterfallData_y = np.flip(waterfallData_y, 0)
 
@@ -75,7 +92,7 @@ def real_time_spectra(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransfo
     plt.colorbar()
     plt.show()
 
-    ###################Channel Spectrum
+    ################### Spectrum
 
     bandPass_x = np.sum(integrated_spectrum_x, 0)
     bandPass_y = np.sum(integrated_spectrum_y, 0)
@@ -136,13 +153,16 @@ def real_time_spectra(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransfo
 
     # Spectral Kurtosis
     ax6 = plt.subplot2grid((18,5), (15,0), colspan=2, rowspan=3)
+    ax6.plot(np.linspace(lowerBound, upperBound, OBSNCHAN * samplesPerTransform), SK_x)
     ax6.set_title("Spectral Kurtosis: X")
+    ax6.margins(x=0)
     ax7 = plt.subplot2grid((18,5), (15, 3), colspan=2, rowspan=3)
+    ax7.plot(SK_y)
     ax7.set_title("Spectral Kurtosis: Y")
+    ax7.margins(x=0)
+
     plt.suptitle("Real-Time Spectra of Observation")
-
     plt.show()
-
 
     quit()
 
