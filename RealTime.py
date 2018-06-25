@@ -4,6 +4,7 @@
 # Program for real-time spectra of BL Observations
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 
 def convert_resolution(customFrequencyResolution, customTimeResolution, TBIN):
     """
@@ -51,8 +52,8 @@ def real_time_spectra(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransfo
             waterfallData_x[channel, integration, :] = np.sum(np.abs(np.fft.fftshift(np.fft.fft(np.split(BLOCK[channel,initialIndex:finalIndex, 0] + 1j*BLOCK[channel,initialIndex:finalIndex,1], fftsPerIntegration))))**2, axis = 0)
             waterfallData_y[channel, integration, :] = np.sum(np.abs(np.fft.fftshift(np.fft.fft(np.split(BLOCK[channel,initialIndex:finalIndex,2] + 1j*BLOCK[channel,initialIndex:finalIndex, 3], fftsPerIntegration))))**2, axis = 0)
 
-    print(waterfallData_x.shape)
-    print(waterfallData_y.shape)
+    # print(waterfallData_x.shape)
+    # print(waterfallData_y.shape)
 
     lowerBound = OBSFREQ + OBSBW/2
     upperBound = OBSFREQ - OBSBW/2
@@ -65,7 +66,7 @@ def real_time_spectra(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransfo
         integrated_spectra_y[i,:] = waterfallData_y[:,i,:].reshape(-1)
 
     plt.figure()
-    plt.imshow(integrated_spectra_x, cmap = 'viridis', aspect = 'auto')
+    plt.imshow(integrated_spectra_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm())
     plt.title("Waterfall Plot: X")
     plt.xlabel("Frequency (MHz)")
     plt.ylabel("Time")
@@ -73,7 +74,7 @@ def real_time_spectra(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransfo
     plt.show()
 
     plt.figure()
-    plt.imshow(integrated_spectra_y, cmap = 'viridis', aspect = 'auto')
+    plt.imshow(integrated_spectra_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm())
     plt.title("Waterfall Plot: Y")
     plt.xlabel("Frequency Bin Number")
     plt.ylabel("Time (currently incorrect scale)")
