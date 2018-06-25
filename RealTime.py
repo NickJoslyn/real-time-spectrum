@@ -36,6 +36,98 @@ def calculate_spectralKurtosis(SPECTRA, fftsPerIntegration):
 
     return SK_estimate
 
+def plot_real_time_visualization(integrated_spectrum_x, integrated_spectrum_y, bandPass_x, bandPass_y, SK_x, SK_y, current_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN):
+
+    totalTime = samplesPerTransform * fftsPerIntegration * TBIN
+    plt.figure()
+    plt.imshow(integrated_spectrum_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
+    plt.title("Waterfall Plot: X")
+    plt.xlabel("Frequency (MHz)")
+    plt.ylabel("Time (s)")
+    plt.colorbar()
+    plt.show()
+
+    plt.figure()
+    plt.imshow(integrated_spectrum_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
+    plt.title("Waterfall Plot: Y")
+    plt.xlabel("Frequency (MHz)")
+    plt.ylabel("Time (s)")
+    plt.colorbar()
+    plt.show()
+
+    ################### Spectrum
+
+    plt.plot(current_axis, bandPass_x, color = 'black')
+    plt.title("Full Spectrum: X")
+    plt.xlabel("Frequency (MHz)")
+    plt.ylabel("Power, Log")
+    plt.yscale('log')
+    plt.show()
+
+    plt.plot(current_axis, bandPass_y, color = 'black')
+    plt.title("Full Spectrum: Y")
+    plt.xlabel("Frequency (MHz)")
+    plt.ylabel("Power, Log")
+    plt.yscale('log')
+    plt.show()
+
+    #SET UP Big Plot
+    plt.figure("Template: " + str(samplesPerTransform) + " Bins Per Channel and " + str(fftsPerIntegration) + " Integrations")
+
+    # Full Bandpass
+    ax1 = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
+    ax1.set_title("Full Observation Spectrum")
+
+    # Spectra
+    ax2 = plt.subplot2grid((18,5), (5,0), colspan=2, rowspan=3)
+    ax2.set_title("Node Spectrum: X")
+    ax2.set_xlabel("Frequency (MHz)")
+    ax2.set_ylabel("Power")
+    ax2.set_yscale('log')
+    ax2.margins(x=0)
+    ax2.plot(current_axis, bandPass_x)
+    ax3 = plt.subplot2grid((18,5), (5, 3), colspan=2, rowspan=3)
+    ax3.set_title("Node Spectrum: Y")
+    ax3.set_xlabel("Frequency (MHz)")
+    ax3.set_ylabel("Power")
+    ax3.set_yscale('log')
+    ax3.margins(x=0)
+    ax3.plot(current_axis, bandPass_y)
+
+    # Waterfall
+    ax4 = plt.subplot2grid((18,5), (10, 0), colspan=2, rowspan=3)
+    ax4.set_title("Node Waterfall: X")
+    ax4.imshow(integrated_spectrum_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
+    ax4.set_xlabel("Frequency (MHz)")
+    ax4.set_ylabel("Time (s)")
+    ax4.margins(x=0)
+    #plt.colorbar(im, ax=ax4)
+
+    ax5 = plt.subplot2grid((18,5), (10, 3), colspan=2, rowspan=3)
+    ax5.set_title("Node Waterfall: Y")
+    ax5.imshow(integrated_spectrum_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
+    ax5.set_xlabel("Frequency (MHz)")
+    ax5.set_ylabel("Time (s)")
+    ax5.margins(x=0)
+
+
+    # Spectral Kurtosis
+    ax6 = plt.subplot2grid((18,5), (15,0), colspan=2, rowspan=3)
+    ax6.plot(current_axis, SK_x)
+    ax6.set_title("Spectral Kurtosis: X")
+    ax6.margins(x=0)
+    ax6.set_xlabel("Frequency (MHz)")
+    ax7 = plt.subplot2grid((18,5), (15, 3), colspan=2, rowspan=3)
+    ax7.plot(current_axis, SK_y)
+    ax7.set_title("Spectral Kurtosis: Y")
+    ax7.margins(x=0)
+    ax7.set_xlabel("Frequency (MHz)")
+
+    plt.suptitle("Real-Time Spectra of Observation")
+    plt.show()
+
+
+
 def real_time_spectra(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
     """
     Plot spectra and stats of real-time observational BL data on block.
@@ -76,97 +168,11 @@ def real_time_spectra(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransfo
     integrated_spectrum_x = [waterfallData_x.reshape(-1)]
     integrated_spectrum_y = [waterfallData_y.reshape(-1)]
 
-    plt.figure()
-    plt.imshow(integrated_spectrum_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
-    plt.title("Waterfall Plot: X")
-    plt.xlabel("Frequency (MHz)")
-    plt.ylabel("Time (s)")
-    plt.colorbar()
-    plt.show()
-
-    plt.figure()
-    plt.imshow(integrated_spectrum_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
-    plt.title("Waterfall Plot: Y")
-    plt.xlabel("Frequency (MHz)")
-    plt.ylabel("Time (s)")
-    plt.colorbar()
-    plt.show()
-
-    ################### Spectrum
-
     bandPass_x = np.sum(integrated_spectrum_x, 0)
     bandPass_y = np.sum(integrated_spectrum_y, 0)
 
-    plt.plot(np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform), bandPass_x, color = 'black')
-    plt.title("Full Spectrum: X")
-    plt.xlabel("Frequency (MHz)")
-    plt.ylabel("Power, Log")
-    plt.yscale('log')
-    plt.show()
-
-    plt.plot(np.linspace(lowerBound, upperBound, OBSNCHAN * samplesPerTransform), bandPass_y, color = 'black')
-    plt.title("Full Spectrum: Y")
-    plt.xlabel("Frequency (MHz)")
-    plt.ylabel("Power, Log")
-    plt.yscale('log')
-    plt.show()
-
-    #SET UP Big Plot
-    plt.figure("Template: " + str(samplesPerTransform) + " Bins Per Channel and " + str(fftsPerIntegration) + " Integrations")
-
-    # Full Bandpass
-    ax1 = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
-    ax1.set_title("Full Observation Spectrum")
-
-    # Spectra
-    ax2 = plt.subplot2grid((18,5), (5,0), colspan=2, rowspan=3)
-    ax2.set_title("Node Spectrum: X")
-    ax2.set_xlabel("Frequency (MHz)")
-    ax2.set_ylabel("Power")
-    ax2.set_yscale('log')
-    ax2.margins(x=0)
-    ax2.plot(np.linspace(lowerBound, upperBound, OBSNCHAN * samplesPerTransform), bandPass_x)
-    ax3 = plt.subplot2grid((18,5), (5, 3), colspan=2, rowspan=3)
-    ax3.set_title("Node Spectrum: Y")
-    ax3.set_xlabel("Frequency (MHz)")
-    ax3.set_ylabel("Power")
-    ax3.set_yscale('log')
-    ax3.margins(x=0)
-    ax3.plot(np.linspace(lowerBound, upperBound, OBSNCHAN * samplesPerTransform), bandPass_y)
-
-    # Waterfall
-    ax4 = plt.subplot2grid((18,5), (10, 0), colspan=2, rowspan=3)
-    ax4.set_title("Node Waterfall: X")
-    ax4.imshow(integrated_spectrum_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
-    ax4.set_xlabel("Frequency (MHz)")
-    ax4.set_ylabel("Time (s)")
-    ax4.margins(x=0)
-    #plt.colorbar(im, ax=ax4)
-
-    ax5 = plt.subplot2grid((18,5), (10, 3), colspan=2, rowspan=3)
-    ax5.set_title("Node Waterfall: Y")
-    ax5.imshow(integrated_spectrum_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
-    ax5.set_xlabel("Frequency (MHz)")
-    ax5.set_ylabel("Time (s)")
-    ax5.margins(x=0)
-
-
-    # Spectral Kurtosis
-    ax6 = plt.subplot2grid((18,5), (15,0), colspan=2, rowspan=3)
-    ax6.plot(np.linspace(lowerBound, upperBound, OBSNCHAN * samplesPerTransform), SK_x)
-    ax6.set_title("Spectral Kurtosis: X")
-    ax6.margins(x=0)
-    ax6.set_xlabel("Frequency (MHz)")
-    ax7 = plt.subplot2grid((18,5), (15, 3), colspan=2, rowspan=3)
-    ax7.plot(SK_y)
-    ax7.set_title("Spectral Kurtosis: Y")
-    ax7.margins(x=0)
-    ax7.set_xlabel("Frequency (MHz)")
-
-    plt.suptitle("Real-Time Spectra of Observation")
-    plt.show()
-
-    quit()
+    current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
+    plot_real_time_visualization(integrated_spectrum_x, integrated_spectrum_y, bandPass_x, bandPass_y, SK_x, SK_y, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN)
 
 
 def real_time_spectra_multiple_Integrations(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, numberOfIntegrations, OBSFREQ, OBSBW):
