@@ -112,7 +112,7 @@ def real_time_spectra(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransfo
     plt.show()
 
     #SET UP Big Plot
-    plt.figure("Template")
+    plt.figure("Template: " + str(samplesPerTransform) + " Bins Per Channel and " + str(fftsPerIntegration) + " Integrations")
 
     # Full Bandpass
     ax1 = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
@@ -125,7 +125,7 @@ def real_time_spectra(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransfo
     ax2.set_ylabel("Power")
     ax2.set_yscale('log')
     ax2.margins(x=0)
-    ax2.plot(np.linspace(lowerBound, upperBound, OBSNCHAN * samplesPerTransform), bandPass_x, color = 'black')
+    ax2.plot(np.linspace(lowerBound, upperBound, OBSNCHAN * samplesPerTransform), bandPass_x)
     ax3 = plt.subplot2grid((18,5), (5, 3), colspan=2, rowspan=3)
     ax3.set_title("Node Spectrum: Y")
     ax3.set_xlabel("Frequency (MHz)")
@@ -156,10 +156,12 @@ def real_time_spectra(BLOCK, OBSNCHAN, CHANNEL, CHAN_BW, TBIN, samplesPerTransfo
     ax6.plot(np.linspace(lowerBound, upperBound, OBSNCHAN * samplesPerTransform), SK_x)
     ax6.set_title("Spectral Kurtosis: X")
     ax6.margins(x=0)
+    ax6.set_xlabel("Frequency (MHz)")
     ax7 = plt.subplot2grid((18,5), (15, 3), colspan=2, rowspan=3)
     ax7.plot(SK_y)
     ax7.set_title("Spectral Kurtosis: Y")
     ax7.margins(x=0)
+    ax7.set_xlabel("Frequency (MHz)")
 
     plt.suptitle("Real-Time Spectra of Observation")
     plt.show()
