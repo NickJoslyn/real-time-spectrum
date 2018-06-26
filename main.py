@@ -29,7 +29,7 @@ if __name__ == "__main__":
     numberOfNodes = 8
     dualPolarization = 2
     desiredBank = 0
-    desiredNode = 0
+    desiredNode = 7
 
     #Memmap the RAW file and find the number of bytes
     # Personal desktop RAW file

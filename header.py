@@ -37,7 +37,7 @@ def extractHeader(RAW_file, currentBytesPassed):
         #Get the ASCII value of the card and convert to char
         for index in range(cardLength):
           cardString += chr(RAW_file[currentBytesPassed + index + lineCounter * cardLength])
-
+        
         #Identify the end of the header
         #If not the end, find other useful parameters from header
         if (cardString[:3] == 'END'):   #reached end of header
