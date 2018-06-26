@@ -76,7 +76,7 @@ if __name__ == "__main__":
     dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
 
     NDIMsmall = samplesPerTransform * fftsPerIntegration
-    RealTime.real_time_spectra_desired(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+    RealTime.real_time_spectra_desired(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
 
     del readIn
 

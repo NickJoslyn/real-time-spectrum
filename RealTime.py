@@ -95,15 +95,6 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     """
 
     totalTime = samplesPerTransform * fftsPerIntegration * TBIN
-    #SET UP Big Plot
-    #plt.figure("Test")
-
-    # Full observational range
-    #ax1 = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
-    #ax1.set_title("Full Observation Spectrum (X)")
-    #ax1.set_yscale("log")
-    #ax1.set_ylabel("Power")
-    #ax1.set_xlabel("Frequency (MHz)")
 
     ax1.plot(current_axis, bandPass_x, color = 'red')
 
@@ -156,8 +147,12 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
 
 def plot_real_time_visualization_general(current_axis, bandPass_x):
+    """
+    Plot the top panel -- full spectrum of all active nodes (except node of interest)
+    """
+
     global ax1
-    
+
     if(plt.fignum_exists("Test")):
 	ax1.plot(current_axis, bandPass_x, color = 'black')
     else:
@@ -173,12 +168,16 @@ def plot_real_time_visualization_general(current_axis, bandPass_x):
 	ax1.plot(current_axis, bandPass_x, color = 'black')
 
 def real_time_spectra_general(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
+    """
+    Calculate spectra of all active nodes (except node of interest)
+    """
+
 
     BLOCK = remove_DCoffset(BLOCK)
     spectralData_x, spectralData_y = calculate_spectra(BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTransform)
     bandPass_x = np.flip(np.sum(spectralData_x, 1),0).reshape(-1)
     #bandPass_y = np.sum(np.flip(np.sum(spectralData_y, 1),0), 0)
-    
+
     # Helpful plotting values
     lowerBound = OBSFREQ + OBSBW/2
     upperBound = OBSFREQ - OBSBW/2
@@ -186,9 +185,9 @@ def real_time_spectra_general(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerInteg
 
     plot_real_time_visualization_general(current_RAW_axis, bandPass_x)
 
-def real_time_spectra_desired(BLOCK, OBSNCHAN, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
+def real_time_spectra_desired(BLOCK, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
     """
-    Plot spectra and stats of real-time observational BL data.
+    Plot spectra and stats of real-time observational BL data for node of interest.
 
     The goal is to produce a user-friendly real-time data visualization interface
     for BL observations. The RAW datastream is very fast, so the algorithms and
