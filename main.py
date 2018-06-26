@@ -36,17 +36,6 @@ if __name__ == "__main__":
     #inputFileName = "../../Downloads/blc05_guppi_58100_78802_OUMUAMUA_0011.0000.raw"
     # Green Bank nodes
 
-    #SET UP Big Plot
-    plt.figure("Test")
-
-    # Full observational range
-    ax1 = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
-    ax1.set_title("Full Observation Spectrum (X)")
-    ax1.set_yscale("log")
-    ax1.set_ylabel("Power")
-    ax1.set_xlabel("Frequency (MHz)")
-
-
     for bank in range(numberOfBanks):
         for node in range(numberOfNodes):
             if (bank!=desiredBank or node!=desiredNode):
@@ -87,7 +76,7 @@ if __name__ == "__main__":
     dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
 
     NDIMsmall = samplesPerTransform * fftsPerIntegration
-    RealTime.real_time_spectra(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+    RealTime.real_time_spectra_desired(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
 
     del readIn
 
