@@ -94,16 +94,16 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         6/7)    X/Y Polarization spectral kurtosis of the compute node's bandwidth
     """
 
-
+    totalTime = samplesPerTransform * fftsPerIntegration * TBIN
     #SET UP Big Plot
-    plt.figure("Test")
+    #plt.figure("Test")
 
     # Full observational range
-    ax1 = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
-    ax1.set_title("Full Observation Spectrum (X)")
-    ax1.set_yscale("log")
-    ax1.set_ylabel("Power")
-    ax1.set_xlabel("Frequency (MHz)")
+    #ax1 = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
+    #ax1.set_title("Full Observation Spectrum (X)")
+    #ax1.set_yscale("log")
+    #ax1.set_ylabel("Power")
+    #ax1.set_xlabel("Frequency (MHz)")
 
     ax1.plot(current_axis, bandPass_x, color = 'red')
 
@@ -156,32 +156,35 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
 
 def plot_real_time_visualization_general(current_axis, bandPass_x):
-    #SET UP Big Plot
-    plt.figure("Test")
+    global ax1
+    
+    if(plt.fignum_exists("Test")):
+	ax1.plot(current_axis, bandPass_x, color = 'black')
+    else:
+        #SET UP Big Plot
+        plt.figure("Test")
 
-    # Full observational range
-    ax1 = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
-    ax1.set_title("Full Observation Spectrum (X)")
-    ax1.set_yscale("log")
-    ax1.set_ylabel("Power")
-    ax1.set_xlabel("Frequency (MHz)")
-
-    ax1.plot(current_axis, bandPass_x, color = 'black')
-
+        # Full observational range
+	ax1 = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
+        ax1.set_title("Full Observation Spectrum (X)")
+        ax1.set_yscale("log")
+        ax1.set_ylabel("Power")
+        ax1.set_xlabel("Frequency (MHz)")
+	ax1.plot(current_axis, bandPass_x, color = 'black')
 
 def real_time_spectra_general(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
 
     BLOCK = remove_DCoffset(BLOCK)
     spectralData_x, spectralData_y = calculate_spectra(BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTransform)
-    bandPass_x = np.sum(np.flip(np.sum(spectralData_x, 1),0), 0)
+    bandPass_x = np.flip(np.sum(spectralData_x, 1),0).reshape(-1)
     #bandPass_y = np.sum(np.flip(np.sum(spectralData_y, 1),0), 0)
-
+    
     # Helpful plotting values
     lowerBound = OBSFREQ + OBSBW/2
     upperBound = OBSFREQ - OBSBW/2
     current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
 
-    plot_real_time_visualization_general(current_axis, bandPass_x)
+    plot_real_time_visualization_general(current_RAW_axis, bandPass_x)
 
 def real_time_spectra_desired(BLOCK, OBSNCHAN, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
     """
