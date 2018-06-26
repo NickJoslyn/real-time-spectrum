@@ -12,19 +12,66 @@ import header
 import spectrumIntegration
 import RealTime
 
+import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
+from matplotlib.collections import LineCollection
+
 if __name__ == "__main__":
 
     startTime = time.time()
+
+    #User inputted resolutions
     desiredFrequencyResolution = 183105 #16 Bins
     desiredTimeResolution = 0.0003 #54 Integrations
+
+    #Hardware/band dependent parameters
+    numberOfBanks = 1
+    numberOfNodes = 8
+    dualPolarization = 2
+    desiredBank = 0
+    desiredNode = 0
 
     #Memmap the RAW file and find the number of bytes
     # Personal desktop RAW file
     #inputFileName = "../../Downloads/blc05_guppi_58100_78802_OUMUAMUA_0011.0000.raw"
     # Green Bank nodes
-    bank = 0
-    node = 0
-    inputFileName = "/mnt_blc" + str(bank) + str(node) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(bank) + str(node) + "/blc" + str(bank) + str(node) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.0000.raw"
+
+    #SET UP Big Plot
+    plt.figure("Test")
+
+    # Full observational range
+    ax1 = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
+    ax1.set_title("Full Observation Spectrum (X)")
+    ax1.set_yscale("log")
+    ax1.set_ylabel("Power")
+    ax1.set_xlabel("Frequency (MHz)")
+
+
+    for bank in range(numberOfBanks):
+        for node in range(numberOfNodes):
+            if (bank!=desiredBank or node!=desiredNode):
+                inputFileName = "/mnt_blc" + str(bank) + str(node) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(bank) + str(node) + "/blc" + str(bank) + str(node) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.0000.raw"
+                readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
+                fileBytes = os.path.getsize(inputFileName)
+                #Initial location
+                currentBytesPassed = 0
+
+                #Header Information
+                OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = header.extractHeader(readIn, currentBytesPassed)
+
+                NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8))) #time samples per channel per block
+                #Skip header and put data in easily parsed array
+
+                samplesPerTransform, fftsPerIntegration = RealTime.convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
+                dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
+
+                NDIMsmall = samplesPerTransform * fftsPerIntegration
+                RealTime.real_time_spectra_general(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+
+                del readIn
+
+
+    inputFileName = "/mnt_blc" + str(desiredBank) + str(desiredNode) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(desiredBank) + str(desiredNode) + "/blc" + str(desiredBank) + str(desiredNode) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.0000.raw"
     readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
     fileBytes = os.path.getsize(inputFileName)
     #Initial location
@@ -32,8 +79,6 @@ if __name__ == "__main__":
 
     #Header Information
     OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = header.extractHeader(readIn, currentBytesPassed)
-
-    print(OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset)
 
     NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8))) #time samples per channel per block
     #Skip header and put data in easily parsed array
@@ -44,7 +89,7 @@ if __name__ == "__main__":
     NDIMsmall = samplesPerTransform * fftsPerIntegration
     RealTime.real_time_spectra(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, CHAN_BW, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
 
-
     del readIn
+
     endTime = time.time()
     print("Time:" + str(round(endTime - startTime, 8)))
