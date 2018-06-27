@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from matplotlib.collections import LineCollection
 
+global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
+
+
 def convert_resolution(customFrequencyResolution, customTimeResolution, TBIN):
     """
     Convert custom frequency (Hz) resolution and time (s) resolution into FFT parameters.
@@ -96,7 +99,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     totalTime = samplesPerTransform * fftsPerIntegration * TBIN
 
-
+    global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
     if (plt.fignum_exists("Test") == False):
         #SET UP Big Plot
         plt.figure("Test")
@@ -171,14 +174,13 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         del axis7_desired.lines[:]
         axis7_desired.plot(current_axis, SK_y)
 
+    plt.pause(1)
 
 def plot_real_time_visualization_general(current_axis, bandPass_x):
     """
     Plot the top panel -- full spectrum of all active nodes (except node of interest)
     """
-
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
-
     if(plt.fignum_exists("Test") == False):
         #SET UP Big Plot
         plt.figure("Test")
@@ -201,7 +203,7 @@ def plot_real_time_visualization_general(current_axis, bandPass_x):
         axis2_desired.set_ylabel("Power")
         axis2_desired.set_yscale('log')
         axis2_desired.margins(x=0)
-        axis2_desired.plot(current_axis, bandPass_x)
+        #axis2_desired.plot(current_axis, bandPass_x)
 
         axis3_desired = plt.subplot2grid((18,5), (5, 3), colspan=2, rowspan=3)
         axis3_desired.set_title("Node Spectrum: Y")
@@ -209,12 +211,12 @@ def plot_real_time_visualization_general(current_axis, bandPass_x):
         axis3_desired.set_ylabel("Power")
         axis3_desired.set_yscale('log')
         axis3_desired.margins(x=0)
-        axis3_desired.plot(current_axis, bandPass_y)
+        #axis3_desired.plot(current_axis, bandPass_y)
 
         # Waterfall of compute node
         axis4_desired = plt.subplot2grid((18,5), (10, 0), colspan=2, rowspan=3)
         axis4_desired.set_title("Node Waterfall: X")
-        axis4_desired.imshow(integrated_spectrum_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
+        #axis4_desired.imshow(integrated_spectrum_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
         axis4_desired.set_xlabel("Frequency (MHz)")
         axis4_desired.set_ylabel("Time (s)")
         axis4_desired.margins(x=0)
@@ -222,20 +224,20 @@ def plot_real_time_visualization_general(current_axis, bandPass_x):
 
         axis5_desired = plt.subplot2grid((18,5), (10, 3), colspan=2, rowspan=3)
         axis5_desired.set_title("Node Waterfall: Y")
-        axis5_desired.imshow(integrated_spectrum_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
+        #axis5_desired.imshow(integrated_spectrum_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
         axis5_desired.set_xlabel("Frequency (MHz)")
         axis5_desired.set_ylabel("Time (s)")
         axis5_desired.margins(x=0)
 
         # Spectral Kurtosis of compute node
         axis6_desired = plt.subplot2grid((18,5), (15,0), colspan=2, rowspan=3)
-        axis6_desired.plot(current_axis, SK_x)
+        #axis6_desired.plot(current_axis, SK_x)
         axis6_desired.set_title("Spectral Kurtosis: X")
         axis6_desired.margins(x=0)
         axis6_desired.set_xlabel("Frequency (MHz)")
 
         axis7_desired = plt.subplot2grid((18,5), (15, 3), colspan=2, rowspan=3)
-        axis7_desired.plot(current_axis, SK_y)
+        #axis7_desired.plot(current_axis, SK_y)
         axis7_desired.set_title("Spectral Kurtosis: Y")
         axis7_desired.margins(x=0)
         axis7_desired.set_xlabel("Frequency (MHz)")

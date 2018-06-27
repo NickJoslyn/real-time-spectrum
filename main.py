@@ -18,6 +18,8 @@ from matplotlib.collections import LineCollection
 
 if __name__ == "__main__":
 
+    global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
+
     startTime = time.time()
 
     #User inputted resolutions
@@ -81,5 +83,6 @@ if __name__ == "__main__":
 
         del readIn
 
+    raw_input("Press enter when done")
     endTime = time.time()
     print("Time:" + str(round(endTime - startTime, 8)))
