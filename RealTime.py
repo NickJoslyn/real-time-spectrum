@@ -8,9 +8,6 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from matplotlib.collections import LineCollection
 
-#global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
-
-
 def convert_resolution(customFrequencyResolution, customTimeResolution, TBIN):
     """
     Convert custom frequency (Hz) resolution and time (s) resolution into FFT parameters.
