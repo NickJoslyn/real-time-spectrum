@@ -31,14 +31,14 @@ if __name__ == "__main__":
     numberOfNodes = 8
     dualPolarization = 2
     desiredBank = 0
-    desiredNode = 7
+    desiredNode = 4
 
     #Memmap the RAW file and find the number of bytes
     # Personal desktop RAW file
     #inputFileName = "../../Downloads/blc05_guppi_58100_78802_OUMUAMUA_0011.0000.raw"
     # Green Bank nodes
 
-    for k in range(1):
+    for k in range(10):
         for bank in range(numberOfBanks):
             for node in range(numberOfNodes):
                 if (bank!=desiredBank or node!=desiredNode):
@@ -79,7 +79,7 @@ if __name__ == "__main__":
         dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
 
         NDIMsmall = samplesPerTransform * fftsPerIntegration
-        RealTime.real_time_spectra_desired(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+        RealTime.real_time_spectra_desired(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW, k)
 
         del readIn
 

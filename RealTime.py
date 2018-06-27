@@ -97,7 +97,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         6/7)    X/Y Polarization spectral kurtosis of the compute node's bandwidth
     """
 
-    totalTime = samplesPerTransform * fftsPerIntegration * TBIN
+    totalTime = samplesPerTransform * fftsPerIntegration * TBIN * 10
 
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
     if (plt.fignum_exists("Test") == False):
@@ -122,7 +122,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         axis2_desired.set_ylabel("Power")
         axis2_desired.set_yscale('log')
         axis2_desired.margins(x=0)
-        axis2_desired.plot(current_axis, bandPass_x)
+        axis2_desired.plot(current_axis, bandPass_x, color = 'C0')
 
         axis3_desired = plt.subplot2grid((18,5), (5, 3), colspan=2, rowspan=3)
         axis3_desired.set_title("Node Spectrum: Y")
@@ -130,7 +130,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         axis3_desired.set_ylabel("Power")
         axis3_desired.set_yscale('log')
         axis3_desired.margins(x=0)
-        axis3_desired.plot(current_axis, bandPass_y)
+        axis3_desired.plot(current_axis, bandPass_y, color = 'C0')
 
         # Waterfall of compute node
         axis4_desired = plt.subplot2grid((18,5), (10, 0), colspan=2, rowspan=3)
@@ -150,13 +150,13 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
         # Spectral Kurtosis of compute node
         axis6_desired = plt.subplot2grid((18,5), (15,0), colspan=2, rowspan=3)
-        axis6_desired.plot(current_axis, SK_x)
+        axis6_desired.plot(current_axis, SK_x, color = 'C0')
         axis6_desired.set_title("Spectral Kurtosis: X")
         axis6_desired.margins(x=0)
         axis6_desired.set_xlabel("Frequency (MHz)")
 
         axis7_desired = plt.subplot2grid((18,5), (15, 3), colspan=2, rowspan=3)
-        axis7_desired.plot(current_axis, SK_y)
+        axis7_desired.plot(current_axis, SK_y, color = 'C0')
         axis7_desired.set_title("Spectral Kurtosis: Y")
         axis7_desired.margins(x=0)
         axis7_desired.set_xlabel("Frequency (MHz)")
@@ -164,17 +164,17 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     else:
         axis1_desired.plot(current_axis, bandPass_x, color = 'red')
         del axis2_desired.lines[:]
-        axis2_desired.plot(current_axis, bandPass_x)
+        axis2_desired.plot(current_axis, bandPass_x, color = 'C0')
         del axis3_desired.lines[:]
-        axis3_desired.plot(current_axis, bandPass_y)
+        axis3_desired.plot(current_axis, bandPass_y, color = 'C0')
         axis4_desired.imshow(integrated_spectrum_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
         axis5_desired.imshow(integrated_spectrum_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
         del axis6_desired.lines[:]
-        axis6_desired.plot(current_axis, SK_x)
+        axis6_desired.plot(current_axis, SK_x, color = 'C0')
         del axis7_desired.lines[:]
-        axis7_desired.plot(current_axis, SK_y)
+        axis7_desired.plot(current_axis, SK_y, color = 'C0')
 
-    plt.pause(1)
+    plt.pause(0.0001)
 
 def plot_real_time_visualization_general(current_axis, bandPass_x):
     """
@@ -263,7 +263,7 @@ def real_time_spectra_general(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerInteg
 
     plot_real_time_visualization_general(current_RAW_axis, bandPass_x)
 
-def real_time_spectra_desired(BLOCK, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
+def real_time_spectra_desired(BLOCK, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW, file_index):
     """
     Plot spectra and stats of real-time observational BL data for node of interest.
 
@@ -289,8 +289,8 @@ def real_time_spectra_desired(BLOCK, OBSNCHAN, TBIN, samplesPerTransform, fftsPe
     # Spectrum for waterfall (array in array for plt.imshow())
     waterfall_spectrum_x = np.zeros((10, OBSNCHAN * samplesPerTransform))
     waterfall_spectrum_y = np.zeros((10, OBSNCHAN * samplesPerTransform))
-    waterfall_spectrum_x[0, :] = spectralData_x.reshape(-1)
-    waterfall_spectrum_y[0, :] = spectralData_y.reshape(-1)
+    waterfall_spectrum_x[file_index, :] = spectralData_x.reshape(-1)
+    waterfall_spectrum_y[file_index, :] = spectralData_y.reshape(-1)
 
     # Spectrum for plotting
     bandPass_x = np.sum(waterfall_spectrum_x, 0)
