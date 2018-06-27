@@ -96,54 +96,80 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     totalTime = samplesPerTransform * fftsPerIntegration * TBIN
 
-    ax1.plot(current_axis, bandPass_x, color = 'red')
 
-    # Spectra of compute node
-    ax2 = plt.subplot2grid((18,5), (5,0), colspan=2, rowspan=3)
-    ax2.set_title("Node Spectrum: X")
-    ax2.set_xlabel("Frequency (MHz)")
-    ax2.set_ylabel("Power")
-    ax2.set_yscale('log')
-    ax2.margins(x=0)
-    ax2.plot(current_axis, bandPass_x)
-    ax3 = plt.subplot2grid((18,5), (5, 3), colspan=2, rowspan=3)
-    ax3.set_title("Node Spectrum: Y")
-    ax3.set_xlabel("Frequency (MHz)")
-    ax3.set_ylabel("Power")
-    ax3.set_yscale('log')
-    ax3.margins(x=0)
-    ax3.plot(current_axis, bandPass_y)
+    if (plt.fignum_exists("Test") == False):
+        #SET UP Big Plot
+        plt.figure("Test")
+        plt.suptitle("Real-Time Spectra of Observation")
+        plt.ion()
+        plt.show()
 
-    # Waterfall of compute node
-    ax4 = plt.subplot2grid((18,5), (10, 0), colspan=2, rowspan=3)
-    ax4.set_title("Node Waterfall: X")
-    ax4.imshow(integrated_spectrum_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
-    ax4.set_xlabel("Frequency (MHz)")
-    ax4.set_ylabel("Time (s)")
-    ax4.margins(x=0)
-    #plt.colorbar(im, ax=ax4)
+        # Full observational range
+        axis1_desired = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
+        axis1_desired.set_title("Full Observation Spectrum (X)")
+        axis1_desired.set_yscale("log")
+        axis1_desired.set_ylabel("Power")
+        axis1_desired.set_xlabel("Frequency (MHz)")
+        axis1_desired.plot(current_axis, bandPass_x, color = 'red')
 
-    ax5 = plt.subplot2grid((18,5), (10, 3), colspan=2, rowspan=3)
-    ax5.set_title("Node Waterfall: Y")
-    ax5.imshow(integrated_spectrum_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
-    ax5.set_xlabel("Frequency (MHz)")
-    ax5.set_ylabel("Time (s)")
-    ax5.margins(x=0)
+        # Spectra of compute node
+        axis2_desired = plt.subplot2grid((18,5), (5,0), colspan=2, rowspan=3)
+        axis2_desired.set_title("Node Spectrum: X")
+        axis2_desired.set_xlabel("Frequency (MHz)")
+        axis2_desired.set_ylabel("Power")
+        axis2_desired.set_yscale('log')
+        axis2_desired.margins(x=0)
+        axis2_desired.plot(current_axis, bandPass_x)
 
-    # Spectral Kurtosis of compute node
-    ax6 = plt.subplot2grid((18,5), (15,0), colspan=2, rowspan=3)
-    ax6.plot(current_axis, SK_x)
-    ax6.set_title("Spectral Kurtosis: X")
-    ax6.margins(x=0)
-    ax6.set_xlabel("Frequency (MHz)")
-    ax7 = plt.subplot2grid((18,5), (15, 3), colspan=2, rowspan=3)
-    ax7.plot(current_axis, SK_y)
-    ax7.set_title("Spectral Kurtosis: Y")
-    ax7.margins(x=0)
-    ax7.set_xlabel("Frequency (MHz)")
+        axis3_desired = plt.subplot2grid((18,5), (5, 3), colspan=2, rowspan=3)
+        axis3_desired.set_title("Node Spectrum: Y")
+        axis3_desired.set_xlabel("Frequency (MHz)")
+        axis3_desired.set_ylabel("Power")
+        axis3_desired.set_yscale('log')
+        axis3_desired.margins(x=0)
+        axis3_desired.plot(current_axis, bandPass_y)
 
-    plt.suptitle("Real-Time Spectra of Observation")
-    plt.show()
+        # Waterfall of compute node
+        axis4_desired = plt.subplot2grid((18,5), (10, 0), colspan=2, rowspan=3)
+        axis4_desired.set_title("Node Waterfall: X")
+        axis4_desired.imshow(integrated_spectrum_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
+        axis4_desired.set_xlabel("Frequency (MHz)")
+        axis4_desired.set_ylabel("Time (s)")
+        axis4_desired.margins(x=0)
+        #plt.colorbar(im, ax=ax4)
+
+        axis5_desired = plt.subplot2grid((18,5), (10, 3), colspan=2, rowspan=3)
+        axis5_desired.set_title("Node Waterfall: Y")
+        axis5_desired.imshow(integrated_spectrum_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
+        axis5_desired.set_xlabel("Frequency (MHz)")
+        axis5_desired.set_ylabel("Time (s)")
+        axis5_desired.margins(x=0)
+
+        # Spectral Kurtosis of compute node
+        axis6_desired = plt.subplot2grid((18,5), (15,0), colspan=2, rowspan=3)
+        axis6_desired.plot(current_axis, SK_x)
+        axis6_desired.set_title("Spectral Kurtosis: X")
+        axis6_desired.margins(x=0)
+        axis6_desired.set_xlabel("Frequency (MHz)")
+
+        axis7_desired = plt.subplot2grid((18,5), (15, 3), colspan=2, rowspan=3)
+        axis7_desired.plot(current_axis, SK_y)
+        axis7_desired.set_title("Spectral Kurtosis: Y")
+        axis7_desired.margins(x=0)
+        axis7_desired.set_xlabel("Frequency (MHz)")
+
+    else:
+        axis1_desired.plot(current_axis, bandPass_x, color = 'red')
+        del axis2_desired.lines[:]
+        axis2_desired.plot(current_axis, bandPass_x)
+        del axis3_desired.lines[:]
+        axis3_desired.plot(current_axis, bandPass_y)
+        axis4_desired.imshow(integrated_spectrum_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
+        axis5_desired.imshow(integrated_spectrum_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
+        del axis6_desired.lines[:]
+        axis6_desired.plot(current_axis, SK_x)
+        del axis7_desired.lines[:]
+        axis7_desired.plot(current_axis, SK_y)
 
 
 def plot_real_time_visualization_general(current_axis, bandPass_x):
@@ -151,21 +177,71 @@ def plot_real_time_visualization_general(current_axis, bandPass_x):
     Plot the top panel -- full spectrum of all active nodes (except node of interest)
     """
 
-    global ax1
+    global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
 
-    if(plt.fignum_exists("Test")):
-	ax1.plot(current_axis, bandPass_x, color = 'black')
-    else:
+    if(plt.fignum_exists("Test") == False):
         #SET UP Big Plot
         plt.figure("Test")
+        plt.suptitle("Real-Time Spectra of Observation")
+        plt.ion()
+        plt.show()
 
         # Full observational range
-	ax1 = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
-        ax1.set_title("Full Observation Spectrum (X)")
-        ax1.set_yscale("log")
-        ax1.set_ylabel("Power")
-        ax1.set_xlabel("Frequency (MHz)")
-	ax1.plot(current_axis, bandPass_x, color = 'black')
+        axis1_desired = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
+        axis1_desired.set_title("Full Observation Spectrum (X)")
+        axis1_desired.set_yscale("log")
+        axis1_desired.set_ylabel("Power")
+        axis1_desired.set_xlabel("Frequency (MHz)")
+        axis1_desired.plot(current_axis, bandPass_x, color = 'black')
+
+        # Spectra of compute node
+        axis2_desired = plt.subplot2grid((18,5), (5,0), colspan=2, rowspan=3)
+        axis2_desired.set_title("Node Spectrum: X")
+        axis2_desired.set_xlabel("Frequency (MHz)")
+        axis2_desired.set_ylabel("Power")
+        axis2_desired.set_yscale('log')
+        axis2_desired.margins(x=0)
+        axis2_desired.plot(current_axis, bandPass_x)
+
+        axis3_desired = plt.subplot2grid((18,5), (5, 3), colspan=2, rowspan=3)
+        axis3_desired.set_title("Node Spectrum: Y")
+        axis3_desired.set_xlabel("Frequency (MHz)")
+        axis3_desired.set_ylabel("Power")
+        axis3_desired.set_yscale('log')
+        axis3_desired.margins(x=0)
+        axis3_desired.plot(current_axis, bandPass_y)
+
+        # Waterfall of compute node
+        axis4_desired = plt.subplot2grid((18,5), (10, 0), colspan=2, rowspan=3)
+        axis4_desired.set_title("Node Waterfall: X")
+        axis4_desired.imshow(integrated_spectrum_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
+        axis4_desired.set_xlabel("Frequency (MHz)")
+        axis4_desired.set_ylabel("Time (s)")
+        axis4_desired.margins(x=0)
+        #plt.colorbar(im, ax=ax4)
+
+        axis5_desired = plt.subplot2grid((18,5), (10, 3), colspan=2, rowspan=3)
+        axis5_desired.set_title("Node Waterfall: Y")
+        axis5_desired.imshow(integrated_spectrum_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
+        axis5_desired.set_xlabel("Frequency (MHz)")
+        axis5_desired.set_ylabel("Time (s)")
+        axis5_desired.margins(x=0)
+
+        # Spectral Kurtosis of compute node
+        axis6_desired = plt.subplot2grid((18,5), (15,0), colspan=2, rowspan=3)
+        axis6_desired.plot(current_axis, SK_x)
+        axis6_desired.set_title("Spectral Kurtosis: X")
+        axis6_desired.margins(x=0)
+        axis6_desired.set_xlabel("Frequency (MHz)")
+
+        axis7_desired = plt.subplot2grid((18,5), (15, 3), colspan=2, rowspan=3)
+        axis7_desired.plot(current_axis, SK_y)
+        axis7_desired.set_title("Spectral Kurtosis: Y")
+        axis7_desired.margins(x=0)
+        axis7_desired.set_xlabel("Frequency (MHz)")
+
+    else:
+    	axis1_desired.plot(current_axis, bandPass_x, color = 'black')
 
 def real_time_spectra_general(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
     """
@@ -209,8 +285,10 @@ def real_time_spectra_desired(BLOCK, OBSNCHAN, TBIN, samplesPerTransform, fftsPe
     spectralData_y = np.flip(np.sum(spectralData_y, axis = 1), 0)
 
     # Spectrum for waterfall (array in array for plt.imshow())
-    waterfall_spectrum_x = [spectralData_x.reshape(-1)]
-    waterfall_spectrum_y = [spectralData_y.reshape(-1)]
+    waterfall_spectrum_x = np.zeros((10, OBSNCHAN * samplesPerTransform))
+    waterfall_spectrum_y = np.zeros((10, OBSNCHAN * samplesPerTransform))
+    waterfall_spectrum_x[0, :] = spectralData_x.reshape(-1)
+    waterfall_spectrum_y[0, :] = spectralData_y.reshape(-1)
 
     # Spectrum for plotting
     bandPass_x = np.sum(waterfall_spectrum_x, 0)
