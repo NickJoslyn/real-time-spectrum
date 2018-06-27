@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from matplotlib.collections import LineCollection
 
-global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
+#global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
 
 
 def convert_resolution(customFrequencyResolution, customTimeResolution, TBIN):
@@ -175,6 +175,11 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         axis7_desired.plot(current_axis, SK_y, color = 'C0')
 
     plt.pause(0.0001)
+
+def clear_full_spectrum():
+
+    global axis1_desired
+    del axis1_desired.lines[:]
 
 def plot_real_time_visualization_general(current_axis, bandPass_x):
     """

@@ -39,6 +39,8 @@ if __name__ == "__main__":
     # Green Bank nodes
 
     for k in range(10):
+	if (k > 0):
+            RealTime.clear_full_spectrum()
         for bank in range(numberOfBanks):
             for node in range(numberOfNodes):
                 if (bank!=desiredBank or node!=desiredNode):
