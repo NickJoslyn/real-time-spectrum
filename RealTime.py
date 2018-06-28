@@ -100,8 +100,8 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     totalTime = samplesPerTransform * fftsPerIntegration * TBIN * 10
 
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
-    global sk_lower_threshold, sk_upper_threshold
-    
+    sk_lower_threshold, sk_upper_threshold = SKThresholds.spectralKurtosis_thresholds(fftsPerIntegration)
+
     if (plt.fignum_exists("Test") == False):
         #SET UP Big Plot
         plt.figure("Test")

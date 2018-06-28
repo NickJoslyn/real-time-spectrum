@@ -36,7 +36,6 @@ if __name__ == "__main__":
     # Personal desktop RAW file
     #inputFileName = "../../Downloads/blc05_guppi_58100_78802_OUMUAMUA_0011.0000.raw"
     # Green Bank nodes
-    global sk_lower_threshold, sk_upper_threshold
     for k in range(10):
 	if (k > 0):
             RealTime.clear_full_spectrum()
@@ -57,7 +56,6 @@ if __name__ == "__main__":
 
                     samplesPerTransform, fftsPerIntegration = RealTime.convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
                     dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
-                    sk_upper_threshold, sk_lower_threshold = SKThresholds.spectralKurtosis_thresholds(fftsPerIntegration)
                     NDIMsmall = samplesPerTransform * fftsPerIntegration
                     RealTime.real_time_spectra_general(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
 
