@@ -4,6 +4,8 @@
 # Functions for real-time spectra of BL Observations
 from __future__ import division
 import numpy as np
+from scipy import special
+from scipy import optimize
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from matplotlib.collections import LineCollection
