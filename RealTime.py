@@ -9,6 +9,7 @@ from scipy import optimize
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from matplotlib.collections import LineCollection
+import SKThresholds
 
 def convert_resolution(customFrequencyResolution, customTimeResolution, TBIN):
     """
@@ -99,6 +100,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     totalTime = samplesPerTransform * fftsPerIntegration * TBIN * 10
 
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
+    global sk_lower_threshold, sk_upper_threshold
     if (plt.fignum_exists("Test") == False):
         #SET UP Big Plot
         plt.figure("Test")
@@ -152,12 +154,16 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         axis6_desired.plot(current_axis, SK_x, color = 'C0')
         axis6_desired.set_title("Spectral Kurtosis: X")
         axis6_desired.margins(x=0)
+        axis6_desired.axhline(y=sk_upper_threshold, color = 'y')
+        axis6_desired.axhline(y=sk_lower_threshold, color = 'y')
         axis6_desired.set_xlabel("Frequency (MHz)")
 
         axis7_desired = plt.subplot2grid((18,5), (15, 3), colspan=2, rowspan=3)
         axis7_desired.plot(current_axis, SK_y, color = 'C0')
         axis7_desired.set_title("Spectral Kurtosis: Y")
         axis7_desired.margins(x=0)
+        axis7_desired.axhline(y=sk_upper_threshold, color = 'y')
+        axis7_desired.axhline(y=sk_lower_threshold, color = 'y')
         axis7_desired.set_xlabel("Frequency (MHz)")
 
     else:
@@ -169,8 +175,12 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         axis4_desired.imshow(integrated_spectrum_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
         axis5_desired.imshow(integrated_spectrum_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
         del axis6_desired.lines[:]
+        axis6_desired.axhline(y=sk_upper_threshold, color = 'y')
+        axis6_desired.axhline(y=sk_lower_threshold, color = 'y')
         axis6_desired.plot(current_axis, SK_x, color = 'C0')
         del axis7_desired.lines[:]
+        axis7_desired.axhline(y=sk_upper_threshold, color = 'y')
+        axis7_desired.axhline(y=sk_lower_threshold, color = 'y')
         axis7_desired.plot(current_axis, SK_y, color = 'C0')
 
     plt.pause(0.0001)

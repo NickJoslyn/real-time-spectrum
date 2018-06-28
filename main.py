@@ -11,6 +11,7 @@ import spectrumEstimation
 import header
 import spectrumIntegration
 import RealTime
+import SKThresholds
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
@@ -55,6 +56,7 @@ if __name__ == "__main__":
                     #Skip header and put data in easily parsed array
 
                     samplesPerTransform, fftsPerIntegration = RealTime.convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
+                    sk_upper_threshold, sk_lower_threshold = SKThresholds.spectralKurtosis_thresholds(fftsPerIntegration)
                     dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
 
                     NDIMsmall = samplesPerTransform * fftsPerIntegration

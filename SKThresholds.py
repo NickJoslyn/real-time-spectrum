@@ -35,4 +35,4 @@ def spectralKurtosis_thresholds(M, N = 1, d = 1, p = 0.0013499):
     x = [1]
     upperThreshold = optimize.newton(upperRoot, x[0], args = (moment_2, moment_3, p))
     lowerThreshold = optimize.newton(lowerRoot, x[0], args = (moment_2, moment_3, p))
-    print(upperThreshold, '\n', lowerThreshold)
+    return upperThreshold, lowerThreshold
