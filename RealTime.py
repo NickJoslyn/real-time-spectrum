@@ -86,7 +86,7 @@ def calculate_spectra(No_DC_BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTrans
     return x_pol_spectra, y_pol_spectra
 
 def press(event):
-    global Plotnode, Plotbank
+    global Plotted_Node, Plotted_Bank
 
     sys.stdout.flush()
     if event.key == 'x':
@@ -94,23 +94,23 @@ def press(event):
         axis1_desired.set_visible(not visible)
         #fig.canvas.draw()
     if event.key == 'up':
-        Plotbank += 1
-        if (Plotbank > 3):
-            Plotbank = 0
+        Plotted_Bank += 1
+        if (Plotted_Bank > 3):
+            Plotted_Bank = 0
     if event.key == 'down':
-        Plotbank -= 1
-        if (Plotbank < 0):
-            Plotbank = 3
+        Plotted_Bank -= 1
+        if (Plotted_Bank < 0):
+            Plotted_Bank = 3
     if event.key == 'right':
-        Plotnode += 1
-        if (Plotnode > 7):
-            Plotnode = 0
+        Plotted_Node += 1
+        if (Plotted_Node > 7):
+            Plotted_Node = 0
     if event.key == 'left':
-        Plotnode -= 1
-        if (Plotnode < 0):
-            Plotnode = 7
+        Plotted_Node -= 1
+        if (Plotted_Node < 0):
+            Plotted_Node = 7
 
-
+    print("Compute Node: " + str(Plotted_Bank) + str(Plotted_Node))
 
 
 def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spectrum_y, bandPass_x, bandPass_y, SK_x, SK_y, current_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN):

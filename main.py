@@ -24,7 +24,8 @@ if __name__ == "__main__":
     #User inputted resolutions
     desiredFrequencyResolution = 183105 #16 Bins
     desiredTimeResolution = 0.0003 #54 Integrations
-
+    Plotted_Bank = 0
+    Plotted_Node = 0
     #Hardware/band dependent parameters
     numberOfBanks = 1
     numberOfNodes = 8
