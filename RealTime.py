@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from matplotlib.collections import LineCollection
 import SKThresholds
+import sys
 
 def convert_resolution(customFrequencyResolution, customTimeResolution, TBIN):
     """
@@ -83,6 +84,34 @@ def calculate_spectra(No_DC_BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTrans
         y_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration))))**2
 
     return x_pol_spectra, y_pol_spectra
+
+def press(event):
+    global Plotnode, Plotbank
+
+    sys.stdout.flush()
+    if event.key == 'x':
+        visible = axis1_desired.get_visible()
+        axis1_desired.set_visible(not visible)
+        #fig.canvas.draw()
+    if event.key == 'up':
+        Plotbank += 1
+        if (Plotbank > 3):
+            Plotbank = 0
+    if event.key == 'down':
+        Plotbank -= 1
+        if (Plotbank < 0):
+            Plotbank = 3
+    if event.key == 'right':
+        Plotnode += 1
+        if (Plotnode > 7):
+            Plotnode = 0
+    if event.key == 'left':
+        Plotnode -= 1
+        if (Plotnode < 0):
+            Plotnode = 7
+
+
+
 
 def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spectrum_y, bandPass_x, bandPass_y, SK_x, SK_y, current_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN):
     """
@@ -184,7 +213,8 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         axis7_desired.axhline(y=sk_lower_threshold, color = 'y')
         axis7_desired.plot(current_axis, SK_y, color = 'C0')
 
-    plt.pause(0.0001)
+    plt.connect('key_press_event', press)
+    plt.pause(0.5)
 
 def clear_full_spectrum():
 
