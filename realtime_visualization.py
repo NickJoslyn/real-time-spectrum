@@ -437,16 +437,38 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     else:
         axis1_desired.plot(current_axis, bandPass_x, color = 'red')
-        del axis2_desired.lines[:]
+
+        axis2_desired.clear()
+        axis2_desired.set_title("Node Spectrum: X")
+        axis2_desired.set_xlabel("Frequency (MHz)")
+        axis2_desired.set_ylabel("Power")
+        axis2_desired.set_yscale('log')
+        axis2_desired.margins(x=0)
         axis2_desired.plot(current_axis, bandPass_x, color = 'C0')
-        del axis3_desired.lines[:]
+
+
+        axis3_desired.clear()
+        axis3_desired.set_title("Node Spectrum: Y")
+        axis3_desired.set_xlabel("Frequency (MHz)")
+        axis3_desired.set_ylabel("Power")
+        axis3_desired.set_yscale('log')
+        axis3_desired.margins(x=0)
         axis3_desired.plot(current_axis, bandPass_y, color = 'C0')
+
+
+
         axis4_desired.imshow(integrated_spectrum_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
         axis5_desired.imshow(integrated_spectrum_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
-        del axis6_desired.lines[:]
+
+
+
+        axis6_desired.clear()
+        axis6_desired.plot(current_axis, SK_x, color = 'C0')
+        axis6_desired.set_title("Spectral Kurtosis: X")
+        axis6_desired.margins(x=0)
         axis6_desired.axhline(y=sk_upper_threshold, color = 'y')
         axis6_desired.axhline(y=sk_lower_threshold, color = 'y')
-        axis6_desired.plot(current_axis, SK_x, color = 'C0')
+        axis6_desired.set_xlabel("Frequency (MHz)")
 
         axis7_desired.clear()
         axis7_desired.plot(current_axis, SK_y, color = 'C0')
