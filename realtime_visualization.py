@@ -402,7 +402,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         axis7_desired.axhline(y=sk_lower_threshold, color = 'y')
         axis7_desired.plot(current_axis, SK_y, color = 'C0')
 
-    plt.pause(5)
+    plt.pause(1)
 
 def real_time_spectra_desired(BLOCK, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW, file_index):
     """
@@ -540,10 +540,10 @@ if __name__ == "__main__":
 
         ## Done with spectra collection; plot
         for i in range(numberOfNodes):
-            if (i==desiredNode):
-                plot_desired(node_spectra_storage[k, desiredBank, desiredNode, 0, :, :, :], node_spectra_storage[k, desiredBank, desiredNode, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, desiredNode, 0], node_Frequency_Ranges[desiredBank, desiredNode, 1], k)
-            else:
-                plot_otherNodes(node_spectra_storage[k, desiredBank, i, 0, :, :, :], node_spectra_storage[k, desiredBank, i, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, i, 0], node_Frequency_Ranges[desiredBank, i, 1]):
+            if (i!=desiredNode):
+                plot_otherNodes(node_spectra_storage[k, desiredBank, i, 0, :, :, :], node_spectra_storage[k, desiredBank, i, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, i, 0], node_Frequency_Ranges[desiredBank, i, 1])
+
+        plot_desired(node_spectra_storage[k, desiredBank, desiredNode, 0, :, :, :], node_spectra_storage[k, desiredBank, desiredNode, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, desiredNode, 0], node_Frequency_Ranges[desiredBank, desiredNode, 1], k)
 
     # print(node_Frequency_Ranges)
     # print(node_spectra_storage.shape)
