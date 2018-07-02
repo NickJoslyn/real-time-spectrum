@@ -393,7 +393,6 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         axis7_desired.axhline(y=sk_lower_threshold, color = 'y')
         axis7_desired.plot(current_axis, SK_y, color = 'C0')
 
-    plt.connect('key_press_event', press)
     plt.pause(0.5)
 
 def real_time_spectra_desired(BLOCK, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW, file_index):
