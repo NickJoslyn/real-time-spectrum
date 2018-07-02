@@ -219,14 +219,25 @@ def press(event):
     sys.stdout.flush()
     if event.key == 'x':
         Polarization_Plot += 1
-
         del axis1_desired.lines[:]
         if (Polarization_Plot%2 == 0):
             for j in range(8):
-                plot_otherNodes(node_spectra_storage[k, desiredBank, j, 0, :, :, :], node_spectra_storage[k, desiredBank, j, 0, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, j, 0], node_Frequency_Ranges[desiredBank, j, 1])
+                if(j!=Plotted_Node):
+                    plot_otherNodes(node_spectra_storage[k, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[k, Plotted_Bank, j, 0, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
+                else:
+                    plot_otherNodes(node_spectra_storage[k, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[k, Plotted_Bank, j, 0, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
+
+            axis1_desired.set_title("Full Observation Spectrum (X)")
+
         else:
             for j in range(8):
-                plot_otherNodes(node_spectra_storage[k, desiredBank, j, 1, :, :, :], node_spectra_storage[k, desiredBank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, j, 0], node_Frequency_Ranges[desiredBank, j, 1])
+                if(j!=Plotted_Node):
+                    plot_otherNodes(node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
+                else:
+                    plot_otherNodes(node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], color = 'red')
+
+            axis1_desired.set_title("Full Observation Spectrum (Y)")
+
 
     if event.key == 'up':
         Plotted_Bank += 1
@@ -235,9 +246,9 @@ def press(event):
         clear_node_plots()
         for j in range(8):
             if (j!=Plotted_Node):
-                plot_otherNodes(node_spectra_storage[dummyCountIndicator, desiredBank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, desiredBank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, j, 0], node_Frequency_Ranges[desiredBank, j, 1])
+                plot_otherNodes(node_spectra_storage[dummyCountIndicator, desiredBank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
 
-        plot_desired_from_click(node_spectra_storage[:, desiredBank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, desiredBank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[desiredBank, Plotted_Node, 0], node_Frequency_Ranges[desiredBank, Plotted_Node, 1], dummyCountIndicator)
+        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], dummyCountIndicator)
 
 
 
@@ -248,9 +259,9 @@ def press(event):
         clear_node_plots()
         for j in range(8):
             if (j!=Plotted_Node):
-                plot_otherNodes(node_spectra_storage[dummyCountIndicator, desiredBank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, desiredBank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, j, 0], node_Frequency_Ranges[desiredBank, j, 1])
+                plot_otherNodes(node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
 
-        plot_desired_from_click(node_spectra_storage[:, desiredBank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, desiredBank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[desiredBank, Plotted_Node, 0], node_Frequency_Ranges[desiredBank, Plotted_Node, 1], dummyCountIndicator)
+        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], dummyCountIndicator)
 
 
 
@@ -262,9 +273,9 @@ def press(event):
         clear_node_plots()
         for j in range(8):
             if (j!=Plotted_Node):
-                plot_otherNodes(node_spectra_storage[dummyCountIndicator, desiredBank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, desiredBank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, j, 0], node_Frequency_Ranges[desiredBank, j, 1])
+                plot_otherNodes(node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
 
-        plot_desired_from_click(node_spectra_storage[:, desiredBank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, desiredBank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[desiredBank, Plotted_Node, 0], node_Frequency_Ranges[desiredBank, Plotted_Node, 1], dummyCountIndicator)
+        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], dummyCountIndicator)
 
 
     if event.key == 'left':
@@ -274,9 +285,9 @@ def press(event):
         clear_node_plots()
         for j in range(8):
             if (j!=Plotted_Node):
-                plot_otherNodes(node_spectra_storage[dummyCountIndicator, desiredBank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, desiredBank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, j, 0], node_Frequency_Ranges[desiredBank, j, 1])
+                plot_otherNodes(node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
 
-        plot_desired_from_click(node_spectra_storage[:, desiredBank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, desiredBank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[desiredBank, Plotted_Node, 0], node_Frequency_Ranges[desiredBank, Plotted_Node, 1], dummyCountIndicator)
+        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], dummyCountIndicator)
 
 
 
@@ -300,7 +311,7 @@ def clear_node_plots():
     axis6_desired.clear()
     axis7_desired.clear()
 
-def plot_real_time_visualization_general(current_axis, bandPass_x):
+def plot_real_time_visualization_general(current_axis, bandPass_x, defaultColor = 'black'):
     """
     Plot the top panel -- full spectrum of all active nodes (except node of interest)
     """
@@ -319,7 +330,7 @@ def plot_real_time_visualization_general(current_axis, bandPass_x):
         axis1_desired.set_yscale("log")
         axis1_desired.set_ylabel("Power")
         axis1_desired.set_xlabel("Frequency (MHz)")
-        axis1_desired.plot(current_axis, bandPass_x, color = 'black')
+        axis1_desired.plot(current_axis, bandPass_x, color = defaultColor)
 
         # Spectra of compute node
         axis2_desired = plt.subplot2grid((18,5), (5,0), colspan=2, rowspan=3)
@@ -368,7 +379,7 @@ def plot_real_time_visualization_general(current_axis, bandPass_x):
         axis7_desired.set_xlabel("Frequency (MHz)")
 
     else:
-    	axis1_desired.plot(current_axis, bandPass_x, color = 'black')
+    	axis1_desired.plot(current_axis, bandPass_x, color = defaultColor)
 
 
 def real_time_spectra_general(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
@@ -625,7 +636,7 @@ def plot_desired(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samplesPerTrans
     current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
     plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, SK_x, SK_y, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN)
 
-def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound):
+def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, plot_color = 'black'):
     """
     Calculate spectra of all active nodes (except node of interest)
     """
@@ -635,7 +646,7 @@ def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransfor
 
     current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
 
-    plot_real_time_visualization_general(current_RAW_axis, bandPass_x)
+    plot_real_time_visualization_general(current_RAW_axis, bandPass_x, plot_color)
 ################################################################################
 #######################---Program---############################################
 ################################################################################
