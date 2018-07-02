@@ -473,13 +473,14 @@ if __name__ == "__main__":
     dualPolarization = 2
     desiredBank = 0
     desiredNode = 4
+    numberOfFiles = 10
 
-    node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, 2, 64, 54, 16))
-    node_spectra_storage = np.zeros((numberOfBanks, numberOfNodes, 2, 64, 54, 16))
+    node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, 2))
+    node_spectra_storage = np.zeros((numberOfFiles, numberOfBanks, numberOfNodes, 2, 64, 54, 16))
 
-    for k in range(10):
-        if (k>0):
-            clear_full_spectrum()
+    for k in range(numberOfFiles):
+        #if (k>0):
+            #clear_full_spectrum()
         for bank in range(numberOfBanks):
             for node in range(numberOfNodes):
 
@@ -496,9 +497,9 @@ if __name__ == "__main__":
                 NDIMsmall = samplesPerTransform * fftsPerIntegration
 
                 ### Put in function
-                node_spectra_storage[bank, node, 0, :, :, :], node_spectra_storage[bank, node, 1, :, :, :], node_Frequency_Ranges[bank, node, 0], node_Frequency_Ranges[bank, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+                node_spectra_storage[k, bank, node, 0, :, :, :], node_spectra_storage[k, bank, node, 1, :, :, :], node_Frequency_Ranges[bank, node, 0], node_Frequency_Ranges[bank, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
                 ### End presumed function
-                print(bank, node)
+                #print(bank, node)
                 del readIn
     print(node_Frequency_Ranges)
     print(node_spectra_storage.shape)
