@@ -448,12 +448,12 @@ def spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, O
 
     BLOCK = remove_DCoffset(BLOCK)
     spectralData_x, spectralData_y = calculate_spectra(BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTransform)
-    nodeBand_x = np.flip(np.sum(spectralData_x, 1),0).reshape(-1)
-    nodeBand_y = np.sum(np.flip(np.sum(spectralData_y, 1),0), 0)
+    # nodeBand_x = np.flip(np.sum(spectralData_x, 1),0).reshape(-1)
+    # nodeBand_y = np.sum(np.flip(np.sum(spectralData_y, 1),0), 0)
     lowerBound = OBSFREQ + OBSBW/2
     upperBound = OBSFREQ - OBSBW/2
 
-    return upperBound, lowerBound
+    return spectralData_x, spectralData_y, upperBound, lowerBound
 
 
 ################################################################################
@@ -481,7 +481,7 @@ if __name__ == "__main__":
         if (k>0):
             clear_full_spectrum()
         for bank in range(numberOfBanks):
-            for node in range(numberOfNodes)
+            for node in range(numberOfNodes):
 
                 inputFileName = "/mnt_blc" + str(bank) + str(node) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(bank) + str(node) + "/blc" + str(bank) + str(node) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(k) + ".raw"
                 readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
@@ -496,7 +496,7 @@ if __name__ == "__main__":
                 NDIMsmall = samplesPerTransform * fftsPerIntegration
 
                 ### Put in function
-                node_spectra_storage[bank, node, 0, :, :, :], node_spectra_storage[bank, node, 1, :, :, :], node_Frequency_Ranges[bank, node, 0], node_Frequency_Ranges[bank, node, 1] = spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+                node_spectra_storage[bank, node, 0, :, :, :], node_spectra_storage[bank, node, 1, :, :, :], node_Frequency_Ranges[bank, node, 0], node_Frequency_Ranges[bank, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
                 ### End presumed function
                 print(bank, node)
                 del readIn
