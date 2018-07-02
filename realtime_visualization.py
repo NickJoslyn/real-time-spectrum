@@ -453,9 +453,45 @@ def spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, O
     lowerBound = OBSFREQ + OBSBW/2
     upperBound = OBSFREQ - OBSBW/2
 
-    return spectralData_x, spectralData_y, upperBound, lowerBound
+    return spectralData_x, spectralData_y, lowerBound, upperBound
 
 
+def plot_desired(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index):
+
+    # Spectral Kurtosis
+    SK_x = calculate_spectralKurtosis(spectralData_x, fftsPerIntegration)
+    SK_y = calculate_spectralKurtosis(spectralData_y, fftsPerIntegration)
+    SK_x = np.flip(SK_x, 0).reshape(-1)
+    SK_y = np.flip(SK_y, 0).reshape(-1)
+
+    # Spectral flip
+    spectralData_x = np.flip(np.sum(spectralData_x, axis = 1), 0)
+    spectralData_y = np.flip(np.sum(spectralData_y, axis = 1), 0)
+
+    # Spectrum for waterfall (array in array for plt.imshow())
+    waterfall_spectrum_x = np.zeros((10, OBSNCHAN * samplesPerTransform))
+    waterfall_spectrum_y = np.zeros((10, OBSNCHAN * samplesPerTransform))
+    waterfall_spectrum_x[file_index, :] = spectralData_x.reshape(-1)
+    waterfall_spectrum_y[file_index, :] = spectralData_y.reshape(-1)
+
+    # Spectrum for plotting
+    bandPass_x = np.sum(waterfall_spectrum_x, 0)
+    bandPass_y = np.sum(waterfall_spectrum_y, 0)
+
+    current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
+    plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, SK_x, SK_y, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN)
+
+def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound):
+    """
+    Calculate spectra of all active nodes (except node of interest)
+    """
+
+    bandPass_x = np.flip(np.sum(spectralData_x, 1),0).reshape(-1)
+    #bandPass_y = np.sum(np.flip(np.sum(spectralData_y, 1),0), 0)
+
+    current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
+
+    plot_real_time_visualization_general(current_RAW_axis, bandPass_x)
 ################################################################################
 #######################---Program---############################################
 ################################################################################
@@ -501,8 +537,19 @@ if __name__ == "__main__":
                 ### End presumed function
                 #print(bank, node)
                 del readIn
-    print(node_Frequency_Ranges)
-    print(node_spectra_storage.shape)
+
+        ## Done with spectra collection; plot
+        for i in range(numberOfNodes)
+            if (i==desiredNode):
+                plot_desired(node_spectra_storage[k, desiredBank, desiredNode, 0, :, :, :], node_spectra_storage[k, desiredBank, desiredNode, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, desiredNode, 0], node_Frequency_Ranges[desiredBank, desiredNode, 1], k)
+            else:
+                plot_otherNodes()
+
+    # print(node_Frequency_Ranges)
+    # print(node_spectra_storage.shape)
+
+
+
 
     #
     # for k in range(10):
