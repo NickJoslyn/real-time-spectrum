@@ -213,30 +213,46 @@ def spectralKurtosis_thresholds(M, N = 1, d = 1, p = 0.0013499):
 
 def press(event):
     global Plotted_Bank, Plotted_Node
+    global Polarization_Plot
     global node_Frequency_Ranges, node_spectra_storage
     global dummyCountIndicator, TBIN
     sys.stdout.flush()
     if event.key == 'x':
-        #visible = axis1_desired.get_visible()
-        #axis1_desired.set_visible(not visible)
+        Polarization_Plot += 1
+
         del axis1_desired.lines[:]
-        for j in range(8):
-            plot_otherNodes(node_spectra_storage[k, desiredBank, j, 1, :, :, :], node_spectra_storage[k, desiredBank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, j, 0], node_Frequency_Ranges[desiredBank, j, 1])
+        if (Polarization_Plot%2 == 0):
+            for j in range(8):
+                plot_otherNodes(node_spectra_storage[k, desiredBank, j, 0, :, :, :], node_spectra_storage[k, desiredBank, j, 0, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, j, 0], node_Frequency_Ranges[desiredBank, j, 1])
+        else:
+            for j in range(8):
+                plot_otherNodes(node_spectra_storage[k, desiredBank, j, 1, :, :, :], node_spectra_storage[k, desiredBank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, j, 0], node_Frequency_Ranges[desiredBank, j, 1])
 
-
-
-
-        #fig.canvas.draw()
     if event.key == 'up':
         Plotted_Bank += 1
         if (Plotted_Bank > 3):
             Plotted_Bank = 0
         clear_node_plots()
+        for j in range(8):
+            if (j!=Plotted_Node):
+                plot_otherNodes(node_spectra_storage[dummyCountIndicator, desiredBank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, desiredBank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, j, 0], node_Frequency_Ranges[desiredBank, j, 1])
+
+        plot_desired_from_click(node_spectra_storage[:, desiredBank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, desiredBank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[desiredBank, Plotted_Node, 0], node_Frequency_Ranges[desiredBank, Plotted_Node, 1], dummyCountIndicator)
+
+
+
     if event.key == 'down':
         Plotted_Bank -= 1
         if (Plotted_Bank < 0):
             Plotted_Bank = 3
         clear_node_plots()
+        for j in range(8):
+            if (j!=Plotted_Node):
+                plot_otherNodes(node_spectra_storage[dummyCountIndicator, desiredBank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, desiredBank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, j, 0], node_Frequency_Ranges[desiredBank, j, 1])
+
+        plot_desired_from_click(node_spectra_storage[:, desiredBank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, desiredBank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[desiredBank, Plotted_Node, 0], node_Frequency_Ranges[desiredBank, Plotted_Node, 1], dummyCountIndicator)
+
+
 
     #spectral flip for seemingly opposite increment on nodes
     if event.key == 'right':
@@ -251,17 +267,18 @@ def press(event):
         plot_desired_from_click(node_spectra_storage[:, desiredBank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, desiredBank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[desiredBank, Plotted_Node, 0], node_Frequency_Ranges[desiredBank, Plotted_Node, 1], dummyCountIndicator)
 
 
-
-
-
-
-
-
     if event.key == 'left':
         Plotted_Node += 1
         if (Plotted_Node > 7):
             Plotted_Node = 0
         clear_node_plots()
+        for j in range(8):
+            if (j!=Plotted_Node):
+                plot_otherNodes(node_spectra_storage[dummyCountIndicator, desiredBank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, desiredBank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, j, 0], node_Frequency_Ranges[desiredBank, j, 1])
+
+        plot_desired_from_click(node_spectra_storage[:, desiredBank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, desiredBank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[desiredBank, Plotted_Node, 0], node_Frequency_Ranges[desiredBank, Plotted_Node, 1], dummyCountIndicator)
+
+
 
 
     plt.suptitle("Observation: >>Grab Name/Date<< | blc" + str(Plotted_Bank) + str(Plotted_Node))
@@ -626,7 +643,8 @@ def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransfor
 if __name__ == "__main__":
     global Plotted_Bank, Plotted_Node
     global node_Frequency_Ranges, node_spectra_storage
-    global dummyCountIndicator, TBIN
+    global dummyCountIndicator, TBIN, Polarization_Plot
+    Polarization_Plot = 0
     #User inputted resolutions
     desiredFrequencyResolution = 183105 #16 Bins
     desiredTimeResolution = 0.0003 #54 Integrations
