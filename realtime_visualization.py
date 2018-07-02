@@ -236,6 +236,9 @@ def press(event):
         if (Plotted_Node < 0):
             Plotted_Node = 7
 
+    plt.suptitle("Observation: >>Grab Name/Date<< | blc" + str(Plotted_Bank) + str(Plotted_Node))
+
+
 ########
 
 def clear_full_spectrum():
@@ -253,7 +256,7 @@ def plot_real_time_visualization_general(current_axis, bandPass_x):
     if(plt.fignum_exists("Test") == False):
         #SET UP Big Plot
         plt.figure("Test")
-        plt.suptitle("blc" + str(Plotted_Bank) + str(Plotted_Node))
+        plt.suptitle("Observation: >>Grab Name/Date<< | blc" + str(Plotted_Bank) + str(Plotted_Node))
         plt.ion()
         plt.show()
 
@@ -356,7 +359,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     if (plt.fignum_exists("Test") == False):
         #SET UP Big Plot
         plt.figure("Test")
-        plt.suptitle("blc" + str(Plotted_Bank) + str(Plotted_Node))
+        plt.suptitle("Observation: >>Grab Name/Date<< | blc" + str(Plotted_Bank) + str(Plotted_Node))
         plt.ion()
         plt.show()
 
