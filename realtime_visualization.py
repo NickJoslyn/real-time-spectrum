@@ -486,6 +486,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         axis7_desired.set_xlabel("Frequency (MHz)")
 
     else:
+        axis1_desired.set_title("Full Observation Spectrum (X)")
         axis1_desired.plot(current_axis, bandPass_x, color = 'red')
 
         axis2_desired.clear()
