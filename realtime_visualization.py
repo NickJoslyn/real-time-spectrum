@@ -214,7 +214,7 @@ def spectralKurtosis_thresholds(M, N = 1, d = 1, p = 0.0013499):
 def press(event):
     global Plotted_Bank, Plotted_Node
     global node_Frequency_Ranges, node_spectra_storage
-
+    global dummyCountIndicator, TBIN
     sys.stdout.flush()
     if event.key == 'x':
         #visible = axis1_desired.get_visible()
@@ -244,6 +244,19 @@ def press(event):
         if (Plotted_Node < 0):
             Plotted_Node = 7
         clear_node_plots()
+        for j in range(8):
+            if (j!=Plotted_Node):
+                plot_otherNodes(node_spectra_storage[dummyCountIndicator, desiredBank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, desiredBank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, j, 0], node_Frequency_Ranges[desiredBank, j, 1])
+
+        plot_desired(node_spectra_storage[dummyCountIndicator, desiredBank, Plotted_Node, 0, :, :, :], node_spectra_storage[dummyCountIndicator, desiredBank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[desiredBank, Plotted_Node, 0], node_Frequency_Ranges[desiredBank, Plotted_Node, 1], dummyCountIndicator)
+
+
+
+
+
+
+
+
     if event.key == 'left':
         Plotted_Node += 1
         if (Plotted_Node > 7):
@@ -585,7 +598,7 @@ def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransfor
 if __name__ == "__main__":
     global Plotted_Bank, Plotted_Node
     global node_Frequency_Ranges, node_spectra_storage
-
+    global dummyCountIndicator, TBIN
     #User inputted resolutions
     desiredFrequencyResolution = 183105 #16 Bins
     desiredTimeResolution = 0.0003 #54 Integrations
@@ -656,6 +669,7 @@ if __name__ == "__main__":
     axis7_desired.margins(x=0)
     axis7_desired.set_xlabel("Frequency (MHz)")
 
+
     plt.connect('key_press_event', press)
 
 
@@ -663,7 +677,7 @@ if __name__ == "__main__":
 
 
 
-
+    dummyCountIndicator = 0
     # k is indicative of getting a new file
     for k in range(numberOfFiles):
         if (k>0):
@@ -695,3 +709,5 @@ if __name__ == "__main__":
                 plot_otherNodes(node_spectra_storage[k, desiredBank, i, 0, :, :, :], node_spectra_storage[k, desiredBank, i, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, i, 0], node_Frequency_Ranges[desiredBank, i, 1])
 
         plot_desired(node_spectra_storage[k, desiredBank, Plotted_Node, 0, :, :, :], node_spectra_storage[k, desiredBank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, Plotted_Node, 0], node_Frequency_Ranges[desiredBank, Plotted_Node, 1], k)
+
+        dummyCountIndicator += 1
