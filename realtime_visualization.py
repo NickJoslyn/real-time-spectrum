@@ -515,8 +515,8 @@ if __name__ == "__main__":
     node_spectra_storage = np.zeros((numberOfFiles, numberOfBanks, numberOfNodes, 2, 64, 54, 16))
 
     for k in range(numberOfFiles):
-        #if (k>0):
-            #clear_full_spectrum()
+        if (k>0):
+            clear_full_spectrum()
         for bank in range(numberOfBanks):
             for node in range(numberOfNodes):
 
