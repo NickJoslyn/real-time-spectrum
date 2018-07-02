@@ -577,10 +577,10 @@ if __name__ == "__main__":
 
         ## Done with spectra collection; plot
         for i in range(numberOfNodes):
-            if (i!=desiredNode):
+            if (i!=Plotted_Node):
                 plot_otherNodes(node_spectra_storage[k, desiredBank, i, 0, :, :, :], node_spectra_storage[k, desiredBank, i, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, i, 0], node_Frequency_Ranges[desiredBank, i, 1])
 
-        plot_desired(node_spectra_storage[k, desiredBank, desiredNode, 0, :, :, :], node_spectra_storage[k, desiredBank, desiredNode, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, desiredNode, 0], node_Frequency_Ranges[desiredBank, desiredNode, 1], k)
+        plot_desired(node_spectra_storage[k, desiredBank, Plotted_Node, 0, :, :, :], node_spectra_storage[k, desiredBank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, Plotted_Node, 0], node_Frequency_Ranges[desiredBank, Plotted_Node, 1], k)
 
     # print(node_Frequency_Ranges)
     # print(node_spectra_storage.shape)
