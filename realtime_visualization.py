@@ -254,12 +254,12 @@ def clear_full_spectrum():
 
 def clear_node_plots():
     global axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
-    del axis2_desired.lines[:]
-    del axis3_desired.lines[:]
-    del axis4_desired.lines[:]
-    del axis5_desired.lines[:]
-    del axis6_desired.lines[:]
-    del axis7_desired.lines[:]
+    del axis2_desired.clear()
+    del axis3_desired.clear()
+    del axis4_desired.clear()
+    del axis5_desired.clear()
+    del axis6_desired.clear()
+    del axis7_desired.clear()
 
 def plot_real_time_visualization_general(current_axis, bandPass_x):
     """
