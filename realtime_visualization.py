@@ -234,7 +234,7 @@ def press(event):
                 if(j!=Plotted_Node):
                     plot_otherNodes(node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
                 else:
-                    plot_otherNodes(node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], color = 'red')
+                    plot_otherNodes(node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
 
             axis1_desired.set_title("Full Observation Spectrum (Y)")
 
@@ -592,11 +592,11 @@ def plot_desired_from_click(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samp
     SK_y = calculate_spectralKurtosis(spectralData_y[file_index, :, :, :], fftsPerIntegration)
     SK_x = np.flip(SK_x, 0).reshape(-1)
     SK_y = np.flip(SK_y, 0).reshape(-1)
-    print(spectralData_x.shape)
+
     # Spectral flip
     tempx = np.flip(np.sum(spectralData_x[:, :, :, :], axis = 2), 1)
     tempy = np.flip(np.sum(spectralData_y[:, :, :, :], axis = 2), 1)
-    print(tempx.shape)
+
     waterfall_spectrum_x = np.zeros((10, OBSNCHAN * samplesPerTransform))
     waterfall_spectrum_y = np.zeros((10, OBSNCHAN * samplesPerTransform))
     for id in range(10):
