@@ -447,10 +447,14 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         axis6_desired.axhline(y=sk_upper_threshold, color = 'y')
         axis6_desired.axhline(y=sk_lower_threshold, color = 'y')
         axis6_desired.plot(current_axis, SK_x, color = 'C0')
-        del axis7_desired.lines[:]
+
+        axis7_desired.clear()
+        axis7_desired.plot(current_axis, SK_y, color = 'C0')
+        axis7_desired.set_title("Spectral Kurtosis: Y")
+        axis7_desired.margins(x=0)
         axis7_desired.axhline(y=sk_upper_threshold, color = 'y')
         axis7_desired.axhline(y=sk_lower_threshold, color = 'y')
-        axis7_desired.plot(current_axis, SK_y, color = 'C0')
+        axis7_desired.set_xlabel("Frequency (MHz)")
 
     plt.connect('key_press_event', press)
     plt.pause(1)
