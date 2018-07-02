@@ -226,7 +226,6 @@ def press(event):
                     plot_otherNodes(node_spectra_storage[k, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[k, Plotted_Bank, j, 0, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
                 else:
                     plot_otherNodes(node_spectra_storage[k, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[k, Plotted_Bank, j, 0, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
-
             axis1_desired.set_title("Full Observation Spectrum (X)")
 
         else:
@@ -235,7 +234,6 @@ def press(event):
                     plot_otherNodes(node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
                 else:
                     plot_otherNodes(node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
-
             axis1_desired.set_title("Full Observation Spectrum (Y)")
 
 
@@ -247,10 +245,7 @@ def press(event):
         for j in range(8):
             if (j!=Plotted_Node):
                 plot_otherNodes(node_spectra_storage[dummyCountIndicator, desiredBank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
-
         plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], dummyCountIndicator)
-
-
 
     if event.key == 'down':
         Plotted_Bank -= 1
@@ -260,10 +255,7 @@ def press(event):
         for j in range(8):
             if (j!=Plotted_Node):
                 plot_otherNodes(node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
-
         plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], dummyCountIndicator)
-
-
 
     #spectral flip for seemingly opposite increment on nodes
     if event.key == 'right':
@@ -274,9 +266,7 @@ def press(event):
         for j in range(8):
             if (j!=Plotted_Node):
                 plot_otherNodes(node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
-
         plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], dummyCountIndicator)
-
 
     if event.key == 'left':
         Plotted_Node += 1
@@ -286,16 +276,11 @@ def press(event):
         for j in range(8):
             if (j!=Plotted_Node):
                 plot_otherNodes(node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
-
         plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], dummyCountIndicator)
-
-
-
 
     plt.suptitle("Observation: >>Grab Name/Date<< | blc" + str(Plotted_Bank) + str(Plotted_Node))
 
-
-########
+######## Non - interactive
 
 def clear_full_spectrum():
 
@@ -316,7 +301,7 @@ def plot_real_time_visualization_general(current_axis, bandPass_x, defaultColor 
     Plot the top panel -- full spectrum of all active nodes (except node of interest)
     """
     global axis1_desired
-    axis1_desired.plot(current_axis, bandPass_x, color = defaultColor)
+    axis1_desired.plot(current_axis, 10*np.log10(bandPass_x), color = defaultColor)
 
 def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spectrum_y, bandPass_x, bandPass_y, SK_x, SK_y, current_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN):
     """
@@ -338,32 +323,31 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration)
 
     axis1_desired.set_title("Full Observation Spectrum (X)")
-    axis1_desired.plot(current_axis, bandPass_x, color = 'red')
+    axis1_desired.plot(current_axis, 10*np.log10(bandPass_x), color = 'red')
 
     axis2_desired.clear()
     axis2_desired.set_title("Node Spectrum: X")
     axis2_desired.set_xlabel("Frequency (MHz)")
     axis2_desired.set_ylabel("Power")
-    axis2_desired.set_yscale('log')
     axis2_desired.margins(x=0)
-    axis2_desired.plot(current_axis, bandPass_x, color = 'C0')
+    axis2_desired.plot(current_axis, 10*np.log10(bandPass_x), color = 'C0')
 
 
     axis3_desired.clear()
     axis3_desired.set_title("Node Spectrum: Y")
     axis3_desired.set_xlabel("Frequency (MHz)")
     axis3_desired.set_ylabel("Power")
-    axis3_desired.set_yscale('log')
     axis3_desired.margins(x=0)
-    axis3_desired.plot(current_axis, bandPass_y, color = 'C0')
+    axis3_desired.plot(current_axis, 10*np.log10(bandPass_y), color = 'C0')
 
-    axis4_desired.imshow(integrated_spectrum_x, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
-    axis5_desired.imshow(integrated_spectrum_y, cmap = 'viridis', aspect = 'auto', norm = LogNorm(), extent = [lowerBound, upperBound, totalTime, 0])
+    axis4_desired.imshow(10*np.log10(integrated_spectrum_x), cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, totalTime, 0])
+    axis5_desired.imshow(10*np.log10(integrated_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, totalTime, 0])
 
     axis6_desired.clear()
     axis6_desired.plot(current_axis, SK_x, color = 'C0')
     axis6_desired.set_title("Spectral Kurtosis: X")
     axis6_desired.margins(x=0)
+    axis6_desired.set_ylim(0, 4)
     axis6_desired.axhline(y=sk_upper_threshold, color = 'y')
     axis6_desired.axhline(y=sk_lower_threshold, color = 'y')
     axis6_desired.set_xlabel("Frequency (MHz)")
@@ -372,6 +356,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis7_desired.plot(current_axis, SK_y, color = 'C0')
     axis7_desired.set_title("Spectral Kurtosis: Y")
     axis7_desired.margins(x=0)
+    axis7_desired.set_ylim(0, 4)
     axis7_desired.axhline(y=sk_upper_threshold, color = 'y')
     axis7_desired.axhline(y=sk_lower_threshold, color = 'y')
     axis7_desired.set_xlabel("Frequency (MHz)")
@@ -389,7 +374,6 @@ def spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, O
     upperBound = OBSFREQ - OBSBW/2
 
     return spectralData_x, spectralData_y, lowerBound, upperBound
-
 
 def plot_desired_from_click(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index):
 
@@ -417,7 +401,6 @@ def plot_desired_from_click(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samp
 
     current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
     plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, SK_x, SK_y, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN)
-
 
 def plot_desired(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index):
 
@@ -490,7 +473,6 @@ if __name__ == "__main__":
     # Full observational range
     axis1_desired = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
     axis1_desired.set_title("Full Observation Spectrum (X)")
-    axis1_desired.set_yscale("log")
     axis1_desired.set_ylabel("Power")
     axis1_desired.set_xlabel("Frequency (MHz)")
 
@@ -499,14 +481,12 @@ if __name__ == "__main__":
     axis2_desired.set_title("Node Spectrum: X")
     axis2_desired.set_xlabel("Frequency (MHz)")
     axis2_desired.set_ylabel("Power")
-    axis2_desired.set_yscale('log')
     axis2_desired.margins(x=0)
 
     axis3_desired = plt.subplot2grid((18,5), (5, 3), colspan=2, rowspan=3)
     axis3_desired.set_title("Node Spectrum: Y")
     axis3_desired.set_xlabel("Frequency (MHz)")
     axis3_desired.set_ylabel("Power")
-    axis3_desired.set_yscale('log')
     axis3_desired.margins(x=0)
 
     # Waterfall of compute node
@@ -527,13 +507,14 @@ if __name__ == "__main__":
     axis6_desired = plt.subplot2grid((18,5), (15,0), colspan=2, rowspan=3)
     axis6_desired.set_title("Spectral Kurtosis: X")
     axis6_desired.margins(x=0)
+    axis6_desired.set_ylim(0, 4)
     axis6_desired.set_xlabel("Frequency (MHz)")
 
     axis7_desired = plt.subplot2grid((18,5), (15, 3), colspan=2, rowspan=3)
     axis7_desired.set_title("Spectral Kurtosis: Y")
     axis7_desired.margins(x=0)
+    axis7_desired.set_ylim(0, 4)
     axis7_desired.set_xlabel("Frequency (MHz)")
-
 
     plt.connect('key_press_event', press)
 
