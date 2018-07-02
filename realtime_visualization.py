@@ -223,18 +223,24 @@ def press(event):
         Plotted_Bank += 1
         if (Plotted_Bank > 3):
             Plotted_Bank = 0
+        clear_node_plots()
     if event.key == 'down':
         Plotted_Bank -= 1
         if (Plotted_Bank < 0):
             Plotted_Bank = 3
+        clear_node_plots()
+    #spectral flip for seemingly opposite increment on nodes
     if event.key == 'right':
-        Plotted_Node += 1
-        if (Plotted_Node > 7):
-            Plotted_Node = 0
-    if event.key == 'left':
         Plotted_Node -= 1
         if (Plotted_Node < 0):
             Plotted_Node = 7
+        clear_node_plots()
+    if event.key == 'left':
+        Plotted_Node += 1
+        if (Plotted_Node > 7):
+            Plotted_Node = 0
+        clear_node_plots()
+
 
     plt.suptitle("Observation: >>Grab Name/Date<< | blc" + str(Plotted_Bank) + str(Plotted_Node))
 
@@ -246,6 +252,14 @@ def clear_full_spectrum():
     global axis1_desired
     del axis1_desired.lines[:]
 
+def clear_node_plots():
+    global axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
+    del axis2_desired[:]
+    del axis3_desired[:]
+    del axis4_desired[:]
+    del axis5_desired[:]
+    del axis6_desired[:]
+    del axis7_desired[:]
 
 def plot_real_time_visualization_general(current_axis, bandPass_x):
     """
