@@ -217,11 +217,11 @@ def press(event):
 
     sys.stdout.flush()
     if event.key == 'x':
-        visible = axis1_desired.get_visible()
-        axis1_desired.set_visible(not visible)
-
+        #visible = axis1_desired.get_visible()
+        #axis1_desired.set_visible(not visible)
+        del axis1_desired.lines[:]
         for j in range(8):
-            plot_otherNodes(node_spectra_storage[k, desiredBank, i, 1, :, :, :], node_spectra_storage[k, desiredBank, i, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, i, 0], node_Frequency_Ranges[desiredBank, i, 1])
+            plot_otherNodes(node_spectra_storage[k, desiredBank, j, 1, :, :, :], node_spectra_storage[k, desiredBank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, j, 0], node_Frequency_Ranges[desiredBank, j, 1])
 
 
 
@@ -585,6 +585,7 @@ def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransfor
 if __name__ == "__main__":
     global Plotted_Bank, Plotted_Node
     global node_Frequency_Ranges, node_spectra_storage
+
     #User inputted resolutions
     desiredFrequencyResolution = 183105 #16 Bins
     desiredTimeResolution = 0.0003 #54 Integrations
@@ -601,6 +602,69 @@ if __name__ == "__main__":
     node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, 2))
     node_spectra_storage = np.zeros((numberOfFiles, numberOfBanks, numberOfNodes, 2, 64, 54, 16))
 
+    #Initialize Plot
+    #SET UP Big Plot
+    plt.figure("Test")
+    plt.suptitle("Observation: >>Grab Name/Date<< | blc" + str(Plotted_Bank) + str(Plotted_Node))
+    plt.ion()
+    plt.show()
+
+    # Full observational range
+    axis1_desired = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
+    axis1_desired.set_title("Full Observation Spectrum (X)")
+    axis1_desired.set_yscale("log")
+    axis1_desired.set_ylabel("Power")
+    axis1_desired.set_xlabel("Frequency (MHz)")
+
+    # Spectra of compute node
+    axis2_desired = plt.subplot2grid((18,5), (5,0), colspan=2, rowspan=3)
+    axis2_desired.set_title("Node Spectrum: X")
+    axis2_desired.set_xlabel("Frequency (MHz)")
+    axis2_desired.set_ylabel("Power")
+    axis2_desired.set_yscale('log')
+    axis2_desired.margins(x=0)
+
+    axis3_desired = plt.subplot2grid((18,5), (5, 3), colspan=2, rowspan=3)
+    axis3_desired.set_title("Node Spectrum: Y")
+    axis3_desired.set_xlabel("Frequency (MHz)")
+    axis3_desired.set_ylabel("Power")
+    axis3_desired.set_yscale('log')
+    axis3_desired.margins(x=0)
+
+    # Waterfall of compute node
+    axis4_desired = plt.subplot2grid((18,5), (10, 0), colspan=2, rowspan=3)
+    axis4_desired.set_title("Node Waterfall: X")
+    axis4_desired.set_xlabel("Frequency (MHz)")
+    axis4_desired.set_ylabel("Time (s)")
+    axis4_desired.margins(x=0)
+    #plt.colorbar(im, ax=ax4)
+
+    axis5_desired = plt.subplot2grid((18,5), (10, 3), colspan=2, rowspan=3)
+    axis5_desired.set_title("Node Waterfall: Y")
+    axis5_desired.set_xlabel("Frequency (MHz)")
+    axis5_desired.set_ylabel("Time (s)")
+    axis5_desired.margins(x=0)
+
+    # Spectral Kurtosis of compute node
+    axis6_desired = plt.subplot2grid((18,5), (15,0), colspan=2, rowspan=3)
+    axis6_desired.set_title("Spectral Kurtosis: X")
+    axis6_desired.margins(x=0)
+    axis6_desired.set_xlabel("Frequency (MHz)")
+
+    axis7_desired = plt.subplot2grid((18,5), (15, 3), colspan=2, rowspan=3)
+    axis7_desired.set_title("Spectral Kurtosis: Y")
+    axis7_desired.margins(x=0)
+    axis7_desired.set_xlabel("Frequency (MHz)")
+
+    plt.connect('key_press_event', press)
+
+
+
+
+
+
+
+    # k is indicative of getting a new file
     for k in range(numberOfFiles):
         if (k>0):
             clear_full_spectrum()
@@ -631,56 +695,3 @@ if __name__ == "__main__":
                 plot_otherNodes(node_spectra_storage[k, desiredBank, i, 0, :, :, :], node_spectra_storage[k, desiredBank, i, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, i, 0], node_Frequency_Ranges[desiredBank, i, 1])
 
         plot_desired(node_spectra_storage[k, desiredBank, Plotted_Node, 0, :, :, :], node_spectra_storage[k, desiredBank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, Plotted_Node, 0], node_Frequency_Ranges[desiredBank, Plotted_Node, 1], k)
-
-    # print(node_Frequency_Ranges)
-    # print(node_spectra_storage.shape)
-
-
-
-
-    #
-    # for k in range(10):
-    #     if (k > 0):
-    #         clear_full_spectrum()
-    #     for bank in range(numberOfBanks):
-    #         for node in range(numberOfNodes):
-    #             if (bank!=desiredBank or node!=desiredNode):
-    #                 inputFileName = "/mnt_blc" + str(bank) + str(node) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(bank) + str(node) + "/blc" + str(bank) + str(node) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(k) + ".raw"
-    #                 readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
-    #                 fileBytes = os.path.getsize(inputFileName)
-    #                 #Initial location
-    #                 currentBytesPassed = 0
-    #
-    #                 #Header Information
-    #                 OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
-    #
-    #                 NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8))) #time samples per channel per block
-    #                 #Skip header and put data in easily parsed array
-    #
-    #                 samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
-    #                 dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
-    #                 NDIMsmall = samplesPerTransform * fftsPerIntegration
-    #                 real_time_spectra_general(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
-    #
-    #                 del readIn
-    #
-    #
-    #     inputFileName = "/mnt_blc" + str(desiredBank) + str(desiredNode) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(desiredBank) + str(desiredNode) + "/blc" + str(desiredBank) + str(desiredNode) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(k) + ".raw"
-    #     readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
-    #     fileBytes = os.path.getsize(inputFileName)
-    #     #Initial location
-    #     currentBytesPassed = 0
-    #
-    #     #Header Information
-    #     OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
-    #
-    #     NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8))) #time samples per channel per block
-    #     #Skip header and put data in easily parsed array
-    #
-    #     samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
-    #     dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
-    #
-    #     NDIMsmall = samplesPerTransform * fftsPerIntegration
-    #     real_time_spectra_desired(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW, k)
-    #
-    #     del readIn
