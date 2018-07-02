@@ -213,11 +213,19 @@ def spectralKurtosis_thresholds(M, N = 1, d = 1, p = 0.0013499):
 
 def press(event):
     global Plotted_Bank, Plotted_Node
+    global node_Frequency_Ranges, node_spectra_storage
 
     sys.stdout.flush()
     if event.key == 'x':
         visible = axis1_desired.get_visible()
         axis1_desired.set_visible(not visible)
+
+        for j in range(8):
+            plot_otherNodes(node_spectra_storage[k, desiredBank, i, 1, :, :, :], node_spectra_storage[k, desiredBank, i, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, i, 0], node_Frequency_Ranges[desiredBank, i, 1])
+
+
+
+
         #fig.canvas.draw()
     if event.key == 'up':
         Plotted_Bank += 1
@@ -229,6 +237,7 @@ def press(event):
         if (Plotted_Bank < 0):
             Plotted_Bank = 3
         clear_node_plots()
+
     #spectral flip for seemingly opposite increment on nodes
     if event.key == 'right':
         Plotted_Node -= 1
@@ -575,6 +584,7 @@ def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransfor
 
 if __name__ == "__main__":
     global Plotted_Bank, Plotted_Node
+    global node_Frequency_Ranges, node_spectra_storage
     #User inputted resolutions
     desiredFrequencyResolution = 183105 #16 Bins
     desiredTimeResolution = 0.0003 #54 Integrations
