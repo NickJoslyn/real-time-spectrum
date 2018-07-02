@@ -14,7 +14,7 @@ from scipy import optimize
 
 from matplotlib.colors import LogNorm
 from matplotlib.collections import LineCollection
-
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 ################################################################################
 ######################---Functions---###########################################
 ################################################################################
@@ -295,7 +295,7 @@ def clear_node_plots():
     axis5_desired.clear()
     axis6_desired.clear()
     axis7_desired.clear()
-
+    
 def plot_real_time_visualization_general(current_axis, bandPass_x, defaultColor = 'black'):
     """
     Plot the top panel -- full spectrum of all active nodes (except node of interest)
@@ -319,7 +319,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     totalTime = samplesPerTransform * fftsPerIntegration * TBIN * 10
 
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
-    global Plotted_Bank, Plotted_Node
+    global Plotted_Bank, Plotted_Node, colorbar4, colorbar5
     sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration)
 
     axis1_desired.set_title("Full Observation Spectrum (X)")
@@ -328,7 +328,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis2_desired.clear()
     axis2_desired.set_title("Node Spectrum: X")
     axis2_desired.set_xlabel("Frequency (MHz)")
-    axis2_desired.set_ylabel("Power")
+    axis2_desired.set_ylabel("Power (dB)")
     axis2_desired.margins(x=0)
     axis2_desired.plot(current_axis, 10*np.log10(bandPass_x), color = 'C0')
 
@@ -336,30 +336,53 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis3_desired.clear()
     axis3_desired.set_title("Node Spectrum: Y")
     axis3_desired.set_xlabel("Frequency (MHz)")
-    axis3_desired.set_ylabel("Power")
+    axis3_desired.set_ylabel("Power (dB)")
     axis3_desired.margins(x=0)
     axis3_desired.plot(current_axis, 10*np.log10(bandPass_y), color = 'C0')
 
-    axis4_desired.imshow(10*np.log10(integrated_spectrum_x), cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, totalTime, 0])
-    axis5_desired.imshow(10*np.log10(integrated_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, totalTime, 0])
+    im4 = axis4_desired.imshow(10*np.log10(integrated_spectrum_x), cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, totalTime, 0])
+    divider4 = make_axes_locatable(axis4_desired)
+    cax4 = divider4.append_axes('right', size = '5%', pad = 0.05)
+    if (colorbar4==0):
+        colorbar4 = plt.colorbar(im4, cax=cax4, orientation = 'vertical')
+        colorbar4.set_label("Power (dB)")
+    else:
+        colorbar4.remove()
+        colorbar4 = plt.colorbar(im4, cax=cax4, orientation='vertical')
+        colorbar4.set_label("Power (dB)")    
+
+    im5 = axis5_desired.imshow(10*np.log10(integrated_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, totalTime, 0])
+    divider5 = make_axes_locatable(axis5_desired)
+    cax5 = divider5.append_axes('right', size = '5%', pad = 0.05)
+    if (colorbar5==0):
+        colorbar5 = plt.colorbar(im5, cax=cax5, orientation='vertical')
+        colorbar5.set_label("Power (dB)")
+    else:
+        colorbar5.remove()
+        colorbar5 = plt.colorbar(im5, cax=cax5, orientation='vertical')    
+        colorbar5.set_label("Power (dB)")
 
     axis6_desired.clear()
     axis6_desired.plot(current_axis, SK_x, color = 'C0')
     axis6_desired.set_title("Spectral Kurtosis: X")
     axis6_desired.margins(x=0)
-    axis6_desired.set_ylim(0, 4)
+    axis6_desired.set_ylim(0, 5)
     axis6_desired.axhline(y=sk_upper_threshold, color = 'y')
     axis6_desired.axhline(y=sk_lower_threshold, color = 'y')
     axis6_desired.set_xlabel("Frequency (MHz)")
+    axis6_desired.lines[1].set_label('Gaussian Thresholds')
+    axis6_desired.legend(loc = 1)
 
     axis7_desired.clear()
     axis7_desired.plot(current_axis, SK_y, color = 'C0')
     axis7_desired.set_title("Spectral Kurtosis: Y")
     axis7_desired.margins(x=0)
-    axis7_desired.set_ylim(0, 4)
+    axis7_desired.set_ylim(0, 5)
     axis7_desired.axhline(y=sk_upper_threshold, color = 'y')
     axis7_desired.axhline(y=sk_lower_threshold, color = 'y')
     axis7_desired.set_xlabel("Frequency (MHz)")
+    axis7_desired.lines[1].set_label('Gaussian Thresholds')
+    axis7_desired.legend(loc = 1)
 
     plt.connect('key_press_event', press)
     plt.pause(0.000001)
@@ -445,7 +468,9 @@ def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransfor
 if __name__ == "__main__":
     global Plotted_Bank, Plotted_Node
     global node_Frequency_Ranges, node_spectra_storage
-    global dummyCountIndicator, TBIN, Polarization_Plot
+    global dummyCountIndicator, TBIN, Polarization_Plot, colorbar4, colorbar5
+    colorbar4 = 0
+    colorbar5 = 0
     Polarization_Plot = 0
     #User inputted resolutions
     desiredFrequencyResolution = 183105 #16 Bins
@@ -473,20 +498,20 @@ if __name__ == "__main__":
     # Full observational range
     axis1_desired = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
     axis1_desired.set_title("Full Observation Spectrum (X)")
-    axis1_desired.set_ylabel("Power")
+    axis1_desired.set_ylabel("Power (dB)")
     axis1_desired.set_xlabel("Frequency (MHz)")
 
     # Spectra of compute node
     axis2_desired = plt.subplot2grid((18,5), (5,0), colspan=2, rowspan=3)
     axis2_desired.set_title("Node Spectrum: X")
     axis2_desired.set_xlabel("Frequency (MHz)")
-    axis2_desired.set_ylabel("Power")
+    axis2_desired.set_ylabel("Power (dB)")
     axis2_desired.margins(x=0)
 
     axis3_desired = plt.subplot2grid((18,5), (5, 3), colspan=2, rowspan=3)
     axis3_desired.set_title("Node Spectrum: Y")
     axis3_desired.set_xlabel("Frequency (MHz)")
-    axis3_desired.set_ylabel("Power")
+    axis3_desired.set_ylabel("Power (dB)")
     axis3_desired.margins(x=0)
 
     # Waterfall of compute node
@@ -495,8 +520,7 @@ if __name__ == "__main__":
     axis4_desired.set_xlabel("Frequency (MHz)")
     axis4_desired.set_ylabel("Time (s)")
     axis4_desired.margins(x=0)
-    #plt.colorbar(im, ax=ax4)
-
+    
     axis5_desired = plt.subplot2grid((18,5), (10, 3), colspan=2, rowspan=3)
     axis5_desired.set_title("Node Waterfall: Y")
     axis5_desired.set_xlabel("Frequency (MHz)")
@@ -513,7 +537,7 @@ if __name__ == "__main__":
     axis7_desired = plt.subplot2grid((18,5), (15, 3), colspan=2, rowspan=3)
     axis7_desired.set_title("Spectral Kurtosis: Y")
     axis7_desired.margins(x=0)
-    axis7_desired.set_ylim(0, 4)
+    axis7_desired.set_ylim(0, 5)
     axis7_desired.set_xlabel("Frequency (MHz)")
 
     plt.connect('key_press_event', press)
