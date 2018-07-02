@@ -235,8 +235,6 @@ def press(event):
         Plotted_Node -= 1
         if (Plotted_Node < 0):
             Plotted_Node = 7
-    print("Compute Node: " + str(Plotted_Bank) + str(Plotted_Node))
-
 
 ########
 
@@ -251,10 +249,11 @@ def plot_real_time_visualization_general(current_axis, bandPass_x):
     Plot the top panel -- full spectrum of all active nodes (except node of interest)
     """
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
+    global Plotted_Bank, Plotted_Node
     if(plt.fignum_exists("Test") == False):
         #SET UP Big Plot
         plt.figure("Test")
-        plt.suptitle("Real-Time Spectra of Observation")
+        plt.suptitle("blc" + str(Plotted_Bank) + str(Plotted_Node))
         plt.ion()
         plt.show()
 
@@ -351,12 +350,13 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     totalTime = samplesPerTransform * fftsPerIntegration * TBIN * 10
 
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
+    global Plotted_Bank, Plotted_Node
     sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration)
 
     if (plt.fignum_exists("Test") == False):
         #SET UP Big Plot
         plt.figure("Test")
-        plt.suptitle("Real-Time Spectra of Observation")
+        plt.suptitle("blc" + str(Plotted_Bank) + str(Plotted_Node))
         plt.ion()
         plt.show()
 
