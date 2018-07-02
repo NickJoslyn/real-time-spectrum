@@ -444,6 +444,18 @@ def real_time_spectra_desired(BLOCK, OBSNCHAN, TBIN, samplesPerTransform, fftsPe
 
     plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, SK_x, SK_y, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN)
 
+def spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
+
+    BLOCK = remove_DCoffset(BLOCK)
+    spectralData_x, spectralData_y = calculate_spectra(BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTransform)
+    nodeBand_x = np.flip(np.sum(spectralData_x, 1),0).reshape(-1)
+    nodeBand_y = np.sum(np.flip(np.sum(spectralData_y, 1),0), 0)
+    lowerBound = OBSFREQ + OBSBW/2
+    upperBound = OBSFREQ - OBSBW/2
+
+    return upperBound, lowerBound
+
+
 ################################################################################
 #######################---Program---############################################
 ################################################################################
@@ -462,49 +474,78 @@ if __name__ == "__main__":
     desiredBank = 0
     desiredNode = 4
 
+    node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, 2, 64, 54, 16))
+    node_spectra_storage = np.zeros((numberOfBanks, numberOfNodes, 2, 64, 54, 16))
 
     for k in range(10):
-	if (k > 0):
+        if (k>0):
             clear_full_spectrum()
         for bank in range(numberOfBanks):
-            for node in range(numberOfNodes):
-                if (bank!=desiredBank or node!=desiredNode):
-                    inputFileName = "/mnt_blc" + str(bank) + str(node) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(bank) + str(node) + "/blc" + str(bank) + str(node) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(k) + ".raw"
-                    readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
-                    fileBytes = os.path.getsize(inputFileName)
-                    #Initial location
-                    currentBytesPassed = 0
+            for node in range(numberOfNodes)
 
-                    #Header Information
-                    OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
+                inputFileName = "/mnt_blc" + str(bank) + str(node) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(bank) + str(node) + "/blc" + str(bank) + str(node) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(k) + ".raw"
+                readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
+                fileBytes = os.path.getsize(inputFileName)
+                currentBytesPassed = 0
 
-                    NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8))) #time samples per channel per block
-                    #Skip header and put data in easily parsed array
+                OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
+                NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8)))
 
-                    samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
-                    dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
-                    NDIMsmall = samplesPerTransform * fftsPerIntegration
-                    real_time_spectra_general(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+                samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
+                dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
+                NDIMsmall = samplesPerTransform * fftsPerIntegration
 
-                    del readIn
+                ### Put in function
+                node_spectra_storage[bank, node, 0, :, :, :], node_spectra_storage[bank, node, 1, :, :, :], node_Frequency_Ranges[bank, node, 0], node_Frequency_Ranges[bank, node, 1] = spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+                ### End presumed function
+                print(bank, node)
+                del readIn
+    print(node_Frequency_Ranges)
+    print(node_spectra_storage.shape)
 
-
-        inputFileName = "/mnt_blc" + str(desiredBank) + str(desiredNode) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(desiredBank) + str(desiredNode) + "/blc" + str(desiredBank) + str(desiredNode) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(k) + ".raw"
-        readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
-        fileBytes = os.path.getsize(inputFileName)
-        #Initial location
-        currentBytesPassed = 0
-
-        #Header Information
-        OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
-
-        NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8))) #time samples per channel per block
-        #Skip header and put data in easily parsed array
-
-        samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
-        dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
-
-        NDIMsmall = samplesPerTransform * fftsPerIntegration
-        real_time_spectra_desired(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW, k)
-
-        del readIn
+    #
+    # for k in range(10):
+    #     if (k > 0):
+    #         clear_full_spectrum()
+    #     for bank in range(numberOfBanks):
+    #         for node in range(numberOfNodes):
+    #             if (bank!=desiredBank or node!=desiredNode):
+    #                 inputFileName = "/mnt_blc" + str(bank) + str(node) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(bank) + str(node) + "/blc" + str(bank) + str(node) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(k) + ".raw"
+    #                 readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
+    #                 fileBytes = os.path.getsize(inputFileName)
+    #                 #Initial location
+    #                 currentBytesPassed = 0
+    #
+    #                 #Header Information
+    #                 OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
+    #
+    #                 NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8))) #time samples per channel per block
+    #                 #Skip header and put data in easily parsed array
+    #
+    #                 samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
+    #                 dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
+    #                 NDIMsmall = samplesPerTransform * fftsPerIntegration
+    #                 real_time_spectra_general(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+    #
+    #                 del readIn
+    #
+    #
+    #     inputFileName = "/mnt_blc" + str(desiredBank) + str(desiredNode) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(desiredBank) + str(desiredNode) + "/blc" + str(desiredBank) + str(desiredNode) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(k) + ".raw"
+    #     readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
+    #     fileBytes = os.path.getsize(inputFileName)
+    #     #Initial location
+    #     currentBytesPassed = 0
+    #
+    #     #Header Information
+    #     OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
+    #
+    #     NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8))) #time samples per channel per block
+    #     #Skip header and put data in easily parsed array
+    #
+    #     samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
+    #     dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
+    #
+    #     NDIMsmall = samplesPerTransform * fftsPerIntegration
+    #     real_time_spectra_desired(dataBuffer[:,0:NDIMsmall, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW, k)
+    #
+    #     del readIn
