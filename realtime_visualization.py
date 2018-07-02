@@ -539,11 +539,11 @@ if __name__ == "__main__":
                 del readIn
 
         ## Done with spectra collection; plot
-        for i in range(numberOfNodes)
+        for i in range(numberOfNodes):
             if (i==desiredNode):
                 plot_desired(node_spectra_storage[k, desiredBank, desiredNode, 0, :, :, :], node_spectra_storage[k, desiredBank, desiredNode, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, desiredNode, 0], node_Frequency_Ranges[desiredBank, desiredNode, 1], k)
             else:
-                plot_otherNodes()
+                plot_otherNodes(node_spectra_storage[k, desiredBank, i, 0, :, :, :], node_spectra_storage[k, desiredBank, i, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, i, 0], node_Frequency_Ranges[desiredBank, i, 1]):
 
     # print(node_Frequency_Ranges)
     # print(node_spectra_storage.shape)
