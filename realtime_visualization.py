@@ -5,11 +5,13 @@
 
 from __future__ import division
 import numpy as np
+import matplotlib.pyplot as plt
 import os
+import sys
+
 from scipy import special
 from scipy import optimize
 
-import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from matplotlib.collections import LineCollection
 
@@ -207,6 +209,37 @@ def spectralKurtosis_thresholds(M, N = 1, d = 1, p = 0.0013499):
 ################################################################################
 ### Plotting ###
 
+## Interactive
+
+def press(event):
+    global Plotted_Bank, Plotted_Node
+
+    sys.stdout.flush()
+    if event.key == 'x':
+        visible = axis1_desired.get_visible()
+        axis1_desired.set_visible(not visible)
+        #fig.canvas.draw()
+    if event.key == 'up':
+        Plotted_Bank += 1
+        if (Plotted_Bank > 3):
+            Plotted_Bank = 0
+    if event.key == 'down':
+        Plotted_Bank -= 1
+        if (Plotted_Bank < 0):
+            Plotted_Bank = 3
+    if event.key == 'right':
+        Plotted_Node += 1
+        if (Plotted_Node > 7):
+            Plotted_Node = 0
+    if event.key == 'left':
+        Plotted_Node -= 1
+        if (Plotted_Node < 0):
+            Plotted_Node = 7
+    print("Compute Node: " + str(Plotted_Bank) + str(Plotted_Node))
+
+
+########
+
 def clear_full_spectrum():
 
     global axis1_desired
@@ -402,6 +435,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         axis7_desired.axhline(y=sk_lower_threshold, color = 'y')
         axis7_desired.plot(current_axis, SK_y, color = 'C0')
 
+    plt.connect('key_press_event', press)
     plt.pause(1)
 
 def real_time_spectra_desired(BLOCK, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW, file_index):
@@ -497,7 +531,7 @@ def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransfor
 ################################################################################
 
 if __name__ == "__main__":
-
+    global Plotted_Bank, Plotted_Node
     #User inputted resolutions
     desiredFrequencyResolution = 183105 #16 Bins
     desiredTimeResolution = 0.0003 #54 Integrations
