@@ -17,6 +17,9 @@ from matplotlib.collections import LineCollection
 ######################---Functions---###########################################
 ################################################################################
 
+################################################################################
+### BL RAW ###
+
 def extractHeader(RAW_file, byteLocation):
     """
     Extracts important information from the ASCII text header of a BL RAW data file.
@@ -111,7 +114,6 @@ def convert_resolution(customFrequencyResolution, customTimeResolution, TBIN):
 
     return samplesPerTransform, fftsPerIntegration
 
-
 def remove_DCoffset(BLOCK):
     """
     Remove the DC offset from a block of BL RAW time series data.
@@ -129,6 +131,32 @@ def remove_DCoffset(BLOCK):
     _, DC_offset = np.broadcast_arrays(BLOCK, DC_offset)
 
     return (BLOCK - DC_offset)
+
+def calculate_spectra(No_DC_BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTransform):
+    """
+    Calculate a series of power spectra for BL RAW time series data.
+
+    The power spectra is defined as FFT(time series)**2. By taking the FFT, the data
+    is tranformed from the time domain to the frequency domain. The dual-polarized,
+    channelized voltages maintain their integrity by being returned in x and y
+    multidimensional arrays.
+
+    Return:
+    x_pol_spectra (array):  3-D Array [# Channels, # FFTs, # Samples]
+    y_pol_spectra (array):  3-D Array [# Channels, # FFTs, # Samples]
+    """
+
+    x_pol_spectra = np.zeros((OBSNCHAN, fftsPerIntegration, samplesPerTransform))
+    y_pol_spectra = np.zeros((OBSNCHAN, fftsPerIntegration, samplesPerTransform))
+
+    for channel in range(OBSNCHAN):
+        x_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration))))**2
+        y_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration))))**2
+
+    return x_pol_spectra, y_pol_spectra
+
+################################################################################
+### Spectral Kurtosis ###
 
 def calculate_spectralKurtosis(SPECTRA, fftsPerIntegration):
     """
@@ -151,6 +179,7 @@ def calculate_spectralKurtosis(SPECTRA, fftsPerIntegration):
 def upperRoot(x, moment_2, moment_3, p):
     upper = np.abs( (1 - special.gammainc( (4 * moment_2**3)/moment_3**2, (-(moment_3-2*moment_2**2)/moment_3 + x)/(moment_3/2/moment_2)))-p)
     return upper
+
 def lowerRoot(x, moment_2, moment_3, p):
     lower = np.abs(special.gammainc( (4 * moment_2**3)/moment_3**2, (-(moment_3-2*moment_2**2)/moment_3 + x)/(moment_3/2/moment_2))-p)
     return lower
@@ -175,28 +204,8 @@ def spectralKurtosis_thresholds(M, N = 1, d = 1, p = 0.0013499):
     lowerThreshold = optimize.newton(lowerRoot, x[0], args = (moment_2, moment_3, p))
     return lowerThreshold, upperThreshold
 
-def calculate_spectra(No_DC_BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTransform):
-    """
-    Calculate a series of power spectra for BL RAW time series data.
-
-    The power spectra is defined as FFT(time series)**2. By taking the FFT, the data
-    is tranformed from the time domain to the frequency domain. The dual-polarized,
-    channelized voltages maintain their integrity by being returned in x and y
-    multidimensional arrays.
-
-    Return:
-    x_pol_spectra (array):  3-D Array [# Channels, # FFTs, # Samples]
-    y_pol_spectra (array):  3-D Array [# Channels, # FFTs, # Samples]
-    """
-
-    x_pol_spectra = np.zeros((OBSNCHAN, fftsPerIntegration, samplesPerTransform))
-    y_pol_spectra = np.zeros((OBSNCHAN, fftsPerIntegration, samplesPerTransform))
-
-    for channel in range(OBSNCHAN):
-        x_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration))))**2
-        y_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration))))**2
-
-    return x_pol_spectra, y_pol_spectra
+################################################################################
+### Plotting ###
 
 def clear_full_spectrum():
 
@@ -393,7 +402,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         axis7_desired.axhline(y=sk_lower_threshold, color = 'y')
         axis7_desired.plot(current_axis, SK_y, color = 'C0')
 
-    plt.pause(0.5)
+    plt.pause(5)
 
 def real_time_spectra_desired(BLOCK, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW, file_index):
     """
