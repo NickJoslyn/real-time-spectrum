@@ -248,7 +248,7 @@ def press(event):
             if (j!=Plotted_Node):
                 plot_otherNodes(node_spectra_storage[dummyCountIndicator, desiredBank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, desiredBank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[desiredBank, j, 0], node_Frequency_Ranges[desiredBank, j, 1])
 
-        plot_desired(node_spectra_storage[dummyCountIndicator, desiredBank, Plotted_Node, 0, :, :, :], node_spectra_storage[dummyCountIndicator, desiredBank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[desiredBank, Plotted_Node, 0], node_Frequency_Ranges[desiredBank, Plotted_Node, 1], dummyCountIndicator)
+        plot_desired_from_click(node_spectra_storage[:, desiredBank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, desiredBank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[desiredBank, Plotted_Node, 0], node_Frequency_Ranges[desiredBank, Plotted_Node, 1], dummyCountIndicator)
 
 
 
@@ -553,6 +553,34 @@ def spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, O
     upperBound = OBSFREQ - OBSBW/2
 
     return spectralData_x, spectralData_y, lowerBound, upperBound
+
+
+def plot_desired_from_click(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index):
+
+    #######node_spectra_storage[:, desiredBank, Plotted_Node, 0, :, :, :]
+
+    # Spectral Kurtosis
+    SK_x = calculate_spectralKurtosis(spectralData_x[file_index, :, :, :], fftsPerIntegration)
+    SK_y = calculate_spectralKurtosis(spectralData_y[file_index, :, :, :], fftsPerIntegration)
+    SK_x = np.flip(SK_x, 0).reshape(-1)
+    SK_y = np.flip(SK_y, 0).reshape(-1)
+
+    # Spectral flip
+    tempx = np.flip(np.sum(spectralData_x[:, :, :, :], axis = 2), 1)
+    tempy = np.flip(np.sum(spectralData_y[:, :, :, :], axis = 2), 1)
+
+    waterfall_spectrum_x = np.zeros((10, OBSNCHAN * samplesPerTransform))
+    waterfall_spectrum_y = np.zeros((10, OBSNCHAN * samplesPerTransform))
+    for id in range(10):
+        waterfall_spectrum_x[id,:] = tempx.reshape(-1)
+        waterfall_spectrum_y[id,:] = tempy.reshape(-1)
+
+    # Spectrum for plotting
+    bandPass_x = np.sum(waterfall_spectrum_x[file_index, :], 0)
+    bandPass_y = np.sum(waterfall_spectrum_y[file_index, :], 0)
+
+    current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
+    plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, SK_x, SK_y, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN)
 
 
 def plot_desired(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index):
