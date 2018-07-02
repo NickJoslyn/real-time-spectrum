@@ -6,6 +6,8 @@
 from __future__ import division
 import numpy as np
 import os
+from scipy import special
+from scipy import optimize
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
@@ -146,6 +148,33 @@ def calculate_spectralKurtosis(SPECTRA, fftsPerIntegration):
 
     return SK_estimate
 
+def upperRoot(x, moment_2, moment_3, p):
+    upper = np.abs( (1 - special.gammainc( (4 * moment_2**3)/moment_3**2, (-(moment_3-2*moment_2**2)/moment_3 + x)/(moment_3/2/moment_2)))-p)
+    return upper
+def lowerRoot(x, moment_2, moment_3, p):
+    lower = np.abs(special.gammainc( (4 * moment_2**3)/moment_3**2, (-(moment_3-2*moment_2**2)/moment_3 + x)/(moment_3/2/moment_2))-p)
+    return lower
+
+def spectralKurtosis_thresholds(M, N = 1, d = 1, p = 0.0013499):
+
+    Nd = N * d
+
+    #Statistical moments
+    moment_1 = 1
+    moment_2 = ( 2*(M**2) * Nd * (1 + Nd) ) / ( (M - 1) * (6 + 5*M*Nd + (M**2)*(Nd**2)) )
+    moment_3 = ( 8*(M**3)*Nd * (1 + Nd) * (-2 + Nd * (-5 + M * (4+Nd))) ) / ( ((M-1)**2) * (2+M*Nd) *(3+M*Nd)*(4+M*Nd)*(5+M*Nd))
+    moment_4 = ( 12*(M**4)*Nd*(1+Nd)*(24+Nd*(48+84*Nd+M*(-32+Nd*(-245-93*Nd+M*(125+Nd*(68+M+(3+M)*Nd)))))) ) / ( ((M-1)**3)*(2+M*Nd)*(3+M*Nd)*(4+M*Nd)*(5+M*Nd)*(6+M*Nd)*(7+M*Nd) )
+    #Pearson Type III Parameters
+    delta = moment_1 - ( (2*(moment_2**2))/moment_3 )
+    beta = 4 * ( (moment_2**3)/(moment_3**2) )
+    alpha = moment_3 / (2 * moment_2)
+
+    error_4 = np.abs( (100 * 3 * beta * (2+beta) * (alpha**4)) / (moment_4 - 1) )
+    x = [1]
+    upperThreshold = optimize.newton(upperRoot, x[0], args = (moment_2, moment_3, p))
+    lowerThreshold = optimize.newton(lowerRoot, x[0], args = (moment_2, moment_3, p))
+    return lowerThreshold, upperThreshold
+
 def calculate_spectra(No_DC_BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTransform):
     """
     Calculate a series of power spectra for BL RAW time series data.
@@ -280,7 +309,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     totalTime = samplesPerTransform * fftsPerIntegration * TBIN * 10
 
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
-    sk_lower_threshold, sk_upper_threshold = SKThresholds.spectralKurtosis_thresholds(fftsPerIntegration)
+    sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration)
 
     if (plt.fignum_exists("Test") == False):
         #SET UP Big Plot
@@ -459,7 +488,7 @@ if __name__ == "__main__":
         currentBytesPassed = 0
 
         #Header Information
-        OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = header.extractHeader(readIn, currentBytesPassed)
+        OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
 
         NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8))) #time samples per channel per block
         #Skip header and put data in easily parsed array
