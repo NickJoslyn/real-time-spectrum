@@ -503,45 +503,45 @@ if __name__ == "__main__":
     plt.show()
 
     # Full observational range
-    axis1_desired = plt.subplot2grid((18,5), (0,0), colspan=5, rowspan=3)
+    axis1_desired = plt.subplot2grid((14,11), (0,3), colspan=5, rowspan=3)
     axis1_desired.set_title("Full Observation Spectrum (X)")
     axis1_desired.set_ylabel("Power (dB)")
     axis1_desired.set_xlabel("Frequency (MHz)")
 
     # Spectra of compute node
-    axis2_desired = plt.subplot2grid((18,5), (5,0), colspan=2, rowspan=3)
+    axis2_desired = plt.subplot2grid((14,11), (5,3), colspan=2, rowspan=3)
     axis2_desired.set_title("Node Spectrum: X")
     axis2_desired.set_xlabel("Frequency (MHz)")
     axis2_desired.set_ylabel("Power (dB)")
     axis2_desired.margins(x=0)
 
-    axis3_desired = plt.subplot2grid((18,5), (5, 3), colspan=2, rowspan=3)
+    axis3_desired = plt.subplot2grid((14,11), (5, 6), colspan=2, rowspan=3)
     axis3_desired.set_title("Node Spectrum: Y")
     axis3_desired.set_xlabel("Frequency (MHz)")
     axis3_desired.set_ylabel("Power (dB)")
     axis3_desired.margins(x=0)
 
     # Waterfall of compute node
-    axis4_desired = plt.subplot2grid((18,5), (10, 0), colspan=2, rowspan=3)
+    axis4_desired = plt.subplot2grid((14,11), (0, 0), colspan=2, rowspan=14)
     axis4_desired.set_title("Node Waterfall: X")
     axis4_desired.set_xlabel("Frequency (MHz)")
     axis4_desired.set_ylabel("Time (s)")
     axis4_desired.margins(x=0)
 
-    axis5_desired = plt.subplot2grid((18,5), (10, 3), colspan=2, rowspan=3)
+    axis5_desired = plt.subplot2grid((14,11), (0, 9), colspan=2, rowspan=14)
     axis5_desired.set_title("Node Waterfall: Y")
     axis5_desired.set_xlabel("Frequency (MHz)")
     axis5_desired.set_ylabel("Time (s)")
     axis5_desired.margins(x=0)
 
     # Spectral Kurtosis of compute node
-    axis6_desired = plt.subplot2grid((18,5), (15,0), colspan=2, rowspan=3)
+    axis6_desired = plt.subplot2grid((14,11), (10,3), colspan=2, rowspan=3)
     axis6_desired.set_title("Spectral Kurtosis: X")
     axis6_desired.margins(x=0)
     axis6_desired.set_ylim(0, 4)
     axis6_desired.set_xlabel("Frequency (MHz)")
 
-    axis7_desired = plt.subplot2grid((18,5), (15, 3), colspan=2, rowspan=3)
+    axis7_desired = plt.subplot2grid((14,11), (10, 6), colspan=2, rowspan=3)
     axis7_desired.set_title("Spectral Kurtosis: Y")
     axis7_desired.margins(x=0)
     axis7_desired.set_ylim(0, 5)
