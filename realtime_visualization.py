@@ -597,9 +597,12 @@ if __name__ == "__main__":
                     if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > (FILE_COUNT_INDICATOR + 1)):
                         waiting_for_written_file = False
                     else:
-                        #print("Waiting for new .raw file")
-                        time.sleep(2)
-
+                        temp_time = time.time()
+                        timer_test = true
+                        while(timer_test):
+                            if (time.time() < temp_time + 120):
+                                timer_test = False
+                            
                 test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | tail -2 | head -1'
                 inputFileName = subprocess.check_output(test_input_file_string, shell = True)[:-1]
                 readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
