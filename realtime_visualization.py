@@ -77,7 +77,7 @@ def extractHeader(RAW_file, byteLocation):
           BLOCSIZE = int(cardString[9:].strip())
 
         elif(cardString[:8] == 'DIRECTIO'):
-          DIRECTIO = int(cardString[9:].strip())
+          DIRECTIO = int(cardString[9:].strip()[1])
 
         elif(cardString[:7] == 'OBSFREQ'):
           OBSFREQ = float(cardString[9:].strip())
@@ -588,17 +588,19 @@ if __name__ == "__main__":
             if (bank ==0):
                 bank = bank + BANK_OFFSET
                 for node in range(numberOfNodes):
-                    test_Number_Files_String = 'ls /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank) + str(node) + '/*.raw | wc -l'
+                    test_Number_Files_String = 'ls /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | wc -l'
                     waiting_for_written_file = True
 
                     while(waiting_for_written_file):
                         if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > (FILE_COUNT_INDICATOR + 1)):
                             waiting_for_written_file = False
-                        else:
-                            time.sleep(0.5)
+                        else:                           
+			    #print("Waiting for new .raw file")
+			    time.sleep(2)
 
-                    test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank) + str(node) + '/*.raw | tail -2 | head -1'
+                    test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | tail -2 | head -1'
                     inputFileName = subprocess.check_output(test_input_file_string, shell = True)[:-1]
+                    readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
                     fileBytes = os.path.getsize(inputFileName)
                     currentBytesPassed = 0
 
