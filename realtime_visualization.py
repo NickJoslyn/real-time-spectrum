@@ -567,26 +567,27 @@ if __name__ == "__main__":
         if (k>0):
             clear_full_spectrum()
         for bank in range(numberOfBanks):
-            bank = bank + BANK_OFFSET
-            for node in range(numberOfNodes):
+            if (bank ==0):
+                bank = bank + BANK_OFFSET
+                for node in range(numberOfNodes):
 
-                inputFileName = "/mnt_blc" + str(bank) + str(node) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(bank) + str(node) + "/blc" + str(bank) + str(node) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(k) + ".raw"
-                readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
-                fileBytes = os.path.getsize(inputFileName)
-                currentBytesPassed = 0
+                    inputFileName = "/mnt_blc" + str(bank) + str(node) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(bank) + str(node) + "/blc" + str(bank) + str(node) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(k) + ".raw"
+                    readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
+                    fileBytes = os.path.getsize(inputFileName)
+                    currentBytesPassed = 0
 
-                OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
-                NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8)))
+                    OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
+                    NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8)))
 
-                samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
-                dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
-                NDIMsmall = samplesPerTransform * fftsPerIntegration
+                    samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
+                    dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
+                    NDIMsmall = samplesPerTransform * fftsPerIntegration
 
-                ### Put in function
-                node_spectra_storage[k, bank - BANK_OFFSET, node, 0, :, :, :], node_spectra_storage[k, bank - BANK_OFFSET, node, 1, :, :, :], node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
-                ### End presumed function
-                #print(bank, node)
-                del readIn
+                    ### Put in function
+                    node_spectra_storage[k, bank - BANK_OFFSET, node, 0, :, :, :], node_spectra_storage[k, bank - BANK_OFFSET, node, 1, :, :, :], node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+                    ### End presumed function
+                    #print(bank, node)
+                    del readIn
 
         ## Done with spectra collection; plot
         for i in range(numberOfNodes):
