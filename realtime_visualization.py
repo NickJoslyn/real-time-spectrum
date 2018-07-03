@@ -248,6 +248,7 @@ def press(event):
         Plotted_Bank += 1
         if (Plotted_Bank > (numberOfBanks-1)):
             Plotted_Bank = 0
+        clear_full_spectrum()
         clear_node_plots()
         for j in range(numberOfNodes):
             if (j!=Plotted_Node):
@@ -258,6 +259,7 @@ def press(event):
         Plotted_Bank -= 1
         if (Plotted_Bank < 0):
             Plotted_Bank = (numberOfBanks -1)
+        clear_full_spectrum()
         clear_node_plots()
         for j in range(numberOfNodes):
             if (j!=Plotted_Node):
