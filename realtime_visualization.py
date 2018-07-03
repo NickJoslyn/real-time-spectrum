@@ -280,7 +280,7 @@ def press(event):
                 plot_otherNodes(node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
         plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR)
 
-    plt.suptitle(SESSION_IDENTIFIER + " | blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node))
+    plt.suptitle(SESSION_IDENTIFIER)
 
 ######## Non - interactive
 
@@ -371,7 +371,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     axis6_desired.clear()
     axis6_desired.plot(current_axis, SK_x, color = 'C0')
-    axis6_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + "Spectral Kurtosis: X")
+    axis6_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: X")
     axis6_desired.margins(x=0)
     axis6_desired.set_ylim(0, 5)
     axis6_desired.axhline(y=sk_upper_threshold, color = 'y')
@@ -382,7 +382,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     axis7_desired.clear()
     axis7_desired.plot(current_axis, SK_y, color = 'C0')
-    axis7_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + "Spectral Kurtosis: Y")
+    axis7_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Y")
     axis7_desired.margins(x=0)
     axis7_desired.set_ylim(0, 5)
     axis7_desired.axhline(y=sk_upper_threshold, color = 'y')
@@ -510,6 +510,7 @@ if __name__ == "__main__":
 
     #Find the session
     string_for_session = 'ls -trd /mnt_blc' + p[0][-2:] + '/datax/dibas/* | tail -l'
+    print("string for session", string_for_session)
     SESSION_IDENTIFIER = subprocess.check_output(string_for_session, shell = True)[23:-1]
 
     ########################
@@ -520,7 +521,7 @@ if __name__ == "__main__":
     #Initialize Plot
     #SET UP Big Plot -- Can vary how we want big plot to look by adjusting subplot2grid
     plt.figure("Test")
-    plt.suptitle(SESSION_IDENTIFIER + " | blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node))
+    plt.suptitle(SESSION_IDENTIFIER)
     plt.ion()
     plt.show()
 
@@ -558,13 +559,13 @@ if __name__ == "__main__":
 
     # Spectral Kurtosis of compute node
     axis6_desired = plt.subplot2grid((14,13), (10,3), colspan=3, rowspan=3)
-    axis6_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + "Spectral Kurtosis: X")
+    axis6_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: X")
     axis6_desired.margins(x=0)
     axis6_desired.set_ylim(0, 4)
     axis6_desired.set_xlabel("Frequency (MHz)")
 
     axis7_desired = plt.subplot2grid((14,13), (10, 7), colspan=3, rowspan=3)
-    axis7_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + "Spectral Kurtosis: Y")
+    axis7_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Y")
     axis7_desired.margins(x=0)
     axis7_desired.set_ylim(0, 5)
     axis7_desired.set_xlabel("Frequency (MHz)")
