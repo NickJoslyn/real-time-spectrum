@@ -592,12 +592,12 @@ if __name__ == "__main__":
                     waiting_for_written_file = True
 
                     while(waiting_for_written_file):
-                        if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > FILE_COUNT_INDICATOR):
+                        if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > (FILE_COUNT_INDICATOR + 1)):
                             waiting_for_written_file = False
                         else:
                             time.sleep(0.5)
 
-                    test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank) + str(node) + '/*.raw | tail -1'
+                    test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank) + str(node) + '/*.raw | tail -2 | head -1'
                     inputFileName = subprocess.check_output(test_input_file_string, shell = True)[:-1]
                     fileBytes = os.path.getsize(inputFileName)
                     currentBytesPassed = 0
