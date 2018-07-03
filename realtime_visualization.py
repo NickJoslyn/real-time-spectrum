@@ -565,7 +565,7 @@ if __name__ == "__main__":
     axis6_desired.set_ylim(0, 4)
     axis6_desired.set_xlabel("Frequency (MHz)")
 
-    axis7_desired = plt.subplot2grid((14,13), (10, 8), colspan=4, rowspan=3)
+    axis7_desired = plt.subplot2grid((14,15), (10, 8), colspan=4, rowspan=3)
     axis7_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Y")
     axis7_desired.margins(x=0)
     axis7_desired.set_ylim(0, 5)
