@@ -318,8 +318,9 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         6/7)    X/Y Polarization spectral kurtosis of the compute node's bandwidth
     """
 
-    totalTime = samplesPerTransform * fftsPerIntegration * TBIN * 10
-
+    #totalTime = samplesPerTransform * fftsPerIntegration * TBIN * 10
+    #GBT: 6 Hours, Parkes: 11 Hours
+    totalTime = 6
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
     global Plotted_Bank, Plotted_Node, colorbar4, colorbar5
     sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration)
@@ -345,6 +346,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     im4 = axis4_desired.imshow(10*np.log10(integrated_spectrum_x), cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, totalTime, 0])
     divider4 = make_axes_locatable(axis4_desired)
     cax4 = divider4.append_axes('right', size = '5%', pad = 0.05)
+    axis4_desired.set_ylabel("Time (Hours)")
     if (colorbar4==0):
         colorbar4 = plt.colorbar(im4, cax=cax4, orientation = 'vertical')
         colorbar4.set_label("Power (dB)")
@@ -356,6 +358,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     im5 = axis5_desired.imshow(10*np.log10(integrated_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, totalTime, 0])
     divider5 = make_axes_locatable(axis5_desired)
     cax5 = divider5.append_axes('right', size = '5%', pad = 0.05)
+    axis5_desired.set_ylabel("Time (Hours)")
     if (colorbar5==0):
         colorbar5 = plt.colorbar(im5, cax=cax5, orientation='vertical')
         colorbar5.set_label("Power (dB)")
@@ -533,13 +536,13 @@ if __name__ == "__main__":
     axis4_desired = plt.subplot2grid((14,11), (0, 0), colspan=2, rowspan=14)
     axis4_desired.set_title("Node Waterfall: X")
     axis4_desired.set_xlabel("Frequency (MHz)")
-    axis4_desired.set_ylabel("Time (s)")
+    axis4_desired.set_ylabel("Time (Hours)")
     axis4_desired.margins(x=0)
 
     axis5_desired = plt.subplot2grid((14,11), (0, 9), colspan=2, rowspan=14)
     axis5_desired.set_title("Node Waterfall: Y")
     axis5_desired.set_xlabel("Frequency (MHz)")
-    axis5_desired.set_ylabel("Time (s)")
+    axis5_desired.set_ylabel("Time (Hours)")
     axis5_desired.margins(x=0)
 
     # Spectral Kurtosis of compute node
