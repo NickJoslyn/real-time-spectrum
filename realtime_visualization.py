@@ -417,7 +417,7 @@ def plot_desired_from_click(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samp
     for id in range(10):
         waterfall_spectrum_x[id,:] = tempx[id, :, :].reshape(-1)
         waterfall_spectrum_y[id,:] = tempy[id, :, :].reshape(-1)
-
+    
     # Spectrum for plotting
     bandPass_x = waterfall_spectrum_x[file_index, :]
     bandPass_y = waterfall_spectrum_y[file_index, :]
