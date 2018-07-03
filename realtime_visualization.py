@@ -479,24 +479,26 @@ if __name__ == "__main__":
     colorbar4 = 0
     colorbar5 = 0
     Polarization_Plot = 0
+    Plotted_Bank = 0
+    Plotted_Node = 0
+
     #User inputted resolutions
     desiredFrequencyResolution = 183105 #16 Bins
     desiredTimeResolution = 0.0003 #54 Integrations
-    Plotted_Bank = 0
-    Plotted_Node = 0
+
+
     #Hardware/band dependent parameters
+    dualPolarization = 2
+
+    # Get from Matt command
     numberOfBanks = 1
     numberOfNodes = 8
-    dualPolarization = 2
-    desiredBank = 0
-    desiredNode = 4
-    numberOfFiles = 10
 
     node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, 2))
     node_spectra_storage = np.zeros((most_possible_files_read, numberOfBanks, numberOfNodes, 2, 64, 54, 16))
 
     #Initialize Plot
-    #SET UP Big Plot
+    #SET UP Big Plot -- Can vary how we want big plot to look by adjusting subplot2grid
     plt.figure("Test")
     plt.suptitle("Observation: >>Grab Name/Date<< | blc" + str(Plotted_Bank) + str(Plotted_Node))
     plt.ion()
@@ -553,7 +555,7 @@ if __name__ == "__main__":
 
 
 
-
+    numberOfFiles = 10
     dummyCountIndicator = 0
     # k is indicative of getting a new file
     for k in range(numberOfFiles):
@@ -583,9 +585,9 @@ if __name__ == "__main__":
         ## Done with spectra collection; plot
         for i in range(numberOfNodes):
             if (i!=Plotted_Node):
-                plot_otherNodes(node_spectra_storage[k, desiredBank, i, 0, :, :, :], node_spectra_storage[k, desiredBank, i, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, i, 0], node_Frequency_Ranges[desiredBank, i, 1])
+                plot_otherNodes(node_spectra_storage[k, Plotted_Bank, i, 0, :, :, :], node_spectra_storage[k, Plotted_Bank, i, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, i, 0], node_Frequency_Ranges[Plotted_Bank, i, 1])
 
-        plot_desired(node_spectra_storage[k, desiredBank, Plotted_Node, 0, :, :, :], node_spectra_storage[k, desiredBank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[desiredBank, Plotted_Node, 0], node_Frequency_Ranges[desiredBank, Plotted_Node, 1], k)
+        plot_desired(node_spectra_storage[k, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[k, Plotted_Bank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], k)
 
         dummyCountIndicator += 1
 
