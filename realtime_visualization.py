@@ -589,7 +589,7 @@ if __name__ == "__main__":
                 bank = bank + BANK_OFFSET
                 for node in range(numberOfNodes):
 
-                    inputFileName = "/mnt_blc" + str(bank) + str(node) + "/datax/dibas/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(bank) + str(node) + "/blc" + str(bank) + str(node) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(FILE_COUNT_INDICATOR) + ".raw"
+                    inputFileName = "/mnt_blc" + str(bank) + str(node) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(bank) + str(node) + "/blc" + str(bank) + str(node) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(FILE_COUNT_INDICATOR) + ".raw"
                     readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
                     fileBytes = os.path.getsize(inputFileName)
                     currentBytesPassed = 0
