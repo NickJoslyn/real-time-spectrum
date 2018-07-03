@@ -217,8 +217,12 @@ def press(event):
     global Polarization_Plot
     global node_Frequency_Ranges, node_spectra_storage
     global FILE_COUNT_INDICATOR, TBIN, BANK_OFFSET, numberOfNodes, numberOfBanks
-    global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER
+    global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER, OBSERVATION_IS_RUNNING
     sys.stdout.flush()
+
+    if event.key == 'q':
+        OBSERVATION_IS_RUNNING = False
+
     if event.key == 'x':
         Polarization_Plot += 1
         del axis1_desired.lines[:]
@@ -481,10 +485,10 @@ if __name__ == "__main__":
     global FILE_COUNT_INDICATOR, TBIN, Polarization_Plot, colorbar4, colorbar5
     global most_possible_files_read, BANK_OFFSET, numberOfNodes, numberOfBanks
     global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER
-
+    global OBSERVATION_IS_RUNNING
     #GBT - 6 hours; 20s files
     most_possible_files_read = 951
-
+    OBSERVATION_IS_RUNNING = True
     colorbar4 = 0
     colorbar5 = 0
     Polarization_Plot = 0
@@ -574,11 +578,10 @@ if __name__ == "__main__":
     plt.connect('key_press_event', press)
 
 
-
-    numberOfFiles = 10
     FILE_COUNT_INDICATOR = 0
-    # k is indicative of getting a new file
-    for k in range(numberOfFiles):
+
+    while(OBSERVATION_IS_RUNNING):
+
         if (FILE_COUNT_INDICATOR>0):
             clear_full_spectrum()
         for bank in range(numberOfBanks):
@@ -586,7 +589,7 @@ if __name__ == "__main__":
                 bank = bank + BANK_OFFSET
                 for node in range(numberOfNodes):
 
-                    inputFileName = "/mnt_blc" + str(bank) + str(node) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(bank) + str(node) + "/blc" + str(bank) + str(node) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(FILE_COUNT_INDICATOR) + ".raw"
+                    inputFileName = "/mnt_blc" + str(bank) + str(node) + "/datax/dibas/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(bank) + str(node) + "/blc" + str(bank) + str(node) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(FILE_COUNT_INDICATOR) + ".raw"
                     readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
                     fileBytes = os.path.getsize(inputFileName)
                     currentBytesPassed = 0
@@ -612,6 +615,3 @@ if __name__ == "__main__":
         plot_desired(node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR)
 
         FILE_COUNT_INDICATOR += 1
-
-    FILE_COUNT_INDICATOR = 9
-    plt.pause(15)
