@@ -496,7 +496,7 @@ if __name__ == "__main__":
     p = p.split()
     BANK_OFFSET = int(p[0][-2])
     numberOfBanks = (int(p[len(p)-1][-2]) - BANK_OFFSET) + 1
-    numberOfNodes = len(p)/numberOfBanks
+    numberOfNodes = int(len(p)/numberOfBanks)
     ########################
 
     node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, 2))
