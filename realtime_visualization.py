@@ -586,35 +586,34 @@ if __name__ == "__main__":
         if (FILE_COUNT_INDICATOR>0):
             clear_full_spectrum()
         for bank in range(numberOfBanks):
-            if (bank ==0):
-                bank = bank + BANK_OFFSET
-                for node in range(numberOfNodes):
-                    test_Number_Files_String = 'ls /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | wc -l'
-                    waiting_for_written_file = True
+            bank = bank + BANK_OFFSET
+            for node in range(numberOfNodes):
+                test_Number_Files_String = 'ls /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | wc -l'
+                waiting_for_written_file = True
 
-                    while(waiting_for_written_file):
-                        if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > (FILE_COUNT_INDICATOR + 1)):
-                            waiting_for_written_file = False
-                        else:
-			    #print("Waiting for new .raw file")
-			    time.sleep(2)
+                while(waiting_for_written_file):
+                    if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > (FILE_COUNT_INDICATOR + 1)):
+                        waiting_for_written_file = False
+                    else:
+                        #print("Waiting for new .raw file")
+                        time.sleep(2)
 
-                    test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | tail -2 | head -1'
-                    inputFileName = subprocess.check_output(test_input_file_string, shell = True)[:-1]
-                    readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
-                    fileBytes = os.path.getsize(inputFileName)
-                    currentBytesPassed = 0
+                test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | tail -2 | head -1'
+                inputFileName = subprocess.check_output(test_input_file_string, shell = True)[:-1]
+                readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
+                fileBytes = os.path.getsize(inputFileName)
+                currentBytesPassed = 0
 
-                    OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
-                    NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8)))
+                OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
+                NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8)))
 
-                    samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
-                    dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
-                    NDIMsmall = samplesPerTransform * fftsPerIntegration
+                samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
+                dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
+                NDIMsmall = samplesPerTransform * fftsPerIntegration
 
-                    node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 1, :, :, :], node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+                node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 1, :, :, :], node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
 
-                    del readIn
+                del readIn
 
 
         ## Done with spectra collection; plot
