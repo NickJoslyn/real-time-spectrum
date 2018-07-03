@@ -217,7 +217,7 @@ def press(event):
     global Polarization_Plot
     global node_Frequency_Ranges, node_spectra_storage
     global FILE_COUNT_INDICATOR, TBIN, BANK_OFFSET, numberOfNodes, numberOfBanks
-    global OBSNCHAN, fftsPerIntegration, samplesPerTransform
+    global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER
     sys.stdout.flush()
     if event.key == 'x':
         Polarization_Plot += 1
@@ -280,7 +280,7 @@ def press(event):
                 plot_otherNodes(node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
         plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR)
 
-    plt.suptitle("Observation: >>Grab Name/Date<< | blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node))
+    plt.suptitle(SESSION_IDENTIFIER + " | blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node))
 
 ######## Non - interactive
 
@@ -325,11 +325,11 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     global Plotted_Bank, Plotted_Node, colorbar4, colorbar5
     sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration)
 
-    axis1_desired.set_title("Full Observation Spectrum (X)")
+    axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "{0..7} Spectrum (X)")
     axis1_desired.plot(current_axis, 10*np.log10(bandPass_x), color = 'red')
 
     axis2_desired.clear()
-    axis2_desired.set_title("Node Spectrum: X")
+    axis2_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: X")
     axis2_desired.set_xlabel("Frequency (MHz)")
     axis2_desired.set_ylabel("Power (dB)")
     axis2_desired.margins(x=0)
@@ -337,7 +337,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
 
     axis3_desired.clear()
-    axis3_desired.set_title("Node Spectrum: Y")
+    axis3_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: Y")
     axis3_desired.set_xlabel("Frequency (MHz)")
     axis3_desired.set_ylabel("Power (dB)")
     axis3_desired.margins(x=0)
@@ -347,6 +347,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     divider4 = make_axes_locatable(axis4_desired)
     cax4 = divider4.append_axes('right', size = '5%', pad = 0.05)
     axis4_desired.set_ylabel("Time (Hours)")
+    axis4_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: X")
     if (colorbar4==0):
         colorbar4 = plt.colorbar(im4, cax=cax4, orientation = 'vertical')
         colorbar4.set_label("Power (dB)")
@@ -359,6 +360,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     divider5 = make_axes_locatable(axis5_desired)
     cax5 = divider5.append_axes('right', size = '5%', pad = 0.05)
     axis5_desired.set_ylabel("Time (Hours)")
+    axis5_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: Y")
     if (colorbar5==0):
         colorbar5 = plt.colorbar(im5, cax=cax5, orientation='vertical')
         colorbar5.set_label("Power (dB)")
@@ -369,7 +371,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     axis6_desired.clear()
     axis6_desired.plot(current_axis, SK_x, color = 'C0')
-    axis6_desired.set_title("Spectral Kurtosis: X")
+    axis6_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + "Spectral Kurtosis: X")
     axis6_desired.margins(x=0)
     axis6_desired.set_ylim(0, 5)
     axis6_desired.axhline(y=sk_upper_threshold, color = 'y')
@@ -380,7 +382,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     axis7_desired.clear()
     axis7_desired.plot(current_axis, SK_y, color = 'C0')
-    axis7_desired.set_title("Spectral Kurtosis: Y")
+    axis7_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + "Spectral Kurtosis: Y")
     axis7_desired.margins(x=0)
     axis7_desired.set_ylim(0, 5)
     axis7_desired.axhline(y=sk_upper_threshold, color = 'y')
@@ -477,7 +479,7 @@ if __name__ == "__main__":
     global node_Frequency_Ranges, node_spectra_storage
     global FILE_COUNT_INDICATOR, TBIN, Polarization_Plot, colorbar4, colorbar5
     global most_possible_files_read, BANK_OFFSET, numberOfNodes, numberOfBanks
-    global OBSNCHAN, fftsPerIntegration, samplesPerTransform
+    global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER
 
     #GBT - 6 hours; 20s files
     most_possible_files_read = 951
@@ -494,66 +496,75 @@ if __name__ == "__main__":
     samplesPerTransform = 16
     fftsPerIntegration = 54
     OBSNCHAN = 64
+    dualPolarization = 2
+
     ########################
+    ### Shell commands
+
     #Find the nodes
     p = subprocess.check_output(['cat', '/home/obs/triggers/hosts_running'])
     p = p.split()
     BANK_OFFSET = int(p[0][-2])
     numberOfBanks = (int(p[len(p)-1][-2]) - BANK_OFFSET) + 1
     numberOfNodes = int(len(p)/numberOfBanks)
+
+    #Find the session
+    string_for_session = 'ls -trd /mnt_blc' + p[0][-2:] + '/datax/dibas/* | tail -l'
+    SESSION_IDENTIFIER = subprocess.check_output(string_for_session, shell = True)[23:-1]
+
     ########################
 
-    node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, 2))
-    node_spectra_storage = np.zeros((most_possible_files_read, numberOfBanks, numberOfNodes, 2, 64, 54, 16))
+    node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, dualPolarization))
+    node_spectra_storage = np.zeros((most_possible_files_read, numberOfBanks, numberOfNodes, dualPolarization, OBSNCHAN, fftsPerIntegration, samplesPerTransform))
 
     #Initialize Plot
     #SET UP Big Plot -- Can vary how we want big plot to look by adjusting subplot2grid
     plt.figure("Test")
-    plt.suptitle("Observation: >>Grab Name/Date<< | blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node))
+    plt.suptitle(SESSION_IDENTIFIER + " | blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node))
     plt.ion()
     plt.show()
 
     # Full observational range
-    axis1_desired = plt.subplot2grid((14,11), (0,3), colspan=5, rowspan=3)
-    axis1_desired.set_title("Full Observation Spectrum (X)")
+    axis1_desired = plt.subplot2grid((14,13), (0,3), colspan=7, rowspan=3)
+    axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "{0..7} Spectrum (X)")
     axis1_desired.set_ylabel("Power (dB)")
     axis1_desired.set_xlabel("Frequency (MHz)")
 
     # Spectra of compute node
-    axis2_desired = plt.subplot2grid((14,11), (5,3), colspan=2, rowspan=3)
-    axis2_desired.set_title("Node Spectrum: X")
+    axis2_desired = plt.subplot2grid((14,13), (5,3), colspan=3, rowspan=3)
+    axis2_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: X")
     axis2_desired.set_xlabel("Frequency (MHz)")
     axis2_desired.set_ylabel("Power (dB)")
     axis2_desired.margins(x=0)
 
-    axis3_desired = plt.subplot2grid((14,11), (5, 6), colspan=2, rowspan=3)
-    axis3_desired.set_title("Node Spectrum: Y")
+    axis3_desired = plt.subplot2grid((14,13), (5, 7), colspan=3, rowspan=3)
+    axis3_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: Y")
     axis3_desired.set_xlabel("Frequency (MHz)")
     axis3_desired.set_ylabel("Power (dB)")
     axis3_desired.margins(x=0)
 
     # Waterfall of compute node
-    axis4_desired = plt.subplot2grid((14,11), (0, 0), colspan=2, rowspan=14)
-    axis4_desired.set_title("Node Waterfall: X")
+    axis4_desired = plt.subplot2grid((14,13), (0, 0), colspan=2, rowspan=14)
+    axis4_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: X")
     axis4_desired.set_xlabel("Frequency (MHz)")
     axis4_desired.set_ylabel("Time (Hours)")
     axis4_desired.margins(x=0)
 
-    axis5_desired = plt.subplot2grid((14,11), (0, 9), colspan=2, rowspan=14)
-    axis5_desired.set_title("Node Waterfall: Y")
+    axis5_desired = plt.subplot2grid((14,13), (0, 11), colspan=2, rowspan=14)
+    axis5_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: Y")
     axis5_desired.set_xlabel("Frequency (MHz)")
     axis5_desired.set_ylabel("Time (Hours)")
     axis5_desired.margins(x=0)
 
     # Spectral Kurtosis of compute node
-    axis6_desired = plt.subplot2grid((14,11), (10,3), colspan=2, rowspan=3)
-    axis6_desired.set_title("Spectral Kurtosis: X")
+    axis6_desired = plt.subplot2grid((14,13), (10,3), colspan=3, rowspan=3)
+    axis6_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + "Spectral Kurtosis: X")
     axis6_desired.margins(x=0)
     axis6_desired.set_ylim(0, 4)
     axis6_desired.set_xlabel("Frequency (MHz)")
 
-    axis7_desired = plt.subplot2grid((14,11), (10, 6), colspan=2, rowspan=3)
-    axis7_desired.set_title("Spectral Kurtosis: Y")
+    axis7_desired = plt.subplot2grid((14,13), (10, 7), colspan=3, rowspan=3)
+    axis7_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + "Spectral Kurtosis: Y")
     axis7_desired.margins(x=0)
     axis7_desired.set_ylim(0, 5)
     axis7_desired.set_xlabel("Frequency (MHz)")
