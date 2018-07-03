@@ -327,6 +327,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "{0..7} Spectrum (X)")
     axis1_desired.plot(current_axis, 10*np.log10(bandPass_x), color = 'red')
+    axis1_desired.margins(x=0)
 
     axis2_desired.clear()
     axis2_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: X")
@@ -525,45 +526,46 @@ if __name__ == "__main__":
     plt.show()
 
     # Full observational range
-    axis1_desired = plt.subplot2grid((14,13), (0,3), colspan=7, rowspan=3)
+    axis1_desired = plt.subplot2grid((14,15), (0,3), colspan=9, rowspan=3)
     axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "{0..7} Spectrum (X)")
     axis1_desired.set_ylabel("Power (dB)")
     axis1_desired.set_xlabel("Frequency (MHz)")
+    axis1_desired.margins(x=0)
 
     # Spectra of compute node
-    axis2_desired = plt.subplot2grid((14,13), (5,3), colspan=3, rowspan=3)
+    axis2_desired = plt.subplot2grid((14,15), (5,3), colspan=4, rowspan=3)
     axis2_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: X")
     axis2_desired.set_xlabel("Frequency (MHz)")
     axis2_desired.set_ylabel("Power (dB)")
     axis2_desired.margins(x=0)
 
-    axis3_desired = plt.subplot2grid((14,13), (5, 7), colspan=3, rowspan=3)
+    axis3_desired = plt.subplot2grid((14,15), (5, 8), colspan=4, rowspan=3)
     axis3_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: Y")
     axis3_desired.set_xlabel("Frequency (MHz)")
     axis3_desired.set_ylabel("Power (dB)")
     axis3_desired.margins(x=0)
 
     # Waterfall of compute node
-    axis4_desired = plt.subplot2grid((14,13), (0, 0), colspan=2, rowspan=14)
+    axis4_desired = plt.subplot2grid((14,15), (0, 0), colspan=2, rowspan=14)
     axis4_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: X")
     axis4_desired.set_xlabel("Frequency (MHz)")
     axis4_desired.set_ylabel("Time (Hours)")
     axis4_desired.margins(x=0)
 
-    axis5_desired = plt.subplot2grid((14,13), (0, 11), colspan=2, rowspan=14)
+    axis5_desired = plt.subplot2grid((14,15), (0, 13), colspan=2, rowspan=14)
     axis5_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: Y")
     axis5_desired.set_xlabel("Frequency (MHz)")
     axis5_desired.set_ylabel("Time (Hours)")
     axis5_desired.margins(x=0)
 
     # Spectral Kurtosis of compute node
-    axis6_desired = plt.subplot2grid((14,13), (10,3), colspan=3, rowspan=3)
+    axis6_desired = plt.subplot2grid((14,15), (10,3), colspan=4, rowspan=3)
     axis6_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: X")
     axis6_desired.margins(x=0)
     axis6_desired.set_ylim(0, 4)
     axis6_desired.set_xlabel("Frequency (MHz)")
 
-    axis7_desired = plt.subplot2grid((14,13), (10, 7), colspan=3, rowspan=3)
+    axis7_desired = plt.subplot2grid((14,13), (10, 8), colspan=4, rowspan=3)
     axis7_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Y")
     axis7_desired.margins(x=0)
     axis7_desired.set_ylim(0, 5)
