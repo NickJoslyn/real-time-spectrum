@@ -295,7 +295,7 @@ def clear_node_plots():
     axis5_desired.clear()
     axis6_desired.clear()
     axis7_desired.clear()
-    
+
 def plot_real_time_visualization_general(current_axis, bandPass_x, defaultColor = 'black'):
     """
     Plot the top panel -- full spectrum of all active nodes (except node of interest)
@@ -349,7 +349,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     else:
         colorbar4.remove()
         colorbar4 = plt.colorbar(im4, cax=cax4, orientation='vertical')
-        colorbar4.set_label("Power (dB)")    
+        colorbar4.set_label("Power (dB)")
 
     im5 = axis5_desired.imshow(10*np.log10(integrated_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, totalTime, 0])
     divider5 = make_axes_locatable(axis5_desired)
@@ -359,7 +359,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         colorbar5.set_label("Power (dB)")
     else:
         colorbar5.remove()
-        colorbar5 = plt.colorbar(im5, cax=cax5, orientation='vertical')    
+        colorbar5 = plt.colorbar(im5, cax=cax5, orientation='vertical')
         colorbar5.set_label("Power (dB)")
 
     axis6_desired.clear()
@@ -400,7 +400,7 @@ def spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, O
 
 def plot_desired_from_click(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index):
 
-    #######node_spectra_storage[:, desiredBank, Plotted_Node, 0, :, :, :]
+    global most_possible_files_read
 
     # Spectral Kurtosis
     SK_x = calculate_spectralKurtosis(spectralData_x[file_index, :, :, :], fftsPerIntegration)
@@ -412,12 +412,12 @@ def plot_desired_from_click(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samp
     tempx = np.flip(np.sum(spectralData_x[:, :, :, :], axis = 2), 1)
     tempy = np.flip(np.sum(spectralData_y[:, :, :, :], axis = 2), 1)
 
-    waterfall_spectrum_x = np.zeros((10, OBSNCHAN * samplesPerTransform))
-    waterfall_spectrum_y = np.zeros((10, OBSNCHAN * samplesPerTransform))
+    waterfall_spectrum_x = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
+    waterfall_spectrum_y = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
     for id in range(10):
         waterfall_spectrum_x[id,:] = tempx[id, :, :].reshape(-1)
         waterfall_spectrum_y[id,:] = tempy[id, :, :].reshape(-1)
-    
+
     # Spectrum for plotting
     bandPass_x = waterfall_spectrum_x[file_index, :]
     bandPass_y = waterfall_spectrum_y[file_index, :]
@@ -426,6 +426,8 @@ def plot_desired_from_click(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samp
     plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, SK_x, SK_y, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN)
 
 def plot_desired(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index):
+
+    global most_possible_files_read
 
     # Spectral Kurtosis
     SK_x = calculate_spectralKurtosis(spectralData_x, fftsPerIntegration)
@@ -438,8 +440,8 @@ def plot_desired(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samplesPerTrans
     spectralData_y = np.flip(np.sum(spectralData_y, axis = 1), 0)
 
     # Spectrum for waterfall (array in array for plt.imshow())
-    waterfall_spectrum_x = np.zeros((10, OBSNCHAN * samplesPerTransform))
-    waterfall_spectrum_y = np.zeros((10, OBSNCHAN * samplesPerTransform))
+    waterfall_spectrum_x = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
+    waterfall_spectrum_y = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
     waterfall_spectrum_x[file_index, :] = spectralData_x.reshape(-1)
     waterfall_spectrum_y[file_index, :] = spectralData_y.reshape(-1)
 
@@ -469,6 +471,11 @@ if __name__ == "__main__":
     global Plotted_Bank, Plotted_Node
     global node_Frequency_Ranges, node_spectra_storage
     global dummyCountIndicator, TBIN, Polarization_Plot, colorbar4, colorbar5
+    global most_possible_files_read
+
+    #GBT - 6 hours; 20s files
+    most_possible_files_read = 951
+
     colorbar4 = 0
     colorbar5 = 0
     Polarization_Plot = 0
@@ -486,7 +493,7 @@ if __name__ == "__main__":
     numberOfFiles = 10
 
     node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, 2))
-    node_spectra_storage = np.zeros((numberOfFiles, numberOfBanks, numberOfNodes, 2, 64, 54, 16))
+    node_spectra_storage = np.zeros((most_possible_files_read, numberOfBanks, numberOfNodes, 2, 64, 54, 16))
 
     #Initialize Plot
     #SET UP Big Plot
@@ -520,7 +527,7 @@ if __name__ == "__main__":
     axis4_desired.set_xlabel("Frequency (MHz)")
     axis4_desired.set_ylabel("Time (s)")
     axis4_desired.margins(x=0)
-    
+
     axis5_desired = plt.subplot2grid((18,5), (10, 3), colspan=2, rowspan=3)
     axis5_desired.set_title("Node Waterfall: Y")
     axis5_desired.set_xlabel("Frequency (MHz)")
