@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import os
 import sys
 import subprocess
+import time
 
 from scipy import special
 from scipy import optimize
@@ -581,16 +582,23 @@ if __name__ == "__main__":
     FILE_COUNT_INDICATOR = 0
 
     while(OBSERVATION_IS_RUNNING):
-
         if (FILE_COUNT_INDICATOR>0):
             clear_full_spectrum()
         for bank in range(numberOfBanks):
             if (bank ==0):
                 bank = bank + BANK_OFFSET
                 for node in range(numberOfNodes):
+                    test_Number_Files_String = 'ls /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank) + str(node) + '/*.raw | wc -l'
+                    waiting_for_written_file = True
 
-                    inputFileName = "/mnt_blc" + str(bank) + str(node) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(bank) + str(node) + "/blc" + str(bank) + str(node) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(FILE_COUNT_INDICATOR) + ".raw"
-                    readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
+                    while(waiting_for_written_file):
+                        if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > FILE_COUNT_INDICATOR):
+                            waiting_for_written_file = False
+                        else:
+                            time.sleep(0.5)
+
+                    test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank) + str(node) + '/*.raw | tail -1'
+                    inputFileName = subprocess.check_output(test_input_file_string, shell = True)[:-1]
                     fileBytes = os.path.getsize(inputFileName)
                     currentBytesPassed = 0
 
@@ -601,11 +609,10 @@ if __name__ == "__main__":
                     dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
                     NDIMsmall = samplesPerTransform * fftsPerIntegration
 
-                    ### Put in function
                     node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 1, :, :, :], node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
-                    ### End presumed function
-                    #print(bank, node)
+
                     del readIn
+
 
         ## Done with spectra collection; plot
         for i in range(numberOfNodes):
@@ -615,3 +622,11 @@ if __name__ == "__main__":
         plot_desired(node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR)
 
         FILE_COUNT_INDICATOR += 1
+
+        if (FILE_COUNT_INDICATOR >= most_possible_files_read):
+            OBSERVATION_IS_RUNNING = False
+
+
+    ### After loop breaks, there should be some manner of exporting important PNGs
+
+    print("All Done!")
