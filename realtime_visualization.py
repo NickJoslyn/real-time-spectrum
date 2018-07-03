@@ -509,8 +509,7 @@ if __name__ == "__main__":
     numberOfNodes = int(len(p)/numberOfBanks)
 
     #Find the session
-    string_for_session = 'ls -trd /mnt_blc' + p[0][-2:] + '/datax/dibas/* | tail -l'
-    print("string for session", string_for_session)
+    string_for_session = 'ls -trd /mnt_blc' + p[0][-2:] + '/datax/dibas/* | tail -1'
     SESSION_IDENTIFIER = subprocess.check_output(string_for_session, shell = True)[23:-1]
 
     ########################
