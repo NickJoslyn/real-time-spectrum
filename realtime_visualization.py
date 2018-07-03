@@ -233,7 +233,7 @@ def press(event):
                     plot_otherNodes(node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 0, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
                 else:
                     plot_otherNodes(node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 0, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
-            axis1_desired.set_title("Full Observation Spectrum (X)")
+            axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "{0..7} Spectrum (X)")
 
         else:
             for j in range(numberOfNodes):
@@ -241,7 +241,7 @@ def press(event):
                     plot_otherNodes(node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
                 else:
                     plot_otherNodes(node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
-            axis1_desired.set_title("Full Observation Spectrum (Y)")
+            axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "{0..7} Spectrum (Y)")
 
 
     if event.key == 'up':
@@ -427,13 +427,14 @@ def plot_desired_from_click(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samp
 
     waterfall_spectrum_x = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
     waterfall_spectrum_y = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
-    for id in range(10):
+
+    for id in range(FILE_COUNT_INDICATOR + 1):
         waterfall_spectrum_x[id,:] = tempx[id, :, :].reshape(-1)
         waterfall_spectrum_y[id,:] = tempy[id, :, :].reshape(-1)
 
     # Spectrum for plotting
-    bandPass_x = waterfall_spectrum_x[file_index, :]
-    bandPass_y = waterfall_spectrum_y[file_index, :]
+    bandPass_x = waterfall_spectrum_x[FILE_COUNT_INDICATOR, :]
+    bandPass_y = waterfall_spectrum_y[FILE_COUNT_INDICATOR, :]
 
     current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
     plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, SK_x, SK_y, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN)
@@ -594,7 +595,7 @@ if __name__ == "__main__":
                     while(waiting_for_written_file):
                         if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > (FILE_COUNT_INDICATOR + 1)):
                             waiting_for_written_file = False
-                        else:                           
+                        else:
 			    #print("Waiting for new .raw file")
 			    time.sleep(2)
 
