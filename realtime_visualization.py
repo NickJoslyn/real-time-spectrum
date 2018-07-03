@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import sys
+import subprocess
 
 from scipy import special
 from scipy import optimize
@@ -215,13 +216,13 @@ def press(event):
     global Plotted_Bank, Plotted_Node
     global Polarization_Plot
     global node_Frequency_Ranges, node_spectra_storage
-    global dummyCountIndicator, TBIN
+    global dummyCountIndicator, TBIN, BANK_OFFSET, numberOfNodes, numberOfBanks
     sys.stdout.flush()
     if event.key == 'x':
         Polarization_Plot += 1
         del axis1_desired.lines[:]
         if (Polarization_Plot%2 == 0):
-            for j in range(8):
+            for j in range(numberOfNodes):
                 if(j!=Plotted_Node):
                     plot_otherNodes(node_spectra_storage[k, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[k, Plotted_Bank, j, 0, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
                 else:
@@ -229,7 +230,7 @@ def press(event):
             axis1_desired.set_title("Full Observation Spectrum (X)")
 
         else:
-            for j in range(8):
+            for j in range(numberOfNodes):
                 if(j!=Plotted_Node):
                     plot_otherNodes(node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[k, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
                 else:
@@ -239,10 +240,10 @@ def press(event):
 
     if event.key == 'up':
         Plotted_Bank += 1
-        if (Plotted_Bank > 3):
+        if (Plotted_Bank > (numberOfBanks-1)):
             Plotted_Bank = 0
         clear_node_plots()
-        for j in range(8):
+        for j in range(numberOfNodes):
             if (j!=Plotted_Node):
                 plot_otherNodes(node_spectra_storage[dummyCountIndicator, desiredBank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
         plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], dummyCountIndicator)
@@ -250,9 +251,9 @@ def press(event):
     if event.key == 'down':
         Plotted_Bank -= 1
         if (Plotted_Bank < 0):
-            Plotted_Bank = 3
+            Plotted_Bank = (numberOfBanks -1)
         clear_node_plots()
-        for j in range(8):
+        for j in range(numberOfNodes):
             if (j!=Plotted_Node):
                 plot_otherNodes(node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
         plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], dummyCountIndicator)
@@ -261,24 +262,24 @@ def press(event):
     if event.key == 'right':
         Plotted_Node -= 1
         if (Plotted_Node < 0):
-            Plotted_Node = 7
+            Plotted_Node = (numberOfNodes-1)
         clear_node_plots()
-        for j in range(8):
+        for j in range(numberOfNodes):
             if (j!=Plotted_Node):
                 plot_otherNodes(node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
         plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], dummyCountIndicator)
 
     if event.key == 'left':
         Plotted_Node += 1
-        if (Plotted_Node > 7):
+        if (Plotted_Node > (numberOfNodes-1)):
             Plotted_Node = 0
         clear_node_plots()
-        for j in range(8):
+        for j in range(numberOfNodes):
             if (j!=Plotted_Node):
                 plot_otherNodes(node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[dummyCountIndicator, Plotted_Bank, j, 1, :, :, :], 64, 16, 54, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
         plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], 64, TBIN, 16, 54, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], dummyCountIndicator)
 
-    plt.suptitle("Observation: >>Grab Name/Date<< | blc" + str(Plotted_Bank) + str(Plotted_Node))
+    plt.suptitle("Observation: >>Grab Name/Date<< | blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node))
 
 ######## Non - interactive
 
@@ -471,7 +472,7 @@ if __name__ == "__main__":
     global Plotted_Bank, Plotted_Node
     global node_Frequency_Ranges, node_spectra_storage
     global dummyCountIndicator, TBIN, Polarization_Plot, colorbar4, colorbar5
-    global most_possible_files_read
+    global most_possible_files_read, BANK_OFFSET, numberOfNodes, numberOfBanks
 
     #GBT - 6 hours; 20s files
     most_possible_files_read = 951
@@ -489,9 +490,14 @@ if __name__ == "__main__":
     #Hardware/band dependent parameters
     dualPolarization = 2
 
-    # Get from Matt command
-    numberOfBanks = 1
-    numberOfNodes = 8
+    ########################
+    #Find the nodes
+    p = subprocess.check_output(['cat', '/home/obs/triggers/hosts_running'])
+    p = p.split()
+    BANK_OFFSET = int(p[0][-2])
+    numberOfBanks = (int(p[len(p)-1][-2]) - BANK_OFFSET) + 1
+    numberOfNodes = len(p)/numberOfBanks
+    ########################
 
     node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, 2))
     node_spectra_storage = np.zeros((most_possible_files_read, numberOfBanks, numberOfNodes, 2, 64, 54, 16))
@@ -499,7 +505,7 @@ if __name__ == "__main__":
     #Initialize Plot
     #SET UP Big Plot -- Can vary how we want big plot to look by adjusting subplot2grid
     plt.figure("Test")
-    plt.suptitle("Observation: >>Grab Name/Date<< | blc" + str(Plotted_Bank) + str(Plotted_Node))
+    plt.suptitle("Observation: >>Grab Name/Date<< | blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node))
     plt.ion()
     plt.show()
 
@@ -561,6 +567,7 @@ if __name__ == "__main__":
         if (k>0):
             clear_full_spectrum()
         for bank in range(numberOfBanks):
+            bank = bank + BANK_OFFSET
             for node in range(numberOfNodes):
 
                 inputFileName = "/mnt_blc" + str(bank) + str(node) + "/datax/users/eenriquez/AGBT17A_999_56/GUPPI/BLP" + str(bank) + str(node) + "/blc" + str(bank) + str(node) + "_guppi_57872_11280_DIAG_PSR_J1136+1551_0001.000" + str(k) + ".raw"
@@ -576,7 +583,7 @@ if __name__ == "__main__":
                 NDIMsmall = samplesPerTransform * fftsPerIntegration
 
                 ### Put in function
-                node_spectra_storage[k, bank, node, 0, :, :, :], node_spectra_storage[k, bank, node, 1, :, :, :], node_Frequency_Ranges[bank, node, 0], node_Frequency_Ranges[bank, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+                node_spectra_storage[k, bank - BANK_OFFSET, node, 0, :, :, :], node_spectra_storage[k, bank - BANK_OFFSET, node, 1, :, :, :], node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
                 ### End presumed function
                 #print(bank, node)
                 del readIn
