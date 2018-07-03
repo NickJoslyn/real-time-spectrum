@@ -486,7 +486,6 @@ if __name__ == "__main__":
     desiredFrequencyResolution = 183105 #16 Bins
     desiredTimeResolution = 0.0003 #54 Integrations
 
-
     #Hardware/band dependent parameters
     dualPolarization = 2
 
