@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import os
 import sys
 import subprocess
-import time
 
 from scipy import special
 from scipy import optimize
@@ -17,6 +16,7 @@ from scipy import optimize
 from matplotlib.colors import LogNorm
 from matplotlib.collections import LineCollection
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib.backends.backend_pdf import PdfPages
 ################################################################################
 ######################---Functions---###########################################
 ################################################################################
@@ -287,7 +287,7 @@ def press(event):
                 plot_otherNodes(node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
         plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR)
 
-    plt.suptitle(SESSION_IDENTIFIER)
+    plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + "MHz Resolution | " + str(desiredTimeResolution/(10**3)) + " ms Resolution")
 
 ######## Non - interactive
 
@@ -342,7 +342,6 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis2_desired.set_ylabel("Power (dB)")
     axis2_desired.margins(x=0)
     axis2_desired.plot(current_axis, 10*np.log10(bandPass_x), color = 'C0')
-
 
     axis3_desired.clear()
     axis3_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: Y")
@@ -489,7 +488,7 @@ if __name__ == "__main__":
     global FILE_COUNT_INDICATOR, TBIN, Polarization_Plot, colorbar4, colorbar5
     global most_possible_files_read, BANK_OFFSET, numberOfNodes, numberOfBanks
     global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER
-    global OBSERVATION_IS_RUNNING
+    global OBSERVATION_IS_RUNNING, desiredFrequencyResolution, desiredTimeResolution
     #GBT - 6 hours; 20s files
     most_possible_files_read = 951
     OBSERVATION_IS_RUNNING = True
@@ -529,7 +528,7 @@ if __name__ == "__main__":
     #Initialize Plot
     #SET UP Big Plot -- Can vary how we want big plot to look by adjusting subplot2grid
     plt.figure("Test")
-    plt.suptitle(SESSION_IDENTIFIER)
+    plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + "MHz Resolution | " + str(desiredTimeResolution/(10**3)) + " ms Resolution")
     plt.ion()
     plt.show()
 
@@ -597,12 +596,8 @@ if __name__ == "__main__":
                     if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > (FILE_COUNT_INDICATOR + 1)):
                         waiting_for_written_file = False
                     else:
-                        temp_time = time.time()
-                        timer_test = True
-                        while(timer_test):
-                            if (time.time() < temp_time + 120):
-                                timer_test = False
-                            
+                        plt.pause(2)
+
                 test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | tail -2 | head -1'
                 inputFileName = subprocess.check_output(test_input_file_string, shell = True)[:-1]
                 readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
@@ -636,4 +631,58 @@ if __name__ == "__main__":
 
     ### After loop breaks, there should be some manner of exporting important PNGs
 
-    print("All Done!")
+    pp = PdfPages("../ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "_waterfalls.pdf")
+
+    for export_bank in range(numberOfBanks):
+        for export_node in range(numberOfNodes):
+
+
+            #### Set up data
+            export_tempx = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 0, :, :, :], axis = 2), 1)
+            export_tempy = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 1, :, :, :], axis = 2), 1)
+
+            export_waterfall_spectrum_x = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
+            export_waterfall_spectrum_y = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
+
+            for id in range(FILE_COUNT_INDICATOR + 1):
+                export_waterfall_spectrum_x[id,:] = export_tempx[id, :, :].reshape(-1)
+                export_waterfall_spectrum_y[id,:] = export_tempy[id, :, :].reshape(-1)
+            ########
+
+            ###### Set up plot
+            export_fig = plt.figure()
+            plt.suptitle("blc" + str(export_bank + BANK_OFFSET) + str(export_node) + " | " + str(desiredFrequencyResolution/(10**6)) + "MHz Resolution | " + str(desiredTimeResolution/(10**3)) + " ms Resolution")
+
+            export_axis1 = plt.subplot2grid((14,6), (0, 0), colspan=2, rowspan=14)
+            export_axis1.set_title("X")
+            export_axis1.set_xlabel("Frequency (MHz)")
+            export_axis1.set_ylabel("Time (Hours)")
+            export_axis1.margins(x=0)
+
+            export_axis2 = plt.subplot2grid((14,6), (0, 3), colspan=2, rowspan=14)
+            export_axis2.set_title("Y")
+            export_axis2.set_xlabel("Frequency (MHz)")
+            export_axis2.set_ylabel("Time (Hours)")
+            export_axis2.margins(x=0)
+            ########
+
+            ####### Plot data
+            export_im_x = export_axis1.imshow(10*np.log10(export_waterfall_spectrum_x), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 6, 0])
+            export_divider_x = make_axes_locatable(export_axis1)
+            export_cax_x = export_divider_x.append_axes('right', size = '5%', pad = 0.05)
+            export_colorbar_x = plt.colorbar(export_im_x, cax=export_cax_x, orientation = 'vertical')
+            export_colorbar_x.set_label("Power (dB)")
+
+            export_im_y = export_axis2.imshow(10*np.log10(export_waterfall_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 6, 0])
+            export_divider_y = make_axes_locatable(export_axis2)
+            export_cax_y = export_divider_y.append_axes('right', size = '5%', pad = 0.05)
+            export_colorbar_y = plt.colorbar(export_im_y, cax=export_cax_y, orientation = 'vertical')
+            export_colorbar_y.set_label("Power (dB)")
+            ########
+
+            ######## Write to PDF
+            plt.close()
+            pp.savefig(export_fig)
+            ########
+
+    pp.close()
