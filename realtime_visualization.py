@@ -598,7 +598,7 @@ if __name__ == "__main__":
                         waiting_for_written_file = False
                     else:
                         temp_time = time.time()
-                        timer_test = true
+                        timer_test = True
                         while(timer_test):
                             if (time.time() < temp_time + 120):
                                 timer_test = False
