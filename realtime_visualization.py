@@ -294,8 +294,9 @@ def press(event):
 def clear_full_spectrum():
 
     global axis1_desired
-    del axis1_desired.lines[:]
-
+    #del axis1_desired.lines[:]
+    axis1_desired.clear()
+    
 def clear_node_plots():
     global axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
     axis2_desired.clear()
