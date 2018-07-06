@@ -296,7 +296,7 @@ def clear_full_spectrum():
     global axis1_desired
     #del axis1_desired.lines[:]
     axis1_desired.clear()
-    
+
 def clear_node_plots():
     global axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
     axis2_desired.clear()
@@ -629,7 +629,7 @@ if __name__ == "__main__":
         if (FILE_COUNT_INDICATOR >= most_possible_files_read):
             OBSERVATION_IS_RUNNING = False
 
-
+    plt.close()
     ### After loop breaks, there should be some manner of exporting important PNGs
 
     pp = PdfPages("../ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "_waterfalls.pdf")
