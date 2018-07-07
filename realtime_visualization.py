@@ -77,7 +77,10 @@ def extractHeader(RAW_file, byteLocation):
           BLOCSIZE = int(cardString[9:].strip())
 
         elif(cardString[:8] == 'DIRECTIO'):
-          DIRECTIO = int(cardString[9:].strip()[1])
+            try:
+                DIRECTIO = int(cardString[9:].strip())
+            except:
+                DIRECTIO = int(cardString[9:].strip()[1])
 
         elif(cardString[:7] == 'OBSFREQ'):
           OBSFREQ = float(cardString[9:].strip())
