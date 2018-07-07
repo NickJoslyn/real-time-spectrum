@@ -624,6 +624,8 @@ if __name__ == "__main__":
 
                 del readIn
 
+            if (OBSERVATION_IS_RUNNING == False):
+                break
         if (OBSERVATION_IS_RUNNING == False):
             break
 
