@@ -645,10 +645,10 @@ if __name__ == "__main__":
             export_tempx = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 0, :, :, :], axis = 2), 1)
             export_tempy = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 1, :, :, :], axis = 2), 1)
 
-            export_waterfall_spectrum_x = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
-            export_waterfall_spectrum_y = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
+            export_waterfall_spectrum_x = np.zeros((FILE_COUNT_INDICATOR, OBSNCHAN * samplesPerTransform))
+            export_waterfall_spectrum_y = np.zeros((FILE_COUNT_INDICATOR, OBSNCHAN * samplesPerTransform))
 
-            for id in range(FILE_COUNT_INDICATOR + 1):
+            for id in range(FILE_COUNT_INDICATOR):
                 export_waterfall_spectrum_x[id,:] = export_tempx[id, :, :].reshape(-1)
                 export_waterfall_spectrum_y[id,:] = export_tempy[id, :, :].reshape(-1)
             ########
