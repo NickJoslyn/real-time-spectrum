@@ -635,7 +635,19 @@ if __name__ == "__main__":
     plt.close()
     ### After loop breaks, there should be some manner of exporting important PNGs
 
-    pp = PdfPages("../ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "_waterfalls.pdf")
+    BAND_IDENTIFIER = ''
+
+    if (numberOfBanks == 3):
+        BAND_IDENTIFIER = 'X'
+    elif (numberOfBanks == 4):
+        BAND_IDENTIFIER = 'C'
+    else:
+        if ((OBSFREQ/10**3) < 1.73):
+            BAND_IDENTIFIER = 'L'
+        else:
+            BAND_IDENTIFIER = 'S'
+
+    pp = PdfPages("../ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "band_waterfall.pdf")
 
     for export_bank in range(numberOfBanks):
         for export_node in range(numberOfNodes):
