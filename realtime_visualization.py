@@ -601,6 +601,11 @@ if __name__ == "__main__":
                         waiting_for_written_file = False
                     else:
                         plt.pause(2)
+                        if (OBSERVATION_IS_RUNNING == False):
+                            break
+
+                if (OBSERVATION_IS_RUNNING == False):
+                    break
 
                 test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | tail -2 | head -1'
                 inputFileName = subprocess.check_output(test_input_file_string, shell = True)[:-1]
@@ -619,6 +624,8 @@ if __name__ == "__main__":
 
                 del readIn
 
+        if (OBSERVATION_IS_RUNNING == False):
+            break
 
         ## Done with spectra collection; plot
         for i in range(numberOfNodes):
