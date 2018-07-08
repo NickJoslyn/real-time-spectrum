@@ -290,7 +290,7 @@ def press(event):
                 plot_otherNodes(node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
         plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR)
 
-    plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + "MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
+    plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
 ######## Non - interactive
 
@@ -532,7 +532,7 @@ if __name__ == "__main__":
     #Initialize Plot
     #SET UP Big Plot -- Can vary how we want big plot to look by adjusting subplot2grid
     plt.figure("Test")
-    plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + "MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
+    plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
     plt.ion()
     plt.show()
 
@@ -588,8 +588,7 @@ if __name__ == "__main__":
     FILE_COUNT_INDICATOR = 0
 
     while(OBSERVATION_IS_RUNNING):
-        if (FILE_COUNT_INDICATOR>0):
-            clear_full_spectrum()
+
         for bank in range(numberOfBanks):
             bank = bank + BANK_OFFSET
             for node in range(numberOfNodes):
@@ -629,6 +628,8 @@ if __name__ == "__main__":
         if (OBSERVATION_IS_RUNNING == False):
             break
 
+        if (FILE_COUNT_INDICATOR>0):
+            clear_full_spectrum()
         ## Done with spectra collection; plot
         for i in range(numberOfNodes):
             if (i!=Plotted_Node):
@@ -644,6 +645,7 @@ if __name__ == "__main__":
     plt.close()
     ### After loop breaks, there should be some manner of exporting important PNGs
 
+    ### Fix band identifier
     BAND_IDENTIFIER = ''
 
     if (numberOfBanks == 3):
@@ -676,7 +678,7 @@ if __name__ == "__main__":
 
             ###### Set up plot
             export_fig = plt.figure()
-            plt.suptitle("blc" + str(export_bank + BANK_OFFSET) + str(export_node) + " | " + str(desiredFrequencyResolution/(10**6)) + "MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
+            plt.suptitle("blc" + str(export_bank + BANK_OFFSET) + str(export_node) + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
             export_axis1 = plt.subplot2grid((14,6), (0, 0), colspan=2, rowspan=14)
             export_axis1.set_title("X")
