@@ -666,7 +666,7 @@ if __name__ == "__main__":
     elif (numberOfBanks == 4):
         BAND_IDENTIFIER = 'C'
     else:
-        if ((OBSFREQ/10**3) < 1.73):
+        if ((OBSFREQ/10**3) < 2):
             BAND_IDENTIFIER = 'L'
         else:
             BAND_IDENTIFIER = 'S'
