@@ -693,13 +693,13 @@ if __name__ == "__main__":
             export_fig = plt.figure()
             plt.suptitle("blc" + str(export_bank + BANK_OFFSET) + str(export_node) + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
-            export_axis1 = plt.subplot2grid((14,10), (0, 1), colspan=2, rowspan=14)
+            export_axis1 = plt.subplot2grid((14,5), (0, 0), colspan=2, rowspan=14)
             export_axis1.set_title("X")
             export_axis1.set_xlabel("Frequency (MHz)")
             #export_axis1.set_ylabel("Time (Hours)")
             export_axis1.margins(x=0)
 
-            export_axis2 = plt.subplot2grid((14,10), (0, 6), colspan=2, rowspan=14)
+            export_axis2 = plt.subplot2grid((14,5), (0, 3), colspan=2, rowspan=14)
             export_axis2.set_title("Y")
             export_axis2.set_xlabel("Frequency (MHz)")
             #export_axis2.set_ylabel("Time (Hours)")
