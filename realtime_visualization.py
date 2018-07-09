@@ -333,7 +333,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     #totalTime = samplesPerTransform * fftsPerIntegration * TBIN * 10
     #GBT: 6 Hours, Parkes: 11 Hours
-    totalTime = 6
+    totalTime = 3
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired
     global Plotted_Bank, Plotted_Node, colorbar4, colorbar5
     sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration)
@@ -500,7 +500,7 @@ if __name__ == "__main__":
     global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER
     global OBSERVATION_IS_RUNNING, desiredFrequencyResolution, desiredTimeResolution
     #GBT - 6 hours; 20s files
-    most_possible_files_read = 951
+    most_possible_files_read = 480
     OBSERVATION_IS_RUNNING = True
     colorbar4 = 0
     colorbar5 = 0
