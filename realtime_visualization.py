@@ -340,6 +340,8 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "{0..7} Spectrum (X)")
     axis1_desired.plot(current_axis, 10*np.log10(bandPass_x), color = 'red')
+    axis1_desired.set_ylabel("Power (dB)")
+    axis1_desired.set_xlabel("Frequency (MHz)")
     axis1_desired.margins(x=0)
 
     axis2_desired.clear()
@@ -360,6 +362,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     divider4 = make_axes_locatable(axis4_desired)
     cax4 = divider4.append_axes('right', size = '5%', pad = 0.05)
     axis4_desired.set_ylabel("Time (Hours)")
+    axis4_desired.set_xlabel("Frequency (MHz)")
     axis4_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: X")
     if (colorbar4==0):
         colorbar4 = plt.colorbar(im4, cax=cax4, orientation = 'vertical')
@@ -373,6 +376,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     divider5 = make_axes_locatable(axis5_desired)
     cax5 = divider5.append_axes('right', size = '5%', pad = 0.05)
     axis5_desired.set_ylabel("Time (Hours)")
+    axis5_desired.set_xlabel("Frequency (MHz)")
     axis5_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: Y")
     if (colorbar5==0):
         colorbar5 = plt.colorbar(im5, cax=cax5, orientation='vertical')
