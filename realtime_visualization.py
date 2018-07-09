@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import os
 import sys
 import subprocess
+from datetime import datetime
 
 from scipy import special
 from scipy import optimize
@@ -291,6 +292,7 @@ def press(event):
         plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR - 1)
 
     plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
+    plt.pause(0.000001)
 
 ######## Non - interactive
 
@@ -510,6 +512,8 @@ if __name__ == "__main__":
     OBSNCHAN = 64
     dualPolarization = 2
 
+    startTime = datetime.now().strftime('%H:%M:%S')
+
     ########################
     ### Shell commands
 
@@ -644,6 +648,8 @@ if __name__ == "__main__":
 
     plt.close()
 
+    endTime = datetime.now().strftime('%H:%M:%S')
+
     ####################################################################################
     ####################----EXPORT WATERFALLS----#######################################
     ####################################################################################
@@ -697,17 +703,21 @@ if __name__ == "__main__":
             ########
 
             ####### Plot data
-            export_im_x = export_axis1.imshow(10*np.log10(export_waterfall_spectrum_x), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 6, 0])
+            export_im_x = export_axis1.imshow(10*np.log10(export_waterfall_spectrum_x), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
             export_divider_x = make_axes_locatable(export_axis1)
             export_cax_x = export_divider_x.append_axes('right', size = '5%', pad = 0.05)
             export_colorbar_x = plt.colorbar(export_im_x, cax=export_cax_x, orientation = 'vertical')
             export_colorbar_x.set_label("Power (dB)")
+            export_axis1.set_yticks([0,1])
+            export_axis1.set_yticklabels([startTime, endTime])
 
-            export_im_y = export_axis2.imshow(10*np.log10(export_waterfall_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 6, 0])
+            export_im_y = export_axis2.imshow(10*np.log10(export_waterfall_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
             export_divider_y = make_axes_locatable(export_axis2)
             export_cax_y = export_divider_y.append_axes('right', size = '5%', pad = 0.05)
             export_colorbar_y = plt.colorbar(export_im_y, cax=export_cax_y, orientation = 'vertical')
             export_colorbar_y.set_label("Power (dB)")
+            export_axis2.set_yticks([0,1])
+            export_axis2.set_yticklabels([startTime, endTime])
             ########
 
             ######## Write to PDF
