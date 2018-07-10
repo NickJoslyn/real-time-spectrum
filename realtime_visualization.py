@@ -163,6 +163,17 @@ def calculate_spectra(No_DC_BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTrans
 
     return x_pol_spectra, y_pol_spectra
 
+def spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
+
+    BLOCK = remove_DCoffset(BLOCK)
+    spectralData_x, spectralData_y = calculate_spectra(BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTransform)
+    # nodeBand_x = np.flip(np.sum(spectralData_x, 1),0).reshape(-1)
+    # nodeBand_y = np.sum(np.flip(np.sum(spectralData_y, 1),0), 0)
+    lowerBound = OBSFREQ + OBSBW/2
+    upperBound = OBSFREQ - OBSBW/2
+
+    return spectralData_x, spectralData_y, lowerBound, upperBound
+
 ################################################################################
 ### Spectral Kurtosis ###
 
@@ -411,17 +422,6 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     plt.connect('key_press_event', press)
     plt.pause(0.000001)
 
-def spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
-
-    BLOCK = remove_DCoffset(BLOCK)
-    spectralData_x, spectralData_y = calculate_spectra(BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTransform)
-    # nodeBand_x = np.flip(np.sum(spectralData_x, 1),0).reshape(-1)
-    # nodeBand_y = np.sum(np.flip(np.sum(spectralData_y, 1),0), 0)
-    lowerBound = OBSFREQ + OBSBW/2
-    upperBound = OBSFREQ - OBSBW/2
-
-    return spectralData_x, spectralData_y, lowerBound, upperBound
-
 def plot_desired_from_click(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index):
 
     global most_possible_files_read
@@ -488,6 +488,7 @@ def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransfor
     current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
 
     plot_real_time_visualization_general(current_RAW_axis, bandPass_x, plot_color)
+
 ################################################################################
 #######################---Program---############################################
 ################################################################################
