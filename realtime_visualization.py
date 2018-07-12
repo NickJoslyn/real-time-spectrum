@@ -655,9 +655,19 @@ if __name__ == "__main__":
 
     endTime = datetime.now().strftime('%H:%M')
 
+
+    #
+    #
+    #
+    #
+
     ###################################################################################
     ####################----EXPORT WATERFALLS----######################################
     ###################################################################################
+
+    #
+    #
+    #
 
     ### Fix band identifier
     BAND_IDENTIFIER = ''
@@ -667,7 +677,7 @@ if __name__ == "__main__":
     elif (numberOfBanks == 4):
         BAND_IDENTIFIER = 'C'
     else:
-        if ((OBSFREQ/10**3) < 2):
+        if ((node_Frequency_Ranges[0,7,0]/10**3) < 1.2):
             BAND_IDENTIFIER = 'L'
         else:
             BAND_IDENTIFIER = 'S'
