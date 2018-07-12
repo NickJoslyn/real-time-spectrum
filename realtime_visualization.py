@@ -682,7 +682,7 @@ if __name__ == "__main__":
         else:
             BAND_IDENTIFIER = 'S'
 
-    pp = PdfPages("../ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "band_waterfall.pdf")
+    pp = PdfPages("../ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(startTime.replace(":", "")) + "-" + str(endTime.replace(":", ""))"_waterfall.pdf")
 
     for export_bank in range(numberOfBanks):
         for export_node in range(numberOfNodes):
