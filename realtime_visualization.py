@@ -412,7 +412,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis6_desired.set_xlabel("Frequency (MHz)")
     axis6_desired.lines[1].set_label('Gaussian Thresholds')
     axis6_desired.legend(loc = 1)
-    axis6_desired.text(0, -0.3, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " _ str(PFA_Nita), fontsize = "8")
+    axis6_desired.text(0, -0.3, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
 
     axis7_desired.clear()
     axis7_desired.plot(current_axis, SK_y, color = 'C0')
@@ -424,7 +424,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis7_desired.set_xlabel("Frequency (MHz)")
     axis7_desired.lines[1].set_label('Gaussian Thresholds')
     axis7_desired.legend(loc = 1)
-    axis7_desired.text(0, -0.3, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " _ str(PFA_Nita), fontsize = "8")
+    axis7_desired.text(0, -0.3, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
 
     # Cross Spectrum and SK of cross spectrum
     axis8_desired.clear()
@@ -614,7 +614,7 @@ if __name__ == "__main__":
     axis6_desired.margins(x=0)
     axis6_desired.set_ylim(-0.5, 5)
     axis6_desired.set_xlabel("Frequency (MHz)")
-    axis6_desired.text(0, -0.3, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " _ str(PFA_Nita), fontsize = "8")
+    axis6_desired.text(0, -0.3, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
 
 
     axis7_desired = plt.subplot2grid((19,15), (10, 8), colspan=4, rowspan=3)
