@@ -529,7 +529,7 @@ if __name__ == "__main__":
     global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER, PFA_Nita
     global OBSERVATION_IS_RUNNING, desiredFrequencyResolution, desiredTimeResolution
     #GBT - 6 hours; 20s files
-    most_possible_files_read = 480
+    most_possible_files_read = 20
     OBSERVATION_IS_RUNNING = True
     colorbar4 = 0
     colorbar5 = 0
@@ -568,76 +568,76 @@ if __name__ == "__main__":
     node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, 2))
     node_spectra_storage = np.zeros((most_possible_files_read, numberOfBanks, numberOfNodes, 3, OBSNCHAN, fftsPerIntegration, samplesPerTransform))
 
-    #Initialize Plot
-    #SET UP Big Plot -- Can vary how we want big plot to look by adjusting subplot2grid
-    plt.figure("Test")
-    plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
-    plt.ion()
-    plt.show()
-
-    # Full observational range
-    axis1_desired = plt.subplot2grid((19,15), (0,3), colspan=9, rowspan=3)
-    axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "{0..7} Spectrum (X)")
-    axis1_desired.set_ylabel("Power (dB)")
-    axis1_desired.set_xlabel("Frequency (MHz)")
-    axis1_desired.margins(x=0)
-
-    # Spectra of compute node
-    axis2_desired = plt.subplot2grid((19,15), (5,3), colspan=4, rowspan=3)
-    axis2_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: X")
-    axis2_desired.set_xlabel("Frequency (MHz)")
-    axis2_desired.set_ylabel("Power (dB)")
-    axis2_desired.margins(x=0)
-
-    axis3_desired = plt.subplot2grid((19,15), (5, 8), colspan=4, rowspan=3)
-    axis3_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: Y")
-    axis3_desired.set_xlabel("Frequency (MHz)")
-    axis3_desired.set_ylabel("Power (dB)")
-    axis3_desired.margins(x=0)
-
-    # Waterfall of compute node
-    axis4_desired = plt.subplot2grid((19,15), (0, 0), colspan=2, rowspan=19)
-    axis4_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: X")
-    axis4_desired.set_xlabel("Frequency (MHz)")
-    axis4_desired.set_ylabel("Time (Hours)")
-    axis4_desired.margins(x=0)
-
-    axis5_desired = plt.subplot2grid((19,15), (0, 13), colspan=2, rowspan=19)
-    axis5_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: Y")
-    axis5_desired.set_xlabel("Frequency (MHz)")
-    axis5_desired.set_ylabel("Time (Hours)")
-    axis5_desired.margins(x=0)
-
-    # Spectral Kurtosis of compute node
-    axis6_desired = plt.subplot2grid((19,15), (10,3), colspan=4, rowspan=3)
-    axis6_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: X")
-    axis6_desired.margins(x=0)
-    axis6_desired.set_ylim(-0.5, 5)
-    axis6_desired.set_xlabel("Frequency (MHz)")
-    axis6_desired.text(0, -0.3, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
-
-
-    axis7_desired = plt.subplot2grid((19,15), (10, 8), colspan=4, rowspan=3)
-    axis7_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Y")
-    axis7_desired.margins(x=0)
-    axis7_desired.set_ylim(-0.5, 5)
-    axis7_desired.set_xlabel("Frequency (MHz)")
-    axis7_desired.text(0, -0.3, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
-
-    # Cross Spectrum and SK of cross spectrum
-    axis8_desired = plt.subplot2grid((19,15), (15, 3), colspan=4, rowspan=3)
-    axis8_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Cross-Spectrum")
-    axis8_desired.margins(x=0)
-    axis8_desired.set_xlabel("Frequency (MHz)")
-    axis8_desired.set_ylabel("Power (dB)")
-
-    axis9_desired = plt.subplot2grid((19,15), (15, 8), colspan=4, rowspan=3)
-    axis9_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Cross-Spectrum")
-    axis9_desired.margins(x=0)
-    axis9_desired.set_ylim(0, 5)
-    axis9_desired.set_xlabel("Frequency (MHz)")
-
-    plt.connect('key_press_event', press)
+    # #Initialize Plot
+    # #SET UP Big Plot -- Can vary how we want big plot to look by adjusting subplot2grid
+    # plt.figure("Test")
+    # plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
+    # plt.ion()
+    # plt.show()
+    #
+    # # Full observational range
+    # axis1_desired = plt.subplot2grid((19,15), (0,3), colspan=9, rowspan=3)
+    # axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "{0..7} Spectrum (X)")
+    # axis1_desired.set_ylabel("Power (dB)")
+    # axis1_desired.set_xlabel("Frequency (MHz)")
+    # axis1_desired.margins(x=0)
+    #
+    # # Spectra of compute node
+    # axis2_desired = plt.subplot2grid((19,15), (5,3), colspan=4, rowspan=3)
+    # axis2_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: X")
+    # axis2_desired.set_xlabel("Frequency (MHz)")
+    # axis2_desired.set_ylabel("Power (dB)")
+    # axis2_desired.margins(x=0)
+    #
+    # axis3_desired = plt.subplot2grid((19,15), (5, 8), colspan=4, rowspan=3)
+    # axis3_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: Y")
+    # axis3_desired.set_xlabel("Frequency (MHz)")
+    # axis3_desired.set_ylabel("Power (dB)")
+    # axis3_desired.margins(x=0)
+    #
+    # # Waterfall of compute node
+    # axis4_desired = plt.subplot2grid((19,15), (0, 0), colspan=2, rowspan=19)
+    # axis4_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: X")
+    # axis4_desired.set_xlabel("Frequency (MHz)")
+    # axis4_desired.set_ylabel("Time (Hours)")
+    # axis4_desired.margins(x=0)
+    #
+    # axis5_desired = plt.subplot2grid((19,15), (0, 13), colspan=2, rowspan=19)
+    # axis5_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: Y")
+    # axis5_desired.set_xlabel("Frequency (MHz)")
+    # axis5_desired.set_ylabel("Time (Hours)")
+    # axis5_desired.margins(x=0)
+    #
+    # # Spectral Kurtosis of compute node
+    # axis6_desired = plt.subplot2grid((19,15), (10,3), colspan=4, rowspan=3)
+    # axis6_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: X")
+    # axis6_desired.margins(x=0)
+    # axis6_desired.set_ylim(-0.5, 5)
+    # axis6_desired.set_xlabel("Frequency (MHz)")
+    # axis6_desired.text(0, -0.3, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
+    #
+    #
+    # axis7_desired = plt.subplot2grid((19,15), (10, 8), colspan=4, rowspan=3)
+    # axis7_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Y")
+    # axis7_desired.margins(x=0)
+    # axis7_desired.set_ylim(-0.5, 5)
+    # axis7_desired.set_xlabel("Frequency (MHz)")
+    # axis7_desired.text(0, -0.3, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
+    #
+    # # Cross Spectrum and SK of cross spectrum
+    # axis8_desired = plt.subplot2grid((19,15), (15, 3), colspan=4, rowspan=3)
+    # axis8_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Cross-Spectrum")
+    # axis8_desired.margins(x=0)
+    # axis8_desired.set_xlabel("Frequency (MHz)")
+    # axis8_desired.set_ylabel("Power (dB)")
+    #
+    # axis9_desired = plt.subplot2grid((19,15), (15, 8), colspan=4, rowspan=3)
+    # axis9_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Cross-Spectrum")
+    # axis9_desired.margins(x=0)
+    # axis9_desired.set_ylim(0, 5)
+    # axis9_desired.set_xlabel("Frequency (MHz)")
+    #
+    # plt.connect('key_press_event', press)
 
 
     FILE_COUNT_INDICATOR = 0
@@ -675,6 +675,8 @@ if __name__ == "__main__":
                 NDIMsmall = samplesPerTransform * fftsPerIntegration
 
                 node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 1, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 2, :, :, :], node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+                plt.plot(np.flip(np.sum(node_spectra_storage[FILE_COUNT_INDICATOR, bank-BANK_OFFSET, node, 2, :, :, :], axis = 1), 0).reshape(-1))
+                plt.show()
 
                 del readIn
 
