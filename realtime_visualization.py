@@ -701,7 +701,6 @@ if __name__ == "__main__":
 
     endTime = datetime.now().strftime('%H:%M')
 
-
     #
     #
     #
