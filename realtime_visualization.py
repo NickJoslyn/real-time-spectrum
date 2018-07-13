@@ -13,6 +13,7 @@ from datetime import datetime
 
 from scipy import special
 from scipy import optimize
+from scipy import signal
 
 from matplotlib.colors import LogNorm
 from matplotlib.collections import LineCollection
@@ -156,23 +157,25 @@ def calculate_spectra(No_DC_BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTrans
 
     x_pol_spectra = np.zeros((OBSNCHAN, fftsPerIntegration, samplesPerTransform))
     y_pol_spectra = np.zeros((OBSNCHAN, fftsPerIntegration, samplesPerTransform))
+    cross_pol_spectra = np.zeros((OBSNCHAN, fftsPerIntegration, samplesPerTransform))
 
     for channel in range(OBSNCHAN):
         x_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration))))**2
         y_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration))))**2
+        _, cross_pol_spectra[channel, :, :] = np.fft.fftshift(signal.csd(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration), np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration), nperseg=samplesPerTransform, scaling='spectrum'))
 
-    return x_pol_spectra, y_pol_spectra
+    return x_pol_spectra, y_pol_spectra, cross_pol_spectra
 
 def spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
 
     BLOCK = remove_DCoffset(BLOCK)
-    spectralData_x, spectralData_y = calculate_spectra(BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTransform)
+    spectralData_x, spectralData_y, cross_spectra = calculate_spectra(BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTransform)
     # nodeBand_x = np.flip(np.sum(spectralData_x, 1),0).reshape(-1)
     # nodeBand_y = np.sum(np.flip(np.sum(spectralData_y, 1),0), 0)
     lowerBound = OBSFREQ + OBSBW/2
     upperBound = OBSFREQ - OBSBW/2
 
-    return spectralData_x, spectralData_y, lowerBound, upperBound
+    return spectralData_x, spectralData_y, cross_spectra, lowerBound, upperBound
 
 ################################################################################
 ### Spectral Kurtosis ###
@@ -557,8 +560,8 @@ if __name__ == "__main__":
 
     ########################
 
-    node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, dualPolarization))
-    node_spectra_storage = np.zeros((most_possible_files_read, numberOfBanks, numberOfNodes, dualPolarization, OBSNCHAN, fftsPerIntegration, samplesPerTransform))
+    node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, 2))
+    node_spectra_storage = np.zeros((most_possible_files_read, numberOfBanks, numberOfNodes, 3, OBSNCHAN, fftsPerIntegration, samplesPerTransform))
 
     #Initialize Plot
     #SET UP Big Plot -- Can vary how we want big plot to look by adjusting subplot2grid
@@ -666,7 +669,7 @@ if __name__ == "__main__":
                 dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
                 NDIMsmall = samplesPerTransform * fftsPerIntegration
 
-                node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 1, :, :, :], node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+                node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 1, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 2, :, :, :], node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
 
                 del readIn
 
