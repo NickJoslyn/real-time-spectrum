@@ -271,7 +271,7 @@ def press(event):
         for j in range(numberOfNodes):
             if (j!=Plotted_Node):
                 plot_otherNodes(node_spectra_storage[FILE_COUNT_INDICATOR - 1, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR - 1, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
-        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR - 1)
+        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR - 1)
 
     if event.key == 'down':
         Plotted_Bank -= 1
@@ -282,7 +282,7 @@ def press(event):
         for j in range(numberOfNodes):
             if (j!=Plotted_Node):
                 plot_otherNodes(node_spectra_storage[FILE_COUNT_INDICATOR - 1, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR - 1, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
-        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR - 1)
+        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR - 1)
 
     #spectral flip for seemingly opposite increment on nodes
     if event.key == 'right':
@@ -293,7 +293,7 @@ def press(event):
         for j in range(numberOfNodes):
             if (j!=Plotted_Node):
                 plot_otherNodes(node_spectra_storage[FILE_COUNT_INDICATOR - 1, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR - 1, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
-        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR - 1)
+        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR - 1)
 
     if event.key == 'left':
         Plotted_Node += 1
@@ -303,7 +303,7 @@ def press(event):
         for j in range(numberOfNodes):
             if (j!=Plotted_Node):
                 plot_otherNodes(node_spectra_storage[FILE_COUNT_INDICATOR - 1, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR - 1, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
-        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR - 1)
+        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR - 1)
 
     plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
     plt.pause(0.000001)
@@ -334,7 +334,7 @@ def plot_real_time_visualization_general(current_axis, bandPass_x, defaultColor 
     global axis1_desired
     axis1_desired.plot(current_axis, 10*np.log10(bandPass_x), color = defaultColor)
 
-def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spectrum_y, bandPass_x, bandPass_y, SK_x, SK_y, current_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN):
+def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spectrum_y, bandPass_x, bandPass_y, bandPass_cross, SK_x, SK_y, SK_cross, current_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN):
     """
     Produce the real-time data visualization plots.
 
@@ -428,32 +428,33 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     # Cross Spectrum and SK of cross spectrum
     axis8_desired.clear()
+    axis8_desired.plot(current_axis, 10*np.log10(bandPass_cross), color = 'C0')
     axis8_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Cross-Spectrum")
     axis8_desired.margins(x=0)
     axis8_desired.set_xlabel("Frequency (MHz)")
     axis8_desired.set_ylabel("Power (dB)")
-    #axis8_desired.plot()
 
     axis9_desired.clear()
+    axis9_desired.plot(current_axis, 10*np.log10(SK_cross), color = 'C0')
     axis9_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Cross-Spectrum")
     axis9_desired.margins(x=0)
     axis9_desired.set_ylim(0, 5)
     axis9_desired.set_xlabel("Frequency (MHz)")
-    #axis9_desired.plot()
-
 
     plt.connect('key_press_event', press)
     plt.pause(0.000001)
 
-def plot_desired_from_click(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index):
+def plot_desired_from_click(spectralData_x, spectralData_y, spectralData_cross, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index):
 
     global most_possible_files_read
 
     # Spectral Kurtosis
     SK_x = calculate_spectralKurtosis(spectralData_x[file_index, :, :, :], fftsPerIntegration)
     SK_y = calculate_spectralKurtosis(spectralData_y[file_index, :, :, :], fftsPerIntegration)
+    SK_cross = calculate_spectralKurtosis(spectralData_cross[file_index, :, :, :], fftsPerIntegration)
     SK_x = np.flip(SK_x, 0).reshape(-1)
     SK_y = np.flip(SK_y, 0).reshape(-1)
+    SK_cross = np.flip(SK_cross, 0).reshape(-1)
 
     # Spectral flip
     tempx = np.flip(np.sum(spectralData_x[:, :, :, :], axis = 2), 1)
@@ -469,19 +470,22 @@ def plot_desired_from_click(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samp
     # Spectrum for plotting
     bandPass_x = waterfall_spectrum_x[file_index, :]
     bandPass_y = waterfall_spectrum_y[file_index, :]
+    bandPass_cross = np.flip(np.sum(spectralData_cross[file_index, :, :, :], axis=1), 0).reshape(-1)
 
     current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
-    plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, SK_x, SK_y, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN)
+    plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, bandPass_cross, SK_x, SK_y, SK_cross, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN)
 
-def plot_desired(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index):
+def plot_desired(spectralData_x, spectralData_y, spectralData_cross, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index):
 
     global most_possible_files_read
 
     # Spectral Kurtosis
     SK_x = calculate_spectralKurtosis(spectralData_x, fftsPerIntegration)
     SK_y = calculate_spectralKurtosis(spectralData_y, fftsPerIntegration)
+    SK_cross = calculate_spectralKurtosis(spectralData_cross, fftsPerIntegration)
     SK_x = np.flip(SK_x, 0).reshape(-1)
     SK_y = np.flip(SK_y, 0).reshape(-1)
+    SK_cross = np.flip(SK_cross, 0).reshape(-1)
 
     # Spectral flip
     spectralData_x = np.flip(np.sum(spectralData_x, axis = 1), 0)
@@ -496,9 +500,10 @@ def plot_desired(spectralData_x, spectralData_y, OBSNCHAN, TBIN, samplesPerTrans
     # Spectrum for plotting
     bandPass_x = np.sum(waterfall_spectrum_x, 0)
     bandPass_y = np.sum(waterfall_spectrum_y, 0)
+    bandPass_cross = np.flip(np.sum(spectralData_cross, axis = 1), 0).reshape(-1)
 
     current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
-    plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, SK_x, SK_y, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN)
+    plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, bandPass_cross, SK_x, SK_y, SK_cross, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN)
 
 def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, plot_color = 'black'):
     """
@@ -685,7 +690,7 @@ if __name__ == "__main__":
             if (i!=Plotted_Node):
                 plot_otherNodes(node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, i, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, i, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, i, 0], node_Frequency_Ranges[Plotted_Bank, i, 1])
 
-        plot_desired(node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, Plotted_Node, 1, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR)
+        plot_desired(node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], FILE_COUNT_INDICATOR)
 
         FILE_COUNT_INDICATOR += 1
 
