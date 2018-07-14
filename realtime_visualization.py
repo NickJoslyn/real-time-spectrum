@@ -162,9 +162,9 @@ def calculate_spectra(No_DC_BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTrans
     for channel in range(OBSNCHAN):
         x_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration))))**2
         y_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration))))**2
-        _, cross_pol_spectra[channel, :, :] = np.fft.fftshift(signal.csd(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration), np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration), nperseg=samplesPerTransform, scaling='spectrum'))
+        _, cross_pol_spectra[channel, :, :] = signal.csd(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration), np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration), nperseg=samplesPerTransform, scaling='spectrum')
 
-    return x_pol_spectra, y_pol_spectra, cross_pol_spectra
+    return x_pol_spectra, y_pol_spectra, np.fft.fftshift(cross_pol_spectra)
 
 def spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
 
@@ -349,7 +349,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     #totalTime = samplesPerTransform * fftsPerIntegration * TBIN * 10
     #GBT: 6 Hours, Parkes: 11 Hours
-    totalTime = 3
+    totalTime = 0.5
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired, axis8_desired, axis9_desired
     global Plotted_Bank, Plotted_Node, colorbar4, colorbar5, PFA_Nita
     sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration, PFA_Nita)
@@ -529,7 +529,7 @@ if __name__ == "__main__":
     global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER, PFA_Nita
     global OBSERVATION_IS_RUNNING, desiredFrequencyResolution, desiredTimeResolution
     #GBT - 6 hours; 20s files
-    most_possible_files_read = 480
+    most_possible_files_read = 80
     OBSERVATION_IS_RUNNING = True
     colorbar4 = 0
     colorbar5 = 0
