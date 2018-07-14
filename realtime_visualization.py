@@ -428,11 +428,11 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     # Cross Spectrum and SK of cross spectrum
     axis8_desired.clear()
-    axis8_desired.plot(current_axis, 10*np.log10(bandPass_cross), color = 'C0')
+    axis8_desired.plot(current_axis, bandPass_cross, color = 'C0')
     axis8_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Cross-Spectrum")
     axis8_desired.margins(x=0)
     axis8_desired.set_xlabel("Frequency (MHz)")
-    axis8_desired.set_ylabel("Power (dB)")
+    axis8_desired.set_ylabel("Power")
 
     axis9_desired.clear()
     axis9_desired.plot(current_axis, 10*np.log10(SK_cross), color = 'C0')
