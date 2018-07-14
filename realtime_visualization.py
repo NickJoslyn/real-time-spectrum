@@ -162,9 +162,8 @@ def calculate_spectra(No_DC_BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTrans
     for channel in range(OBSNCHAN):
         x_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration))))**2
         y_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration))))**2
-        _, cross_pol_spectra[channel, :, :] = signal.csd(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration), np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration), nperseg=samplesPerTransform, scaling='spectrum')
-
-    return x_pol_spectra, y_pol_spectra, np.abs(np.fft.fftshift(cross_pol_spectra))
+        cross_pol_spectra[channel, :, :] = np.fft.fftshift(signal.csd(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration), np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration), nperseg=samplesPerTransform, scaling='spectrum')[1])
+    return x_pol_spectra, y_pol_spectra, np.abs(cross_pol_spectra)
 
 def spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
 
@@ -432,13 +431,13 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis8_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Cross-Spectrum")
     axis8_desired.margins(x=0)
     axis8_desired.set_xlabel("Frequency (MHz)")
-    axis8_desired.set_ylabel("Power")
+    axis8_desired.set_ylabel("Power (Linear)")
 
     axis9_desired.clear()
     axis9_desired.plot(current_axis, 10*np.log10(SK_cross), color = 'C0')
     axis9_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Cross-Spectrum")
     axis9_desired.margins(x=0)
-    axis9_desired.set_ylim(0, 5)
+    #axis9_desired.set_ylim(0, 5)
     axis9_desired.set_xlabel("Frequency (MHz)")
 
     plt.connect('key_press_event', press)
