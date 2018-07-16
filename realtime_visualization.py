@@ -504,7 +504,7 @@ def plot_desired_from_click(spectralData_x, spectralData_y, spectralData_cross, 
     bandPass_cross = np.flip(np.sum(spectralData_cross[file_index, :, :, :], axis=1), 0).reshape(-1)
 
     current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
-    plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, bandPass_cross, SK_x, SK_y, SK_cross, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN, thresholdHitsX, thresholdHitsY, file_index)
+    plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, bandPass_cross, SK_x, SK_y, SK_cross, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN, thresholdHitsX, thresholdHitsY, file_index+1)
 
 def plot_desired(spectralData_x, spectralData_y, spectralData_cross, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index, thresholdHitsX, thresholdHitsY):
 
@@ -571,9 +571,9 @@ if __name__ == "__main__":
     PFA_Nita = 0.0013499
 
     #User inputted resolutions
-    desiredFrequencyResolution = 183105 #16 Bins
-    desiredTimeResolution = 0.0003 #54 Integrations
-    samplesPerTransform = 16
+    desiredFrequencyResolution = 183105*4 #16 Bins
+    desiredTimeResolution = 0.0003/4 #54 Integrations
+    samplesPerTransform = 4
     fftsPerIntegration = 54
     OBSNCHAN = 64
     dualPolarization = 2
