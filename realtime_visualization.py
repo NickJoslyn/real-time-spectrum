@@ -236,7 +236,7 @@ def find_SK_threshold_hits(SPECTRA_polarized, fftsPerIntegration):
 
     indices_to_change_high = np.where(SK_temp >= sk_upper_threshold)[0]
     indices_to_change_low = np.where(SK_temp <= sk_lower_threshold)[0]
-    print(np.any(np.in1d(indices_to_change_high, indices_to_change_low)))
+
     indices_to_change = np.concatenate((indices_to_change_high, indices_to_change_low))
 
     return indices_to_change
@@ -351,7 +351,7 @@ def plot_real_time_visualization_general(current_axis, bandPass_x, defaultColor 
     global axis1_desired
     axis1_desired.plot(current_axis, 10*np.log10(bandPass_x), color = defaultColor)
 
-def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spectrum_y, bandPass_x, bandPass_y, bandPass_cross, SK_x, SK_y, SK_cross, current_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN, thresholdHitsX, thresholdHitsY):
+def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spectrum_y, bandPass_x, bandPass_y, bandPass_cross, SK_x, SK_y, SK_cross, current_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN, thresholdHitsX, thresholdHitsY, file_index):
     """
     Produce the real-time data visualization plots.
 
@@ -368,7 +368,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     #GBT: 6 Hours, Parkes: 11 Hours
     totalTime = 0.5
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired, axis8_desired, axis9_desired, axis6_desired_twin, axis7_desired_twin
-    global Plotted_Bank, Plotted_Node, colorbar4, colorbar5, PFA_Nita, FILE_COUNT_INDICATOR, sk_lower_threshold, sk_upper_threshold
+    global Plotted_Bank, Plotted_Node, colorbar4, colorbar5, PFA_Nita, sk_lower_threshold, sk_upper_threshold
     #sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration, PFA_Nita)
 
     axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "{0..7} Spectrum (X)")
@@ -434,7 +434,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis6_desired.text(0, -0.08, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
 
     axis6_desired_twin.clear()
-    axis6_desired_twin.plot(current_axis, 100*(thresholdHitsX/FILE_COUNT_INDICATOR), 'm.')
+    axis6_desired_twin.plot(current_axis, 100*(thresholdHitsX/file_index), 'm.')
     axis6_desired_twin.set_ylabel('Threshold Hits (%)', color='m')
     axis6_desired_twin.tick_params('y', colors='m')
 
@@ -453,7 +453,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis7_desired.text(0, -0.08, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
 
     axis7_desired_twin.clear()
-    axis7_desired_twin.plot(current_axis, 100*(thresholdHitsY/FILE_COUNT_INDICATOR), 'm.')
+    axis7_desired_twin.plot(current_axis, 100*(thresholdHitsY/file_index), 'm.')
     axis7_desired_twin.set_ylabel('Threshold Hits (%)', color='m')
     axis7_desired_twin.tick_params('y', colors='m')
 
@@ -473,7 +473,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis9_desired.set_xlabel("Frequency (MHz)")
 
     plt.connect('key_press_event', press)
-    plt.pause(0.000001)
+    plt.pause(0.001)
 
 def plot_desired_from_click(spectralData_x, spectralData_y, spectralData_cross, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index, thresholdHitsX, thresholdHitsY):
 
@@ -504,7 +504,7 @@ def plot_desired_from_click(spectralData_x, spectralData_y, spectralData_cross, 
     bandPass_cross = np.flip(np.sum(spectralData_cross[file_index, :, :, :], axis=1), 0).reshape(-1)
 
     current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
-    plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, bandPass_cross, SK_x, SK_y, SK_cross, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN, thresholdHitsX, thresholdHitsY)
+    plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, bandPass_cross, SK_x, SK_y, SK_cross, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN, thresholdHitsX, thresholdHitsY, file_index)
 
 def plot_desired(spectralData_x, spectralData_y, spectralData_cross, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index, thresholdHitsX, thresholdHitsY):
 
@@ -534,7 +534,7 @@ def plot_desired(spectralData_x, spectralData_y, spectralData_cross, OBSNCHAN, T
     bandPass_cross = np.flip(np.sum(spectralData_cross, axis = 1), 0).reshape(-1)
 
     current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
-    plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, bandPass_cross, SK_x, SK_y, SK_cross, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN, thresholdHitsX, thresholdHitsY)
+    plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, bandPass_cross, SK_x, SK_y, SK_cross, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN, thresholdHitsX, thresholdHitsY, (file_index+1))
 
 def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, plot_color = 'black'):
     """
