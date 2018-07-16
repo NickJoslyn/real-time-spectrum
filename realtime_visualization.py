@@ -431,12 +431,13 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis6_desired.lines[1].set_label('Gaussian Thresholds')
     axis6_desired.legend(loc = 1)
     axis6_desired.set_ylabel("SK Value", color='C0')
+    axis6_desired.tick_params('y', colors='C0')
     axis6_desired.text(0, -0.08, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
 
     axis6_desired_twin.clear()
-    axis6_desired_twin.plot(thresholdHitsX/FILE_COUNT_INDICATOR, color='lightcoral')
-    axis6_desired_twin.set_ylabel('Threshold Hits (%)', color='r')
-    axis6_desired_twin.tick_params('y', colors='lightcoral')
+    axis6_desired_twin.plot(current_axis, 100*(thresholdHitsX/FILE_COUNT_INDICATOR), 'm.')
+    axis6_desired_twin.set_ylabel('Threshold Hits (%)', color='m')
+    axis6_desired_twin.tick_params('y', colors='m')
 
     axis7_desired.clear()
     axis7_desired.plot(current_axis, SK_y, color = 'C0')
@@ -449,12 +450,13 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis7_desired.lines[1].set_label('Gaussian Thresholds')
     axis7_desired.legend(loc = 1)
     axis7_desired.set_ylabel("SK Value", color='C0')
+    axis7_desired.tick_params('y', colors='C0')
     axis7_desired.text(0, -0.08, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
 
     axis7_desired_twin.clear()
-    axis7_desired_twin.plot(thresholdHitsY/FILE_COUNT_INDICATOR, color='lightcoral')
-    axis7_desired_twin.set_ylabel('Threshold Hits (%)', color='r')
-    axis7_desired_twin.tick_params('y', colors='lightcoral')
+    axis7_desired_twin.plot(current_axis, 100*(thresholdHitsY/FILE_COUNT_INDICATOR), 'm.')
+    axis7_desired_twin.set_ylabel('Threshold Hits (%)', color='m')
+    axis7_desired_twin.tick_params('y', colors='m')
 
     # Cross Spectrum and SK of cross spectrum
     axis8_desired.clear()
@@ -651,8 +653,8 @@ if __name__ == "__main__":
 
     axis6_desired_twin = axis6_desired.twinx()
     ##plottt
-    axis6_desired_twin.set_ylabel('Threshold Hits (%)', color='r')
-    axis6_desired_twin.tick_params('y', colors='lightcoral')
+    axis6_desired_twin.set_ylabel('Threshold Hits (%)', color='m')
+    axis6_desired_twin.tick_params('y', colors='m')
 
 
     axis7_desired = plt.subplot2grid((19,15), (10, 8), colspan=4, rowspan=3)
@@ -665,8 +667,8 @@ if __name__ == "__main__":
 
     axis7_desired_twin = axis7_desired.twinx()
     ##plottt
-    axis7_desired_twin.set_ylabel('Threshold Hits (%)', color='r')
-    axis7_desired_twin.tick_params('y', colors='lightcoral')
+    axis7_desired_twin.set_ylabel('Threshold Hits (%)', color='m')
+    axis7_desired_twin.tick_params('y', colors='m')
 
     # Cross Spectrum and SK of cross spectrum
     axis8_desired = plt.subplot2grid((19,15), (15, 3), colspan=4, rowspan=3)
@@ -704,7 +706,7 @@ if __name__ == "__main__":
 
                 if (OBSERVATION_IS_RUNNING == False):
                     break
-
+		print("--")
                 test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | tail -2 | head -1'
                 inputFileName = subprocess.check_output(test_input_file_string, shell = True)[:-1]
                 readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
@@ -713,7 +715,7 @@ if __name__ == "__main__":
 
                 OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
                 NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8)))
-
+		print(bank, node)
                 samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
                 dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
                 NDIMsmall = samplesPerTransform * fftsPerIntegration
@@ -726,7 +728,7 @@ if __name__ == "__main__":
                 np.add.at(THRESHOLD_PERCENTAGES[bank - BANK_OFFSET, node, 1, :], y_temp_indices, 1)
 
                 del readIn
-
+		print("**")
             if (OBSERVATION_IS_RUNNING == False):
                 break
         if (OBSERVATION_IS_RUNNING == False):
