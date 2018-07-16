@@ -236,7 +236,7 @@ def find_SK_threshold_hits(SPECTRA_polarized, fftsPerIntegration):
 
     indices_to_change_high = np.where(SK_temp >= sk_upper_threshold)[0]
     indices_to_change_low = np.where(SK_temp <= sk_lower_threshold)[0]
-
+    print(np.any(np.in1d(indices_to_change_high, indices_to_change_low)))
     indices_to_change = np.concatenate((indices_to_change_high, indices_to_change_low))
 
     return indices_to_change
@@ -707,7 +707,7 @@ if __name__ == "__main__":
 
                 if (OBSERVATION_IS_RUNNING == False):
                     break
-		print("--")
+                print("--")
                 test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | tail -2 | head -1'
                 inputFileName = subprocess.check_output(test_input_file_string, shell = True)[:-1]
                 readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
@@ -716,11 +716,10 @@ if __name__ == "__main__":
 
                 OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
                 NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8)))
-		print(bank, node)
                 #samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
                 dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
                 NDIMsmall = samplesPerTransform * fftsPerIntegration
-
+                print(bank, node)
                 node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 1, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 2, :, :, :], node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
 
                 x_temp_indices = find_SK_threshold_hits(node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 0, :, :, :], fftsPerIntegration)
@@ -729,7 +728,7 @@ if __name__ == "__main__":
                 np.add.at(THRESHOLD_PERCENTAGES[bank - BANK_OFFSET, node, 1, :], y_temp_indices, 1)
 
                 del readIn
-		print("**")
+                print("**")
             if (OBSERVATION_IS_RUNNING == False):
                 break
         if (OBSERVATION_IS_RUNNING == False):
