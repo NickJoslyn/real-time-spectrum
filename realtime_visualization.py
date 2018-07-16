@@ -235,8 +235,8 @@ def find_SK_threshold_hits(SPECTRA_polarized, fftsPerIntegration):
     SK_temp = calculate_spectralKurtosis(SPECTRA_polarized, fftsPerIntegration)
     SK_temp = np.flip(SK_temp, 0).reshape(-1)
 
-    indices_to_change_high = np.where(SK_temp >= sk_upper_threshold)
-    indices_to_change_low = np.where(SK_temp <= sk_lower_threshold)
+    indices_to_change_high = np.where(SK_temp >= sk_upper_threshold)[0]
+    indices_to_change_low = np.where(SK_temp <= sk_lower_threshold)[0]
 
     indices_to_change = np.concatenate((indices_to_change_high, indices_to_change_low))
 
