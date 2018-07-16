@@ -227,10 +227,9 @@ def spectralKurtosis_thresholds(M, p = 0.0013499, N = 1, d = 1):
 
 def find_SK_threshold_hits(SPECTRA_polarized, fftsPerIntegration):
 
-    global PFA_Nita
+    global sk_lower_threshold, sk_upper_threshold
 
-    sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration, PFA_Nita)
-
+    #sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration, PFA_Nita)
 
     SK_temp = calculate_spectralKurtosis(SPECTRA_polarized, fftsPerIntegration)
     SK_temp = np.flip(SK_temp, 0).reshape(-1)
@@ -369,8 +368,8 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     #GBT: 6 Hours, Parkes: 11 Hours
     totalTime = 0.5
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired, axis8_desired, axis9_desired, axis6_desired_twin, axis7_desired_twin
-    global Plotted_Bank, Plotted_Node, colorbar4, colorbar5, PFA_Nita, FILE_COUNT_INDICATOR
-    sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration, PFA_Nita)
+    global Plotted_Bank, Plotted_Node, colorbar4, colorbar5, PFA_Nita, FILE_COUNT_INDICATOR, sk_lower_threshold, sk_upper_threshold
+    #sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration, PFA_Nita)
 
     axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "{0..7} Spectrum (X)")
     axis1_desired.plot(current_axis, 10*np.log10(bandPass_x), color = 'red')
@@ -579,6 +578,8 @@ if __name__ == "__main__":
     OBSNCHAN = 64
     dualPolarization = 2
 
+    sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration, PFA_Nita)
+
     startTime = datetime.now().strftime('%H:%M')
 
     ########################
@@ -716,7 +717,7 @@ if __name__ == "__main__":
                 OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
                 NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8)))
 		print(bank, node)
-                samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
+                #samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
                 dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
                 NDIMsmall = samplesPerTransform * fftsPerIntegration
 
