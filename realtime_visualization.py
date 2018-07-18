@@ -123,6 +123,20 @@ def convert_resolution(customFrequencyResolution, customTimeResolution, TBIN):
 
     return samplesPerTransform, fftsPerIntegration
 
+def convert_to_resolution(numBins, numInts, tbin):
+    """
+    Convert FFT parameters (bins, integrations) to frequency (Hz) and time (s) resolution.
+
+    Return:
+    freqRes (int):  Frequency resolution/bin width
+    timeRes (float):  Time duration rounded to microsecond
+    """
+
+    freqRes = int(1/(numBins * tbin))
+    timeRes = round(numInts/freqRes, 6)
+
+    return freqRes, timeRes
+
 def remove_DCoffset(BLOCK):
     """
     Remove the DC offset from a block of BL RAW time series data.
