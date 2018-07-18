@@ -874,7 +874,6 @@ if __name__ == "__main__":
 
     endTime = datetime.now().strftime('%H:%M')
 
-
     #
     #
     #
@@ -894,17 +893,19 @@ if __name__ == "__main__":
     for export_bank in range(numberOfBanks):
         for export_node in range(numberOfNodes):
 
-
             #### Set up data
             export_tempx = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 0, :, :, :], axis = 2), 1)
             export_tempy = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 1, :, :, :], axis = 2), 1)
+            export_tempcross = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 2, :, :, :], axis = 2), 1)
 
             export_waterfall_spectrum_x = np.zeros((FILE_COUNT_INDICATOR, OBSNCHAN * samplesPerTransform))
             export_waterfall_spectrum_y = np.zeros((FILE_COUNT_INDICATOR, OBSNCHAN * samplesPerTransform))
+            export_waterfall_spectrum_cross = np.zeros((FILE_COUNT_INDICATOR, OBSNCHAN * samplesPerTransform))
 
             for id in range(FILE_COUNT_INDICATOR):
                 export_waterfall_spectrum_x[id,:] = export_tempx[id, :, :].reshape(-1)
                 export_waterfall_spectrum_y[id,:] = export_tempy[id, :, :].reshape(-1)
+                export_waterfall_spectrum_cross[id, :] = export_tempcross[id, :, :].reshape(-1)
             ########
 
             ###### Set up plot
@@ -917,11 +918,17 @@ if __name__ == "__main__":
             #export_axis1.set_ylabel("Time (Hours)")
             export_axis1.margins(x=0)
 
-            export_axis2 = plt.subplot2grid((14,5), (0, 3), colspan=2, rowspan=14)
+            export_axis2 = plt.subplot2grid((14,8), (0, 6), colspan=2, rowspan=14)
             export_axis2.set_title("Y")
             export_axis2.set_xlabel("Frequency (MHz)")
             #export_axis2.set_ylabel("Time (Hours)")
             export_axis2.margins(x=0)
+
+            export_axis3 = plt.subplot2grid((14,8), (0, 3), colspan=2, rowspan=14)
+            export_axis3.set_title("Cross-Spectrum")
+            export_axis3.set_xlabel("Frequency (MHz)")
+            #export_axis3.set_ylabel("Time (Hours)")
+            export_axis3.margins(x=0)
             ########
 
             ####### Plot data
@@ -940,6 +947,15 @@ if __name__ == "__main__":
             export_colorbar_y.set_label("Power (dB)")
             export_axis2.set_yticks([0,1])
             export_axis2.set_yticklabels([startTime, endTime])
+
+            export_im_cross = export_axis3.imshow(10*np.log10(export_waterfall_spectrum_cross), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
+            export_divider_cross = make_axes_locatable(export_axis3)
+            export_cax_cross = export_divider_cross.append_axes('right', size = '5%', pad = 0.05)
+            export_colorbar_cross = plt.colorbar(export_im_cross, cax=export_cax_cross, orientation = 'vertical')
+            export_colorbar_cross.set_label("Power (dB)")
+            export_axis3.set_yticks([0,1])
+            export_axis3.set_yticklabels([startTime, endTime])
+
             ########
 
             ######## Write to PDF
