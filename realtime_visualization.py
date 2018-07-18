@@ -1,7 +1,6 @@
 # Nicholas Joslyn
-# Breakthrough Listen UC Berkeley SETI Intern 2018
-
-# Quasi-real time BL RAW data visualization for BL observations
+# Breakthrough Listen (BL) UC-Berkeley SETI Intern 2018
+# Quasi-real-time BL RAW data visualization for BL observations
 
 from __future__ import division
 import numpy as np
@@ -19,6 +18,7 @@ from matplotlib.colors import LogNorm
 from matplotlib.collections import LineCollection
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.backends.backend_pdf import PdfPages
+
 ################################################################################
 ######################---Functions---###########################################
 ################################################################################
@@ -128,7 +128,7 @@ def convert_to_resolution(numBins, numInts, tbin):
     Convert FFT parameters (bins, integrations) to frequency (Hz) and time (s) resolution.
 
     Return:
-    freqRes (int):  Frequency resolution/bin width
+    freqRes (int):  Frequency resolution (i.e. bin width)
     timeRes (float):  Time duration rounded to microsecond
     """
 
@@ -162,11 +162,14 @@ def calculate_spectra(No_DC_BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTrans
     The power spectra is defined as FFT(time series)**2. By taking the FFT, the data
     is tranformed from the time domain to the frequency domain. The dual-polarized,
     channelized voltages maintain their integrity by being returned in x and y
-    multidimensional arrays.
+    multidimensional arrays. The cross-spectrum of the dual-polarized data is calculated
+    as well. Cross-spectrum is defined as the conjugate FFT of the X polarization
+    multipled by the FFT of the Y polarization.
 
     Return:
-    x_pol_spectra (array):  3-D Array [# Channels, # FFTs, # Samples]
-    y_pol_spectra (array):  3-D Array [# Channels, # FFTs, # Samples]
+    x_pol_spectra (array):      3-D Array [# Channels, # FFTs, # Samples]
+    y_pol_spectra (array):      3-D Array [# Channels, # FFTs, # Samples]
+    cross_pol_spectra (array):  3-D Array [# Channels, # FFTs, # Samples]
     """
 
     x_pol_spectra = np.zeros((OBSNCHAN, fftsPerIntegration, samplesPerTransform))
@@ -180,6 +183,23 @@ def calculate_spectra(No_DC_BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTrans
     return x_pol_spectra, y_pol_spectra, np.abs(cross_pol_spectra)
 
 def spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
+    """
+    Calculate full spectral information for BL RAW time series data.
+
+    The interactive real-time data visualization program for BL observations requires
+    spectral information for both the X and Y polarizations as well as the cross-spectrum.
+
+    Since BL observations utilize multiple compute nodes simultaneously operating
+    on different frequency regions, the upper and lower frequency ranges for the
+    current compute node are also calulated.
+
+    Return:
+    spectralData_x (array): 3-D Array [# Channels, # FFTs, # Samples]
+    spectralData_y (array): 3-D Array [# Channels, # FFTs, # Samples]
+    cross_spectra (array):  3-D Array [# Channels, # FFTs, # Samples]
+    lowerBound (float):     Lower frequency limit for given compute node
+    upperBound (float):     Upper frequency limit for given compute node
+    """
 
     BLOCK = remove_DCoffset(BLOCK)
     spectralData_x, spectralData_y, cross_spectra = calculate_spectra(BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTransform)
@@ -212,14 +232,44 @@ def calculate_spectralKurtosis(SPECTRA, fftsPerIntegration):
     return SK_estimate
 
 def upperRoot(x, moment_2, moment_3, p):
+    """
+    Calculate the spectral kurtosis upper Gaussian threshold.
+
+    Return:
+    upper (float): Upper Gaussian threshold value
+    """
+
     upper = np.abs( (1 - special.gammainc( (4 * moment_2**3)/moment_3**2, (-(moment_3-2*moment_2**2)/moment_3 + x)/(moment_3/2/moment_2)))-p)
     return upper
 
 def lowerRoot(x, moment_2, moment_3, p):
+    """
+    Calculate the spectral kurtosis lower Gaussian threshold.
+
+    Return:
+    lower (float): Lower Gaussian threshold value
+    """
+
     lower = np.abs(special.gammainc( (4 * moment_2**3)/moment_3**2, (-(moment_3-2*moment_2**2)/moment_3 + x)/(moment_3/2/moment_2))-p)
     return lower
 
 def spectralKurtosis_thresholds(M, p = 0.0013499, N = 1, d = 1):
+    """
+    Calculate the spectral kurtosis thresholds for given M, N, d, and PFA values.
+
+    The Gaussian limits (within given probability of false alarm) for spectral kurtosis
+    are calculated according to Pearson Type III. Standard PFA, N, and d values are set
+    as default, but can be overridden.
+
+    Formulation followed by that given in:
+        Nita, Gelu M., et al. "EOVSA Implementation of a Spectral Kurtosis Correlator
+        for Transient Detection and Classification." Journal of Astronomical
+        Instrumentation 5.04 (2016): 1641009.
+
+    Return:
+    lowerThreshold (float): Lower Gaussian threshold value
+    upperThreshold (float): Upper Gaussian threshold value
+    """
 
     Nd = N * d
 
@@ -228,6 +278,7 @@ def spectralKurtosis_thresholds(M, p = 0.0013499, N = 1, d = 1):
     moment_2 = ( 2*(M**2) * Nd * (1 + Nd) ) / ( (M - 1) * (6 + 5*M*Nd + (M**2)*(Nd**2)) )
     moment_3 = ( 8*(M**3)*Nd * (1 + Nd) * (-2 + Nd * (-5 + M * (4+Nd))) ) / ( ((M-1)**2) * (2+M*Nd) *(3+M*Nd)*(4+M*Nd)*(5+M*Nd))
     moment_4 = ( 12*(M**4)*Nd*(1+Nd)*(24+Nd*(48+84*Nd+M*(-32+Nd*(-245-93*Nd+M*(125+Nd*(68+M+(3+M)*Nd)))))) ) / ( ((M-1)**3)*(2+M*Nd)*(3+M*Nd)*(4+M*Nd)*(5+M*Nd)*(6+M*Nd)*(7+M*Nd) )
+
     #Pearson Type III Parameters
     delta = moment_1 - ( (2*(moment_2**2))/moment_3 )
     beta = 4 * ( (moment_2**3)/(moment_3**2) )
@@ -240,10 +291,18 @@ def spectralKurtosis_thresholds(M, p = 0.0013499, N = 1, d = 1):
     return lowerThreshold, upperThreshold
 
 def find_SK_threshold_hits(SPECTRA_polarized, fftsPerIntegration):
+    """
+    Find the bins exceeding spectral kurtosis Gaussian thresholds.
+
+    The spectral kurtosis is calculated on an input array of spectra. If the spectra
+    value exceeds the Gaussian thresholds (either greater than the upper limit or less
+    than the lower limit), then this index is recorded.
+
+    Return:
+    indices_to_change (array):  Indices of bins exceeding threshold values
+    """
 
     global sk_lower_threshold, sk_upper_threshold
-
-    #sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration, PFA_Nita)
 
     SK_temp = calculate_spectralKurtosis(SPECTRA_polarized, fftsPerIntegration)
     SK_temp = np.flip(SK_temp, 0).reshape(-1)
@@ -261,6 +320,9 @@ def find_SK_threshold_hits(SPECTRA_polarized, fftsPerIntegration):
 ## Interactive
 
 def press(event):
+    """
+    Allow for and take action on selected keystrokes
+    """
     global Plotted_Bank, Plotted_Node
     global Polarization_Plot
     global node_Frequency_Ranges, node_spectra_storage, THRESHOLD_PERCENTAGES
@@ -342,13 +404,23 @@ def press(event):
 ######## Non - interactive
 
 def clear_full_spectrum():
+    """
+    Clear the top panel -- full spectrum
+    """
 
     global axis1_desired
     #del axis1_desired.lines[:]
     axis1_desired.clear()
 
 def clear_node_plots():
+    """
+    Clear all panels other than the full spectrum
+    """
+
     global axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired, axis8_desired, axis9_desired
+    #global axis6_desired_twin, axis7_desired_twin
+    #axis6_desired_twin.clear()
+    #axis7_desired_twin.clear()
     axis2_desired.clear()
     axis3_desired.clear()
     axis4_desired.clear()
@@ -370,12 +442,13 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     Produce the real-time data visualization plots.
 
     Notes:
-    Produces a 7-plot figure.
+    Produces a 9-plot figure.
         1)      A spectrum of the entire observation with the current
         compute node's bandwidth indicated in red (X Polarization).
         2/3)    X/Y Polarization spectra of the compute node's bandwidth
-        4/5)    X/Y Polarization waterfall of the compute node's bandwidth
+        4/5)    X/Y Polarization waterfall of the compute node's bandwidth flanking the sides vertically
         6/7)    X/Y Polarization spectral kurtosis of the compute node's bandwidth
+        8/9)    Cross-Spectrum and spectral kurtosis of cross-spectrum
     """
 
     #totalTime = samplesPerTransform * fftsPerIntegration * TBIN * 10
@@ -453,7 +526,6 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis6_desired_twin.tick_params('y', colors='m')
     axis6_desired_twin.margins(x=0)
 
-
     axis7_desired.clear()
     axis7_desired.plot(current_axis, SK_y, color = 'C0')
     axis7_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Y")
@@ -474,17 +546,16 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis7_desired_twin.tick_params('y', colors='m')
     axis7_desired_twin.margins(x=0)
 
-
     # Cross Spectrum and SK of cross spectrum
     axis8_desired.clear()
-    axis8_desired.plot(current_axis, bandPass_cross, color = 'C0')
+    axis8_desired.plot(current_axis, 10*np.log10(bandPass_cross), color = 'C0')
     axis8_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Cross-Spectrum")
     axis8_desired.margins(x=0)
     axis8_desired.set_xlabel("Frequency (MHz)")
     axis8_desired.set_ylabel("Power (Linear)")
 
     axis9_desired.clear()
-    axis9_desired.plot(current_axis, 10*np.log10(SK_cross), color = 'C0')
+    axis9_desired.plot(current_axis, SK_cross, color = 'C0')
     axis9_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Cross-Spectrum")
     axis9_desired.margins(x=0)
     #axis9_desired.set_ylim(0, 5)
@@ -494,6 +565,9 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     plt.pause(0.001)
 
 def plot_desired_from_click(spectralData_x, spectralData_y, spectralData_cross, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index, thresholdHitsX, thresholdHitsY):
+    """
+    After keystroke, prepare new compute node's spectra for the master plotting function
+    """
 
     global most_possible_files_read
 
@@ -525,6 +599,9 @@ def plot_desired_from_click(spectralData_x, spectralData_y, spectralData_cross, 
     plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, bandPass_cross, SK_x, SK_y, SK_cross, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN, thresholdHitsX, thresholdHitsY, file_index+1)
 
 def plot_desired(spectralData_x, spectralData_y, spectralData_cross, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index, thresholdHitsX, thresholdHitsY):
+    """
+    For current compute node, prepare spectra for master plot function
+    """
 
     global most_possible_files_read
 
