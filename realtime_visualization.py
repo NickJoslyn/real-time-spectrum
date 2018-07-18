@@ -210,6 +210,28 @@ def spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, O
 
     return spectralData_x, spectralData_y, cross_spectra, lowerBound, upperBound
 
+def findBand():
+    """
+    Find the frequency band of the observation
+
+    Return:
+    observing band (string):    L, S, C, or X
+    """
+
+    global numberOfBanks, node_Frequency_Ranges
+
+    if (numberOfBanks == 3):
+        observingBand = 'X'
+    elif (numberOfBanks == 4):
+        observingBand = 'C'
+    else:
+        if ((node_Frequency_Ranges[0,7,0]/10**3) < 1.2):
+            observingBand = 'L'
+        else:
+            observingBand = 'S'
+
+    return observingBand
+
 ################################################################################
 ### Spectral Kurtosis ###
 
@@ -865,18 +887,7 @@ if __name__ == "__main__":
     #
     #
 
-    ### Fix band identifier
-    BAND_IDENTIFIER = ''
-
-    if (numberOfBanks == 3):
-        BAND_IDENTIFIER = 'X'
-    elif (numberOfBanks == 4):
-        BAND_IDENTIFIER = 'C'
-    else:
-        if ((node_Frequency_Ranges[0,7,0]/10**3) < 1.2):
-            BAND_IDENTIFIER = 'L'
-        else:
-            BAND_IDENTIFIER = 'S'
+    BAND_IDENTIFIER = findBand()
 
     pp = PdfPages("../ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(startTime.replace(":", "")) + "-" + str(endTime.replace(":", "")) + "_waterfall.pdf")
 
