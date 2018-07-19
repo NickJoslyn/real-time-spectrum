@@ -703,7 +703,6 @@ if __name__ == "__main__":
     #User input
     samplesPerTransform = 16
     fftsPerIntegration = 50
-    desiredFrequencyResolution, desiredTimeResolution = convert_to_resolution(samplesPerTransform, fftsPerIntegration)
 
     OBSNCHAN = 64
     dualPolarization = 2
@@ -734,7 +733,7 @@ if __name__ == "__main__":
     #Initialize Plot
     #SET UP Big Plot -- Can vary how we want big plot to look by adjusting subplot2grid
     plt.figure("Real-Time Data Visualization")
-    plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
+    plt.suptitle(SESSION_IDENTIFIER + " | " + str(0/(10**6)) + " MHz, " + str(0*(10**3)) + " ms Resolution")
     plt.ion()
     plt.show()
 
@@ -847,6 +846,9 @@ if __name__ == "__main__":
                 currentBytesPassed = 0
 
                 OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
+                if (FILE_COUNT_INDICATOR = 5):
+                    desiredFrequencyResolution, desiredTimeResolution = convert_to_resolution(samplesPerTransform, fftsPerIntegration, TBIN)
+
                 NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8)))
                 #samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
                 dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
