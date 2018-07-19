@@ -473,7 +473,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     #totalTime = samplesPerTransform * fftsPerIntegration * TBIN * 10
     #GBT: 6 Hours, Parkes: 11 Hours
-    totalTime = 0.5
+    #totalTime = 0.5
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired, axis8_desired, axis9_desired
     #global axis6_desired_twin, axis7_desired_twin
     global Plotted_Bank, Plotted_Node, colorbar4, colorbar5, PFA_Nita, sk_lower_threshold, sk_upper_threshold
@@ -499,11 +499,13 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis3_desired.margins(x=0)
     axis3_desired.plot(current_axis, 10*np.log10(bandPass_y), color = 'C0')
 
-    im4 = axis4_desired.imshow(10*np.log10(integrated_spectrum_x), cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, totalTime, 0])
+    im4 = axis4_desired.imshow(10*np.log10(integrated_spectrum_x), cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, 1, 0])
     divider4 = make_axes_locatable(axis4_desired)
     cax4 = divider4.append_axes('right', size = '5%', pad = 0.05)
     axis4_desired.set_ylabel("Time (Hours)")
     axis4_desired.set_xlabel("Frequency (MHz)")
+    axis4_desired.set_yticks([0,1])
+    axis4_desired.set_yticklabels(["Now", "~Hour Ago"])
     axis4_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: X")
     if (colorbar4==0):
         colorbar4 = plt.colorbar(im4, cax=cax4, orientation = 'vertical')
@@ -513,12 +515,14 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         colorbar4 = plt.colorbar(im4, cax=cax4, orientation='vertical')
         colorbar4.set_label("Power (dB)")
 
-    im5 = axis5_desired.imshow(10*np.log10(integrated_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, totalTime, 0])
+    im5 = axis5_desired.imshow(10*np.log10(integrated_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [lowerBound, upperBound, 1, 0])
     divider5 = make_axes_locatable(axis5_desired)
     cax5 = divider5.append_axes('right', size = '5%', pad = 0.05)
     axis5_desired.set_ylabel("Time (Hours)")
     axis5_desired.set_xlabel("Frequency (MHz)")
     axis5_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: Y")
+    axis5_desired.set_yticks([0,1])
+    axis5_desired.set_yticklabels(["Now", "~Hour Ago"])
     if (colorbar5==0):
         colorbar5 = plt.colorbar(im5, cax=cax5, orientation='vertical')
         colorbar5.set_label("Power (dB)")
@@ -907,18 +911,9 @@ if __name__ == "__main__":
         for export_node in range(numberOfNodes):
 
             #### Set up data
-            export_tempx = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 0, :, :, :], axis = 2), 1)
-            export_tempy = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 1, :, :, :], axis = 2), 1)
-            export_tempcross = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 2, :, :, :], axis = 2), 1)
-
-            export_waterfall_spectrum_x = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
-            export_waterfall_spectrum_y = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
-            export_waterfall_spectrum_cross = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
-
-            for id in range(FILE_COUNT_INDICATOR):
-                export_waterfall_spectrum_x[id,:] = export_tempx[id, :, :].reshape(-1)
-                export_waterfall_spectrum_y[id,:] = export_tempy[id, :, :].reshape(-1)
-                export_waterfall_spectrum_cross[id, :] = export_tempcross[id, :, :].reshape(-1)
+            export_waterfall_spectrum_x = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 0, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
+            export_waterfall_spectrum_y = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 1, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
+            export_waterfall_spectrum_cross = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 2, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
             ########
 
             ###### Set up plot
@@ -951,7 +946,7 @@ if __name__ == "__main__":
             export_colorbar_x = plt.colorbar(export_im_x, cax=export_cax_x, orientation = 'vertical')
             export_colorbar_x.set_label("Power (dB)")
             export_axis1.set_yticks([0,1])
-            export_axis1.set_yticklabels([startTime, endTime])
+            export_axis1.set_yticklabels([endTime, startTime])
 
             export_im_y = export_axis2.imshow(10*np.log10(export_waterfall_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
             export_divider_y = make_axes_locatable(export_axis2)
@@ -959,7 +954,7 @@ if __name__ == "__main__":
             export_colorbar_y = plt.colorbar(export_im_y, cax=export_cax_y, orientation = 'vertical')
             export_colorbar_y.set_label("Power (dB)")
             export_axis2.set_yticks([0,1])
-            export_axis2.set_yticklabels([startTime, endTime])
+            export_axis2.set_yticklabels([endTime, startTime])
 
             export_im_cross = export_axis3.imshow(10*np.log10(export_waterfall_spectrum_cross), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
             export_divider_cross = make_axes_locatable(export_axis3)
@@ -967,7 +962,7 @@ if __name__ == "__main__":
             export_colorbar_cross = plt.colorbar(export_im_cross, cax=export_cax_cross, orientation = 'vertical')
             export_colorbar_cross.set_label("Power (dB)")
             export_axis3.set_yticks([0,1])
-            export_axis3.set_yticklabels([startTime, endTime])
+            export_axis3.set_yticklabels([endTime, startTime])
 
             ########
 
