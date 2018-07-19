@@ -846,7 +846,7 @@ if __name__ == "__main__":
                 currentBytesPassed = 0
 
                 OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
-                if (FILE_COUNT_INDICATOR = 5):
+                if (FILE_COUNT_INDICATOR == 5):
                     desiredFrequencyResolution, desiredTimeResolution = convert_to_resolution(samplesPerTransform, fftsPerIntegration, TBIN)
 
                 NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8)))
