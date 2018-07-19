@@ -839,7 +839,11 @@ if __name__ == "__main__":
                 NDIMsmall = samplesPerTransform * fftsPerIntegration
 
                 print(bank, node)
-                node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 1, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 2, :, :, :], node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+                temp_spec_x, temp_spec_y, temp_spec_cross, node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+
+                node_spectra_storage[:, bank - BANK_OFFSET, node, 0, :, :, :] = np.insert(node_spectra_storage[:, bank - BANK_OFFSET, node, 0, :, :, :], 0, temp_spec_x, axis = 0)[:-1, :, :, :]
+                node_spectra_storage[:, bank - BANK_OFFSET, node, 1, :, :, :] = np.insert(node_spectra_storage[:, bank - BANK_OFFSET, node, 1, :, :, :], 0, temp_spec_y, axis = 0)[:-1, :, :, :]
+                node_spectra_storage[:, bank - BANK_OFFSET, node, 2, :, :, :] = np.insert(node_spectra_storage[:, bank - BANK_OFFSET, node, 2, :, :, :], 0, temp_spec_cross, axis = 0)[:-1, :, :, :]
 
                 # x_temp_indices = find_SK_threshold_hits(node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 0, :, :, :], fftsPerIntegration)
                 # np.add.at(THRESHOLD_PERCENTAGES[bank - BANK_OFFSET, node, 0, :], x_temp_indices, 1)
