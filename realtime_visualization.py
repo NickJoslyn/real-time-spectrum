@@ -689,8 +689,9 @@ if __name__ == "__main__":
     global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER, PFA_Nita
     global OBSERVATION_IS_RUNNING, desiredFrequencyResolution, desiredTimeResolution
     #GBT - 6 hours; 20s files
+
     most_possible_files_read = 150
-    OBSERVATION_IS_RUNNING = True
+
     colorbar4 = 0
     colorbar5 = 0
     Polarization_Plot = 0
@@ -708,8 +709,6 @@ if __name__ == "__main__":
     dualPolarization = 2
 
     sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration, PFA_Nita)
-
-    startTime = datetime.now().strftime('%H:%M')
 
     ########################
     ### Shell commands
@@ -817,7 +816,9 @@ if __name__ == "__main__":
     plt.connect('key_press_event', press)
 
 
+    OBSERVATION_IS_RUNNING = True
     FILE_COUNT_INDICATOR = 0
+    startTime = datetime.now().strftime('%H:%M')
 
     while(OBSERVATION_IS_RUNNING):
 
@@ -864,7 +865,9 @@ if __name__ == "__main__":
                 # np.add.at(THRESHOLD_PERCENTAGES[bank - BANK_OFFSET, node, 1, :], y_temp_indices, 1)
 
                 del readIn
+
                 print("**")
+
             if (OBSERVATION_IS_RUNNING == False):
                 break
         if (OBSERVATION_IS_RUNNING == False):
@@ -884,91 +887,79 @@ if __name__ == "__main__":
 
         FILE_COUNT_INDICATOR += 1
 
-        if (FILE_COUNT_INDICATOR >= most_possible_files_read):
-            OBSERVATION_IS_RUNNING = False
+        if (FILE_COUNT_INDICATOR%most_possible_files_read==0):
+            endTime = datetime.now().strftime('%H:%M')
+            ################Export Waterfalls###################################
+            BAND_IDENTIFIER = findBand()
+            exportPath = "../ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(startTime.replace(":", "")) + "-" + str(endTime.replace(":", "")) + "_waterfall.pdf"
+            pp = PdfPages(exportPath)
+            for export_bank in range(numberOfBanks):
+                for export_node in range(numberOfNodes):
+
+                    #### Set up data
+                    export_waterfall_spectrum_x = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 0, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
+                    export_waterfall_spectrum_y = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 1, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
+                    export_waterfall_spectrum_cross = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 2, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
+                    ########
+
+                    ###### Set up plot
+                    export_fig = plt.figure()
+                    plt.suptitle("blc" + str(export_bank + BANK_OFFSET) + str(export_node) + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
+
+                    export_axis1 = plt.subplot2grid((14,5), (0, 0), colspan=2, rowspan=14)
+                    export_axis1.set_title("X")
+                    export_axis1.set_xlabel("Frequency (MHz)")
+                    #export_axis1.set_ylabel("Time (Hours)")
+                    export_axis1.margins(x=0)
+
+                    export_axis2 = plt.subplot2grid((14,8), (0, 6), colspan=2, rowspan=14)
+                    export_axis2.set_title("Y")
+                    export_axis2.set_xlabel("Frequency (MHz)")
+                    #export_axis2.set_ylabel("Time (Hours)")
+                    export_axis2.margins(x=0)
+
+                    export_axis3 = plt.subplot2grid((14,8), (0, 3), colspan=2, rowspan=14)
+                    export_axis3.set_title("Cross-Spectrum")
+                    export_axis3.set_xlabel("Frequency (MHz)")
+                    #export_axis3.set_ylabel("Time (Hours)")
+                    export_axis3.margins(x=0)
+                    ########
+
+                    ####### Plot data
+                    export_im_x = export_axis1.imshow(10*np.log10(export_waterfall_spectrum_x), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
+                    export_divider_x = make_axes_locatable(export_axis1)
+                    export_cax_x = export_divider_x.append_axes('right', size = '5%', pad = 0.05)
+                    export_colorbar_x = plt.colorbar(export_im_x, cax=export_cax_x, orientation = 'vertical')
+                    export_colorbar_x.set_label("Power (dB)")
+                    export_axis1.set_yticks([0,1])
+                    export_axis1.set_yticklabels([endTime, startTime])
+
+                    export_im_y = export_axis2.imshow(10*np.log10(export_waterfall_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
+                    export_divider_y = make_axes_locatable(export_axis2)
+                    export_cax_y = export_divider_y.append_axes('right', size = '5%', pad = 0.05)
+                    export_colorbar_y = plt.colorbar(export_im_y, cax=export_cax_y, orientation = 'vertical')
+                    export_colorbar_y.set_label("Power (dB)")
+                    export_axis2.set_yticks([0,1])
+                    export_axis2.set_yticklabels([endTime, startTime])
+
+                    export_im_cross = export_axis3.imshow(10*np.log10(export_waterfall_spectrum_cross), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
+                    export_divider_cross = make_axes_locatable(export_axis3)
+                    export_cax_cross = export_divider_cross.append_axes('right', size = '5%', pad = 0.05)
+                    export_colorbar_cross = plt.colorbar(export_im_cross, cax=export_cax_cross, orientation = 'vertical')
+                    export_colorbar_cross.set_label("Power (dB)")
+                    export_axis3.set_yticks([0,1])
+                    export_axis3.set_yticklabels([endTime, startTime])
+
+                    ########
+
+                    ######## Write to PDF
+                    plt.close()
+                    pp.savefig(export_fig)
+                    ########
+
+            pp.close()
+            startTime = datetime.now().strftime('%H:%M')
+            ################Export Waterfalls###################################
+
 
     plt.close()
-
-    endTime = datetime.now().strftime('%H:%M')
-
-    #
-    #
-    #
-
-    ###################################################################################
-    ####################----EXPORT WATERFALLS----######################################
-    ###################################################################################
-
-    #
-    #
-    #
-
-    BAND_IDENTIFIER = findBand()
-
-    pp = PdfPages("../ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(startTime.replace(":", "")) + "-" + str(endTime.replace(":", "")) + "_waterfall.pdf")
-
-    for export_bank in range(numberOfBanks):
-        for export_node in range(numberOfNodes):
-
-            #### Set up data
-            export_waterfall_spectrum_x = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 0, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
-            export_waterfall_spectrum_y = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 1, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
-            export_waterfall_spectrum_cross = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 2, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
-            ########
-
-            ###### Set up plot
-            export_fig = plt.figure()
-            plt.suptitle("blc" + str(export_bank + BANK_OFFSET) + str(export_node) + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
-
-            export_axis1 = plt.subplot2grid((14,5), (0, 0), colspan=2, rowspan=14)
-            export_axis1.set_title("X")
-            export_axis1.set_xlabel("Frequency (MHz)")
-            #export_axis1.set_ylabel("Time (Hours)")
-            export_axis1.margins(x=0)
-
-            export_axis2 = plt.subplot2grid((14,8), (0, 6), colspan=2, rowspan=14)
-            export_axis2.set_title("Y")
-            export_axis2.set_xlabel("Frequency (MHz)")
-            #export_axis2.set_ylabel("Time (Hours)")
-            export_axis2.margins(x=0)
-
-            export_axis3 = plt.subplot2grid((14,8), (0, 3), colspan=2, rowspan=14)
-            export_axis3.set_title("Cross-Spectrum")
-            export_axis3.set_xlabel("Frequency (MHz)")
-            #export_axis3.set_ylabel("Time (Hours)")
-            export_axis3.margins(x=0)
-            ########
-
-            ####### Plot data
-            export_im_x = export_axis1.imshow(10*np.log10(export_waterfall_spectrum_x), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
-            export_divider_x = make_axes_locatable(export_axis1)
-            export_cax_x = export_divider_x.append_axes('right', size = '5%', pad = 0.05)
-            export_colorbar_x = plt.colorbar(export_im_x, cax=export_cax_x, orientation = 'vertical')
-            export_colorbar_x.set_label("Power (dB)")
-            export_axis1.set_yticks([0,1])
-            export_axis1.set_yticklabels([endTime, startTime])
-
-            export_im_y = export_axis2.imshow(10*np.log10(export_waterfall_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
-            export_divider_y = make_axes_locatable(export_axis2)
-            export_cax_y = export_divider_y.append_axes('right', size = '5%', pad = 0.05)
-            export_colorbar_y = plt.colorbar(export_im_y, cax=export_cax_y, orientation = 'vertical')
-            export_colorbar_y.set_label("Power (dB)")
-            export_axis2.set_yticks([0,1])
-            export_axis2.set_yticklabels([endTime, startTime])
-
-            export_im_cross = export_axis3.imshow(10*np.log10(export_waterfall_spectrum_cross), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
-            export_divider_cross = make_axes_locatable(export_axis3)
-            export_cax_cross = export_divider_cross.append_axes('right', size = '5%', pad = 0.05)
-            export_colorbar_cross = plt.colorbar(export_im_cross, cax=export_cax_cross, orientation = 'vertical')
-            export_colorbar_cross.set_label("Power (dB)")
-            export_axis3.set_yticks([0,1])
-            export_axis3.set_yticklabels([endTime, startTime])
-
-            ########
-
-            ######## Write to PDF
-            plt.close()
-            pp.savefig(export_fig)
-            ########
-
-    pp.close()
