@@ -5,7 +5,6 @@
 from __future__ import division
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 import sys
 import subprocess
 from datetime import datetime
@@ -831,7 +830,6 @@ if __name__ == "__main__":
                 test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | tail -2 | head -1'
                 inputFileName = subprocess.check_output(test_input_file_string, shell = True)[:-1]
                 readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
-                fileBytes = os.path.getsize(inputFileName)
                 currentBytesPassed = 0
 
                 OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
