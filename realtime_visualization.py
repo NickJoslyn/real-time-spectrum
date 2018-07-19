@@ -505,7 +505,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis4_desired.set_ylabel("Time (Hours)")
     axis4_desired.set_xlabel("Frequency (MHz)")
     axis4_desired.set_yticks([0,1])
-    axis4_desired.set_yticklabels(["Now", "~Hour Ago"])
+    axis4_desired.set_yticklabels(["Now", "~0.5Hr Ago"])
     axis4_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: X")
     if (colorbar4==0):
         colorbar4 = plt.colorbar(im4, cax=cax4, orientation = 'vertical')
@@ -522,7 +522,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis5_desired.set_xlabel("Frequency (MHz)")
     axis5_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: Y")
     axis5_desired.set_yticks([0,1])
-    axis5_desired.set_yticklabels(["Now", "~Hour Ago"])
+    axis5_desired.set_yticklabels(["Now", "~0.5Hr Ago"])
     if (colorbar5==0):
         colorbar5 = plt.colorbar(im5, cax=cax5, orientation='vertical')
         colorbar5.set_label("Power (dB)")
@@ -690,7 +690,7 @@ if __name__ == "__main__":
     global OBSERVATION_IS_RUNNING, desiredFrequencyResolution, desiredTimeResolution
     #GBT - 6 hours; 20s files
 
-    most_possible_files_read = 150
+    most_possible_files_read = 75
 
     colorbar4 = 0
     colorbar5 = 0
@@ -817,7 +817,7 @@ if __name__ == "__main__":
 
 
     OBSERVATION_IS_RUNNING = True
-    FILE_COUNT_INDICATOR = 0
+    FILE_COUNT_INDICATOR = 5
     startTime = datetime.now().strftime('%H:%M')
 
     while(OBSERVATION_IS_RUNNING):
