@@ -691,7 +691,7 @@ if __name__ == "__main__":
     global OBSERVATION_IS_RUNNING, desiredFrequencyResolution, desiredTimeResolution
     #GBT - 6 hours; 20s files
 
-    most_possible_files_read = 30
+    most_possible_files_read = 75 
 
     colorbar4 = 0
     colorbar5 = 0
