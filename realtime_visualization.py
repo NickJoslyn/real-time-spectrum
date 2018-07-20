@@ -349,7 +349,7 @@ def press(event):
     global node_Frequency_Ranges, node_spectra_storage
     #global THRESHOLD_PERCENTAGES
     global FILE_COUNT_INDICATOR, TBIN, BANK_OFFSET, numberOfNodes, numberOfBanks
-    global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER,
+    global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER
     global OBSERVATION_IS_RUNNING, PROGRAM_IS_RUNNING
     sys.stdout.flush()
     plt.pause(0.1)
