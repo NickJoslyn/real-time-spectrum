@@ -545,7 +545,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis6_desired.lines[1].set_label('Gaussian Thresholds')
     axis6_desired.legend(loc = 1)
     axis6_desired.set_ylabel("SK Value")
-    axis6_desired.text(current_axis[0], -0.1, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
+    axis6_desired.text(current_axis[0]+1, -0.3, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
 
     # axis6_desired_twin.clear()
     # axis6_desired_twin.plot(current_axis, 100*(thresholdHitsX/file_index), 'm.')
@@ -564,7 +564,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis7_desired.lines[1].set_label('Gaussian Thresholds')
     axis7_desired.legend(loc = 1)
     axis7_desired.set_ylabel("SK Value")
-    axis7_desired.text(current_axis[0], -0.1, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
+    axis7_desired.text(current_axis[0]+1, -0.3, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
 
     # axis7_desired_twin.clear()
     # axis7_desired_twin.plot(current_axis, 100*(thresholdHitsY/file_index), 'm.')
@@ -691,7 +691,7 @@ if __name__ == "__main__":
     global OBSERVATION_IS_RUNNING, desiredFrequencyResolution, desiredTimeResolution
     #GBT - 6 hours; 20s files
 
-    most_possible_files_read = 75
+    most_possible_files_read = 30
 
     colorbar4 = 0
     colorbar5 = 0
@@ -835,13 +835,14 @@ if __name__ == "__main__":
                         if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > (FILE_COUNT_INDICATOR + 1)):
                             waiting_for_written_file = False
                         else:
-                            plt.pause(2)
+                            print("waiting")
+			    plt.pause(2)
                             if (OBSERVATION_IS_RUNNING == False):
                                 break
 
                     if (OBSERVATION_IS_RUNNING == False):
                         break
-
+		  
                     test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | tail -2 | head -1'
                     inputFileName = subprocess.check_output(test_input_file_string, shell = True)[:-1]
                     readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
@@ -855,13 +856,13 @@ if __name__ == "__main__":
                     #samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
                     dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
                     NDIMsmall = samplesPerTransform * fftsPerIntegration
-
-                    temp_spec_x, temp_spec_y, temp_spec_cross, node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+                    
+		    temp_spec_x, temp_spec_y, temp_spec_cross, node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
 
                     node_spectra_storage[:, bank - BANK_OFFSET, node, 0, :, :, :] = np.insert(node_spectra_storage[:, bank - BANK_OFFSET, node, 0, :, :, :], 0, temp_spec_x, axis = 0)[:-1, :, :, :]
                     node_spectra_storage[:, bank - BANK_OFFSET, node, 1, :, :, :] = np.insert(node_spectra_storage[:, bank - BANK_OFFSET, node, 1, :, :, :], 0, temp_spec_y, axis = 0)[:-1, :, :, :]
                     node_spectra_storage[:, bank - BANK_OFFSET, node, 2, :, :, :] = np.insert(node_spectra_storage[:, bank - BANK_OFFSET, node, 2, :, :, :], 0, temp_spec_cross, axis = 0)[:-1, :, :, :]
-
+		    
                     # x_temp_indices = find_SK_threshold_hits(node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 0, :, :, :], fftsPerIntegration)
                     # np.add.at(THRESHOLD_PERCENTAGES[bank - BANK_OFFSET, node, 0, :], x_temp_indices, 1)
                     # y_temp_indices = find_SK_threshold_hits(node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 1, :, :, :], fftsPerIntegration)
