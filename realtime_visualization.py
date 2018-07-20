@@ -545,7 +545,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis6_desired.lines[1].set_label('Gaussian Thresholds')
     axis6_desired.legend(loc = 1)
     axis6_desired.set_ylabel("SK Value")
-    axis6_desired.text(0, -0.1, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
+    axis6_desired.text(current_axis[0], -0.1, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
 
     # axis6_desired_twin.clear()
     # axis6_desired_twin.plot(current_axis, 100*(thresholdHitsX/file_index), 'm.')
@@ -564,7 +564,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis7_desired.lines[1].set_label('Gaussian Thresholds')
     axis7_desired.legend(loc = 1)
     axis7_desired.set_ylabel("SK Value")
-    axis7_desired.text(0, -0.1, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
+    axis7_desired.text(current_axis[0], -0.1, "M = " + str(fftsPerIntegration) + " | N = 1 | D = 1 | PFA = " + str(PFA_Nita), fontsize = "8")
 
     # axis7_desired_twin.clear()
     # axis7_desired_twin.plot(current_axis, 100*(thresholdHitsY/file_index), 'm.')
