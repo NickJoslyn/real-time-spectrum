@@ -695,9 +695,9 @@ if __name__ == "__main__":
 
     colorbar4 = 0
     colorbar5 = 0
-    Polarization_Plot = 0
-    Plotted_Bank = 0
-    Plotted_Node = 0
+
+    desiredTimeResolution = 0
+    desiredFrequencyResolution = 0
 
     PFA_Nita = 0.0013499
 
@@ -713,6 +713,10 @@ if __name__ == "__main__":
     PROGRAM_IS_RUNNING = True
 
     while(PROGRAM_IS_RUNNING):
+
+        Polarization_Plot = 0
+        Plotted_Bank = 0
+        Plotted_Node = 0
         ########################
         ### Shell commands
 
@@ -728,8 +732,6 @@ if __name__ == "__main__":
         SESSION_IDENTIFIER = subprocess.check_output(string_for_session, shell = True)[23:-1]
 
         ########################
-        desiredTimeResolution = 0
-        desiredFrequencyResolution = 0
         node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, 2))
         node_spectra_storage = np.zeros((most_possible_files_read, numberOfBanks, numberOfNodes, 3, OBSNCHAN, fftsPerIntegration, samplesPerTransform))
         #THRESHOLD_PERCENTAGES = np.zeros((numberOfBanks, numberOfNodes, 2, OBSNCHAN * samplesPerTransform))
@@ -835,14 +837,13 @@ if __name__ == "__main__":
                         if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > (FILE_COUNT_INDICATOR + 1)):
                             waiting_for_written_file = False
                         else:
-                            print("waiting")
-			    plt.pause(2)
                             if (OBSERVATION_IS_RUNNING == False):
                                 break
+                            plt.pause(2)
 
                     if (OBSERVATION_IS_RUNNING == False):
                         break
-		  
+
                     test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | tail -2 | head -1'
                     inputFileName = subprocess.check_output(test_input_file_string, shell = True)[:-1]
                     readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
@@ -856,13 +857,13 @@ if __name__ == "__main__":
                     #samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
                     dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
                     NDIMsmall = samplesPerTransform * fftsPerIntegration
-                    
-		    temp_spec_x, temp_spec_y, temp_spec_cross, node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+
+                    temp_spec_x, temp_spec_y, temp_spec_cross, node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
 
                     node_spectra_storage[:, bank - BANK_OFFSET, node, 0, :, :, :] = np.insert(node_spectra_storage[:, bank - BANK_OFFSET, node, 0, :, :, :], 0, temp_spec_x, axis = 0)[:-1, :, :, :]
                     node_spectra_storage[:, bank - BANK_OFFSET, node, 1, :, :, :] = np.insert(node_spectra_storage[:, bank - BANK_OFFSET, node, 1, :, :, :], 0, temp_spec_y, axis = 0)[:-1, :, :, :]
                     node_spectra_storage[:, bank - BANK_OFFSET, node, 2, :, :, :] = np.insert(node_spectra_storage[:, bank - BANK_OFFSET, node, 2, :, :, :], 0, temp_spec_cross, axis = 0)[:-1, :, :, :]
-		    
+
                     # x_temp_indices = find_SK_threshold_hits(node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 0, :, :, :], fftsPerIntegration)
                     # np.add.at(THRESHOLD_PERCENTAGES[bank - BANK_OFFSET, node, 0, :], x_temp_indices, 1)
                     # y_temp_indices = find_SK_threshold_hits(node_spectra_storage[FILE_COUNT_INDICATOR, bank - BANK_OFFSET, node, 1, :, :, :], fftsPerIntegration)
@@ -989,7 +990,7 @@ if __name__ == "__main__":
                 export_fig = plt.figure()
                 plt.suptitle("blc" + str(export_bank + BANK_OFFSET) + str(export_node) + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
-                export_axis1 = plt.subplot2grid((14,5), (0, 0), colspan=2, rowspan=14)
+                export_axis1 = plt.subplot2grid((14,8), (0, 0), colspan=2, rowspan=14)
                 export_axis1.set_title("X")
                 export_axis1.set_xlabel("Frequency (MHz)")
                 #export_axis1.set_ylabel("Time (Hours)")
@@ -1013,7 +1014,7 @@ if __name__ == "__main__":
                 export_divider_x = make_axes_locatable(export_axis1)
                 export_cax_x = export_divider_x.append_axes('right', size = '5%', pad = 0.05)
                 export_colorbar_x = plt.colorbar(export_im_x, cax=export_cax_x, orientation = 'vertical')
-                export_colorbar_x.set_label("Power (dB)")
+                #export_colorbar_x.set_label("Power (dB)")
                 export_axis1.set_yticks([0,1])
                 export_axis1.set_yticklabels([endTime, startTime])
 
@@ -1022,16 +1023,16 @@ if __name__ == "__main__":
                 export_cax_y = export_divider_y.append_axes('right', size = '5%', pad = 0.05)
                 export_colorbar_y = plt.colorbar(export_im_y, cax=export_cax_y, orientation = 'vertical')
                 export_colorbar_y.set_label("Power (dB)")
-                export_axis2.set_yticks([0,1])
-                export_axis2.set_yticklabels([endTime, startTime])
+                #export_axis2.set_yticks([0,1])
+                #export_axis2.set_yticklabels([endTime, startTime])
 
                 export_im_cross = export_axis3.imshow(10*np.log10(export_waterfall_spectrum_cross), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
                 export_divider_cross = make_axes_locatable(export_axis3)
                 export_cax_cross = export_divider_cross.append_axes('right', size = '5%', pad = 0.05)
                 export_colorbar_cross = plt.colorbar(export_im_cross, cax=export_cax_cross, orientation = 'vertical')
-                export_colorbar_cross.set_label("Power (dB)")
-                export_axis3.set_yticks([0,1])
-                export_axis3.set_yticklabels([endTime, startTime])
+                #export_colorbar_cross.set_label("Power (dB)")
+                #export_axis3.set_yticks([0,1])
+                #export_axis3.set_yticklabels([endTime, startTime])
 
                 ########
 
