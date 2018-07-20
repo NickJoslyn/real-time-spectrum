@@ -819,8 +819,8 @@ if __name__ == "__main__":
 
 
         OBSERVATION_IS_RUNNING = True
-        START_NUMBER_FILES = int(subprocess.check_output('ls /mnt_blc' + str(0 + BANK_OFFSET) + '0/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(0 + BANK_OFFSET) + '0/*.raw | wc -l', shell=True)[:-1])
-        FILE_COUNT_INDICATOR = START_NUMBER_FILES
+        #START_NUMBER_FILES = int(subprocess.check_output('ls /mnt_blc' + str(0 + BANK_OFFSET) + '0/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(0 + BANK_OFFSET) + '0/*.raw | wc -l', shell=True)[:-1])
+        FILE_COUNT_INDICATOR = 0
         startTime = datetime.now().strftime('%H:%M')
 
         while(OBSERVATION_IS_RUNNING):
@@ -835,7 +835,6 @@ if __name__ == "__main__":
                         if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > (FILE_COUNT_INDICATOR + 1)):
                             waiting_for_written_file = False
                         else:
-                            print(bank, node)
                             plt.pause(2)
                             if (OBSERVATION_IS_RUNNING == False):
                                 break
@@ -849,7 +848,7 @@ if __name__ == "__main__":
                     currentBytesPassed = 0
 
                     OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
-                    if (FILE_COUNT_INDICATOR == START_NUMBER_FILES):
+                    if (FILE_COUNT_INDICATOR == 0):
                         desiredFrequencyResolution, desiredTimeResolution = convert_to_resolution(samplesPerTransform, fftsPerIntegration, TBIN)
 
                     NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8)))
@@ -877,7 +876,7 @@ if __name__ == "__main__":
             if (OBSERVATION_IS_RUNNING == False):
                 break
 
-            if (FILE_COUNT_INDICATOR>START_NUMBER_FILES):
+            if (FILE_COUNT_INDICATOR>0):
                 clear_full_spectrum()
             ## Done with spectra collection; plot
             for i in range(numberOfNodes):
@@ -891,7 +890,7 @@ if __name__ == "__main__":
 
             FILE_COUNT_INDICATOR += 1
 
-            if ((FILE_COUNT_INDICATOR - START_NUMBER_FILES)%most_possible_files_read==0):
+            if (FILE_COUNT_INDICATOR%most_possible_files_read==0):
                 endTime = datetime.now().strftime('%H:%M')
                 ################Export Waterfalls###################################
                 BAND_IDENTIFIER = findBand()
