@@ -728,7 +728,8 @@ if __name__ == "__main__":
         SESSION_IDENTIFIER = subprocess.check_output(string_for_session, shell = True)[23:-1]
 
         ########################
-
+        desiredTimeResolution = 0
+        desiredFrequencyResolution = 0
         node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, 2))
         node_spectra_storage = np.zeros((most_possible_files_read, numberOfBanks, numberOfNodes, 3, OBSNCHAN, fftsPerIntegration, samplesPerTransform))
         #THRESHOLD_PERCENTAGES = np.zeros((numberOfBanks, numberOfNodes, 2, OBSNCHAN * samplesPerTransform))
@@ -737,7 +738,7 @@ if __name__ == "__main__":
         #Initialize Plot
         #SET UP Big Plot -- Can vary how we want big plot to look by adjusting subplot2grid
         plt.figure("Real-Time Data Visualization")
-        plt.suptitle(SESSION_IDENTIFIER + " | " + str(0/(10**6)) + " MHz, " + str(0*(10**3)) + " ms Resolution")
+        plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
         plt.ion()
         plt.show()
 
@@ -834,6 +835,7 @@ if __name__ == "__main__":
                         if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > (FILE_COUNT_INDICATOR + 1)):
                             waiting_for_written_file = False
                         else:
+                            print(bank, node)
                             plt.pause(2)
                             if (OBSERVATION_IS_RUNNING == False):
                                 break
@@ -847,7 +849,7 @@ if __name__ == "__main__":
                     currentBytesPassed = 0
 
                     OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
-                    if (FILE_COUNT_INDICATOR == 5):
+                    if (FILE_COUNT_INDICATOR == START_NUMBER_FILES):
                         desiredFrequencyResolution, desiredTimeResolution = convert_to_resolution(samplesPerTransform, fftsPerIntegration, TBIN)
 
                     NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8)))
