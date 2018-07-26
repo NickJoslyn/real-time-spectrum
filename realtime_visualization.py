@@ -691,7 +691,7 @@ if __name__ == "__main__":
     global OBSERVATION_IS_RUNNING, desiredFrequencyResolution, desiredTimeResolution
     #GBT - 6 hours; 20s files
 
-    most_possible_files_read = 75 
+    most_possible_files_read = 75
 
     colorbar4 = 0
     colorbar5 = 0
@@ -911,7 +911,7 @@ if __name__ == "__main__":
                         export_fig = plt.figure()
                         plt.suptitle("blc" + str(export_bank + BANK_OFFSET) + str(export_node) + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
-                        export_axis1 = plt.subplot2grid((14,5), (0, 0), colspan=2, rowspan=14)
+                        export_axis1 = plt.subplot2grid((14,8), (0, 0), colspan=2, rowspan=14)
                         export_axis1.set_title("X")
                         export_axis1.set_xlabel("Frequency (MHz)")
                         #export_axis1.set_ylabel("Time (Hours)")
@@ -935,26 +935,26 @@ if __name__ == "__main__":
                         export_divider_x = make_axes_locatable(export_axis1)
                         export_cax_x = export_divider_x.append_axes('right', size = '5%', pad = 0.05)
                         export_colorbar_x = plt.colorbar(export_im_x, cax=export_cax_x, orientation = 'vertical')
-                        export_colorbar_x.set_label("Power (dB)")
+                        #export_colorbar_x.set_label("Power (dB)")
                         export_axis1.set_yticks([0,1])
                         export_axis1.set_yticklabels([endTime, startTime])
+                        export_axis1.get_xaxis().set_ticks([round(node_Frequency_Ranges[export_bank, export_node, 0],0), round(node_Frequency_Ranges[export_bank, export_node, 1],0)])
 
                         export_im_y = export_axis2.imshow(10*np.log10(export_waterfall_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
                         export_divider_y = make_axes_locatable(export_axis2)
                         export_cax_y = export_divider_y.append_axes('right', size = '5%', pad = 0.05)
                         export_colorbar_y = plt.colorbar(export_im_y, cax=export_cax_y, orientation = 'vertical')
                         export_colorbar_y.set_label("Power (dB)")
-                        export_axis2.set_yticks([0,1])
-                        export_axis2.set_yticklabels([endTime, startTime])
+                        export_axis2.get_yaxis().set_ticks([])
+                        export_axis2.get_xaxis().set_ticks([round(node_Frequency_Ranges[export_bank, export_node, 0],0), round(node_Frequency_Ranges[export_bank, export_node, 1],0)])
 
                         export_im_cross = export_axis3.imshow(10*np.log10(export_waterfall_spectrum_cross), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
                         export_divider_cross = make_axes_locatable(export_axis3)
                         export_cax_cross = export_divider_cross.append_axes('right', size = '5%', pad = 0.05)
                         export_colorbar_cross = plt.colorbar(export_im_cross, cax=export_cax_cross, orientation = 'vertical')
-                        export_colorbar_cross.set_label("Power (dB)")
-                        export_axis3.set_yticks([0,1])
-                        export_axis3.set_yticklabels([endTime, startTime])
-
+                        #export_colorbar_cross.set_label("Power (dB)")
+                        export_axis3.get_yaxis().set_ticks([])
+                        export_axis3.get_xaxis().set_ticks([round(node_Frequency_Ranges[export_bank, export_node, 0],0), round(node_Frequency_Ranges[export_bank, export_node, 1],0)])
                         ########
 
                         ######## Write to PDF
@@ -1017,23 +1017,23 @@ if __name__ == "__main__":
                 #export_colorbar_x.set_label("Power (dB)")
                 export_axis1.set_yticks([0,1])
                 export_axis1.set_yticklabels([endTime, startTime])
+                export_axis1.get_xaxis().set_ticks([round(node_Frequency_Ranges[export_bank, export_node, 0],0), round(node_Frequency_Ranges[export_bank, export_node, 1],0)])
 
                 export_im_y = export_axis2.imshow(10*np.log10(export_waterfall_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
                 export_divider_y = make_axes_locatable(export_axis2)
                 export_cax_y = export_divider_y.append_axes('right', size = '5%', pad = 0.05)
                 export_colorbar_y = plt.colorbar(export_im_y, cax=export_cax_y, orientation = 'vertical')
                 export_colorbar_y.set_label("Power (dB)")
-                #export_axis2.set_yticks([0,1])
-                #export_axis2.set_yticklabels([endTime, startTime])
+                export_axis2.get_yaxis().set_ticks([])
+                export_axis2.get_xaxis().set_ticks([round(node_Frequency_Ranges[export_bank, export_node, 0],0), round(node_Frequency_Ranges[export_bank, export_node, 1],0)])
 
                 export_im_cross = export_axis3.imshow(10*np.log10(export_waterfall_spectrum_cross), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
                 export_divider_cross = make_axes_locatable(export_axis3)
                 export_cax_cross = export_divider_cross.append_axes('right', size = '5%', pad = 0.05)
                 export_colorbar_cross = plt.colorbar(export_im_cross, cax=export_cax_cross, orientation = 'vertical')
                 #export_colorbar_cross.set_label("Power (dB)")
-                #export_axis3.set_yticks([0,1])
-                #export_axis3.set_yticklabels([endTime, startTime])
-
+                export_axis3.get_yaxis().set_ticks([])
+                export_axis3.get_xaxis().set_ticks([round(node_Frequency_Ranges[export_bank, export_node, 0],0), round(node_Frequency_Ranges[export_bank, export_node, 1],0)])
                 ########
 
                 ######## Write to PDF
