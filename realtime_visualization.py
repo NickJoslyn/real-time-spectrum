@@ -480,6 +480,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     #GBT: 6 Hours, Parkes: 11 Hours
     #totalTime = 0.5
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired, axis8_desired, axis9_desired
+    global SESSION_IDENTIFIER, desiredFrequencyResolution, desiredTimeResolution
     #global axis6_desired_twin, axis7_desired_twin
     global Plotted_Bank, Plotted_Node, colorbar4, colorbar5, PFA_Nita, sk_lower_threshold, sk_upper_threshold
     #sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration, PFA_Nita)
@@ -586,6 +587,8 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis9_desired.margins(x=0)
     axis9_desired.set_ylim(0, 5)
     axis9_desired.set_xlabel("Frequency (MHz)")
+
+    plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
     plt.connect('key_press_event', press)
     plt.pause(0.25)
