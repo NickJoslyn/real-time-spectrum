@@ -408,6 +408,7 @@ def press(event):
         Plotted_Node -= 1
         if (Plotted_Node < 0):
             Plotted_Node = (numberOfNodes-1)
+        clear_full_spectrum()
         clear_node_plots()
         for j in range(numberOfNodes):
             if (j!=Plotted_Node):
@@ -418,6 +419,7 @@ def press(event):
         Plotted_Node += 1
         if (Plotted_Node > (numberOfNodes-1)):
             Plotted_Node = 0
+        clear_full_spectrum()
         clear_node_plots()
         for j in range(numberOfNodes):
             if (j!=Plotted_Node):
@@ -1066,17 +1068,16 @@ if __name__ == "__main__":
 
                 ###### Set up plot
                 export_fig = plt.figure()
-                plt.suptitle("blc" + str(export_bank + BANK_OFFSET) + str(export_node) + " | Percent RFI")
 
                 export_axis1 = plt.subplot2grid((2,1), (0, 0))
-                export_axis1.set_title("X")
+                export_axis1.set_title("blc" + str(export_bank + BANK_OFFSET) + str(export_node) + " X | Percent RFI")
                 export_axis1.set_xlabel("Frequency (MHz)")
                 export_axis1.set_ylabel("%")
                 export_axis1.margins(x=0)
                 export_axis1.plot(export_current_axis, 100*(export_RFI_x/(FILE_COUNT_INDICATOR + 1)))
 
                 export_axis2 = plt.subplot2grid((2,1), (1, 0))
-                export_axis2.set_title("Y")
+                export_axis2.set_title("blc" + str(export_bank + BANK_OFFSET) + str(export_node) + " Y | Percent RFI")
                 export_axis2.set_xlabel("Frequency (MHz)")
                 export_axis2.set_ylabel("%")
                 export_axis2.margins(x=0)
