@@ -394,9 +394,8 @@ def press(event):
 
         if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
             PLOTTING_A_COMPUTE_NODE = True
-            Plotted_Bank += 1
-            if (Plotted_Bank > (numberOfBanks-1)):
-                Plotted_Bank = 0
+            Plotted_Bank = np.where(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))[0][0]
+            Plotted_Node = np.where(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))[1][0]
             clear_full_spectrum()
             clear_node_plots()
             for j in range(numberOfNodes):
@@ -420,9 +419,8 @@ def press(event):
 
         if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
             PLOTTING_A_COMPUTE_NODE = True
-            Plotted_Bank -= 1
-            if (Plotted_Bank < 0):
-                Plotted_Bank = (numberOfBanks -1)
+            Plotted_Bank = np.where(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))[0][0]
+            Plotted_Node = np.where(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))[1][0]
             clear_full_spectrum()
             clear_node_plots()
             for j in range(numberOfNodes):
@@ -448,9 +446,8 @@ def press(event):
 
         if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
             PLOTTING_A_COMPUTE_NODE = True
-            Plotted_Node -= 1
-            if (Plotted_Node < 0):
-                Plotted_Node = (numberOfNodes-1)
+            Plotted_Bank = np.where(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))[0][0]
+            Plotted_Node = np.where(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))[1][0]
             clear_full_spectrum()
             clear_node_plots()
             for j in range(numberOfNodes):
@@ -476,9 +473,8 @@ def press(event):
 
         if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
             PLOTTING_A_COMPUTE_NODE = True
-            Plotted_Node += 1
-            if (Plotted_Node > (numberOfNodes-1)):
-                Plotted_Node = 0
+            Plotted_Bank = np.where(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))[0][0]
+            Plotted_Node = np.where(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))[1][0]
             clear_full_spectrum()
             clear_node_plots()
             for j in range(numberOfNodes):
