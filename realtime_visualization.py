@@ -716,7 +716,7 @@ if __name__ == "__main__":
 
     #User input
     samplesPerTransform = 16
-    fftsPerIntegration = 50
+    fftsPerIntegration = 75
     TOTAL_RACKS = 4
     OBSNCHAN = 64
     dualPolarization = 2
