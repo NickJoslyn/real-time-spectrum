@@ -202,8 +202,7 @@ def spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, O
 
     BLOCK = remove_DCoffset(BLOCK)
     spectralData_x, spectralData_y, cross_spectra = calculate_spectra(BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTransform)
-    # nodeBand_x = np.flip(np.sum(spectralData_x, 1),0).reshape(-1)
-    # nodeBand_y = np.sum(np.flip(np.sum(spectralData_y, 1),0), 0)
+
     lowerBound = OBSFREQ + OBSBW/2
     upperBound = OBSFREQ - OBSBW/2
 
@@ -351,7 +350,7 @@ def press(event):
     global FILE_COUNT_INDICATOR, TBIN, numberOfNodes, numberOfBanks
     global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER
     global OBSERVATION_IS_RUNNING, PROGRAM_IS_RUNNING
-    global CHECKING_BANK, CHECKING_NODE, ACTIVE_COMPUTE_NODES, PLOTTING_A_COMPUTE_NODE
+    global CHECKING_BANK, CHECKING_NODE, ACTIVE_COMPUTE_NODES, PLOTTING_A_COMPUTE_NODE, TOTAL_RACKS
 
     sys.stdout.flush()
     plt.pause(0.1)
@@ -390,7 +389,7 @@ def press(event):
             CHECKING_NODE = numberOfNodes - 1
 
         CHECKING_BANK += 1
-        if (CHECKING_BANK > (numberOfBanks - 1)):
+        if (CHECKING_BANK > (TOTAL_RACKS - 1)):
             CHECKING_BANK = 0
 
         if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
@@ -417,7 +416,7 @@ def press(event):
 
         CHECKING_BANK -= 1
         if (CHECKING_BANK < 0):
-            CHECKING_BANK = (numberOfBanks - 1)
+            CHECKING_BANK = (TOTAL_RACKS - 1)
 
         if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
             PLOTTING_A_COMPUTE_NODE = True
@@ -504,7 +503,6 @@ def clear_full_spectrum():
     """
 
     global axis1_desired
-    #del axis1_desired.lines[:]
     axis1_desired.clear()
 
 def clear_node_plots():
@@ -546,9 +544,6 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
         8/9)    Cross-Spectrum and spectral kurtosis of cross-spectrum
     """
 
-    #totalTime = samplesPerTransform * fftsPerIntegration * TBIN * 10
-    #GBT: 6 Hours, Parkes: 11 Hours
-    #totalTime = 0.5
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired, axis8_desired, axis9_desired
     global axis6_desired_twin, axis7_desired_twin
     global SESSION_IDENTIFIER, desiredFrequencyResolution, desiredTimeResolution
@@ -686,13 +681,6 @@ def plot_desired_from_click(spectralData_x, spectralData_y, spectralData_cross, 
     waterfall_spectrum_x = np.flip(np.sum(spectralData_x[:, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
     waterfall_spectrum_y = np.flip(np.sum(spectralData_y[:, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
 
-    # waterfall_spectrum_x = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
-    # waterfall_spectrum_y = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
-    #
-    # for id in range(file_index + 1):
-    #     waterfall_spectrum_x[id,:] = tempx[id, :, :].reshape(-1)
-    #     waterfall_spectrum_y[id,:] = tempy[id, :, :].reshape(-1)
-
     # Spectrum for plotting
     bandPass_x = waterfall_spectrum_x[0, :]
     bandPass_y = waterfall_spectrum_y[0, :]
@@ -701,47 +689,6 @@ def plot_desired_from_click(spectralData_x, spectralData_y, spectralData_cross, 
     current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
     plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, bandPass_cross, SK_x, SK_y, SK_cross, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN, thresholdHitsX, thresholdHitsY, file_counter)
 
-# def plot_desired(spectralData_x, spectralData_y, spectralData_cross, OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, file_index):
-#     """
-#     For current compute node, prepare spectra for master plot function
-#     """
-#
-#     global most_possible_files_read
-#
-#     # Spectral Kurtosis
-#     SK_x = calculate_spectralKurtosis(spectralData_x, fftsPerIntegration)
-#     SK_y = calculate_spectralKurtosis(spectralData_y, fftsPerIntegration)
-#     SK_cross = calculate_spectralKurtosis(spectralData_cross, fftsPerIntegration)
-#     SK_x = np.flip(SK_x, 0).reshape(-1)
-#     SK_y = np.flip(SK_y, 0).reshape(-1)
-#     SK_cross = np.flip(SK_cross, 0).reshape(-1)
-#
-#     # Spectral flip
-#     spectralData_x = np.flip(np.sum(spectralData_x, axis = 1), 0)
-#     spectralData_y = np.flip(np.sum(spectralData_y, axis = 1), 0)
-#
-#     # Spectrum for waterfall (array in array for plt.imshow())
-#     waterfall_spectrum_x = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
-#     waterfall_spectrum_y = np.zeros((most_possible_files_read, OBSNCHAN * samplesPerTransform))
-#     waterfall_spectrum_x[file_index, :] = spectralData_x.reshape(-1)
-#     waterfall_spectrum_y[file_index, :] = spectralData_y.reshape(-1)
-#
-#     # Spectrum for plotting    if event.key == 'left':
-#         Plotted_Node += 1
-#         if (Plotted_Node > (numberOfNodes-1)):
-#             Plotted_Node = 0
-#         clear_node_plots()
-#         for j in range(numberOfNodes):
-#             if (j!=Plotted_Node):
-#                 plot_otherNodes(node_spectra_storage[FILE_COUNT_INDICATOR - 1, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[FILE_COUNT_INDICATOR - 1, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
-#         plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1])
-#
-#     bandPass_x = np.sum(waterfall_spectrum_x, 0)
-#     bandPass_y = np.sum(waterfall_spectrum_y, 0)
-#     bandPass_cross = np.flip(np.sum(spectralData_cross, axis = 1), 0).reshape(-1)
-#
-#     current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
-#     plot_real_time_visualization_desired(waterfall_spectrum_x, waterfall_spectrum_y, bandPass_x, bandPass_y, bandPass_cross, SK_x, SK_y, SK_cross, current_RAW_axis, lowerBound, upperBound, samplesPerTransform, fftsPerIntegration, TBIN, (file_index+1))
 
 def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransform, fftsPerIntegration, lowerBound, upperBound, plot_color = 'black'):
     """
@@ -760,14 +707,7 @@ def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransfor
 ################################################################################
 
 if __name__ == "__main__":
-    global Plotted_Bank, Plotted_Node
-    global node_Frequency_Ranges, node_spectra_storage
-    global FILE_COUNT_INDICATOR, TBIN, Polarization_Plot, colorbar4, colorbar5
-    global most_possible_files_read, numberOfNodes, numberOfBanks
-    global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER, PFA_Nita
-    global OBSERVATION_IS_RUNNING, desiredFrequencyResolution, desiredTimeResolution
-    #GBT - 6 hours; 20s files
-    #global BANK_OFFSET
+
     most_possible_files_read = 60
 
     colorbar4 = 0
@@ -781,7 +721,7 @@ if __name__ == "__main__":
     #User input
     samplesPerTransform = 16
     fftsPerIntegration = 50
-
+    TOTAL_RACKS = 4
     OBSNCHAN = 64
     dualPolarization = 2
     numberOfNodes = 8
