@@ -351,6 +351,8 @@ def press(event):
     global FILE_COUNT_INDICATOR, TBIN, BANK_OFFSET, numberOfNodes, numberOfBanks
     global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER
     global OBSERVATION_IS_RUNNING, PROGRAM_IS_RUNNING
+    global CHECKING_BANK, CHECKING_NODE, ACTIVE_COMPUTE_NODES
+
     sys.stdout.flush()
     plt.pause(0.1)
 
@@ -370,7 +372,7 @@ def press(event):
                     plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
                 else:
                     plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
-            axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "{0..7} Spectrum (X)")
+            axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "* Spectrum (X)")
 
         else:
             for j in range(numberOfNodes):
@@ -378,7 +380,7 @@ def press(event):
                     plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
                 else:
                     plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
-            axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "{0..7} Spectrum (Y)")
+            axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "* Spectrum (Y)")
         plt.pause(0.25)
 
     if event.key == 'up':
@@ -405,26 +407,49 @@ def press(event):
 
     #spectral flip for seemingly opposite increment on nodes
     if event.key == 'right':
-        Plotted_Node -= 1
-        if (Plotted_Node < 0):
-            Plotted_Node = (numberOfNodes-1)
-        clear_full_spectrum()
-        clear_node_plots()
-        for j in range(numberOfNodes):
-            if (j!=Plotted_Node):
-                plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
-        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 0, :], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 1, :], FILE_COUNT_INDICATOR+1)
+        CHECKING_NODE -= 1
+        if (CHECKING_BANK == 1):
+            if (CHECKING_NODE < 0):
+                CHECKING_NODE = numberOfNodes
+        else:
+            if (CHECKING_NODE < 0):
+                CHECKING_NODE = numberOfNodes - 1
+
+        if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
+            Plotted_Node -= 1
+            if (Plotted_Node < 0):
+                Plotted_Node = (numberOfNodes-1)
+            clear_full_spectrum()
+            clear_node_plots()
+            for j in range(numberOfNodes):
+                if (j!=Plotted_Node):
+                    plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
+            plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 0, :], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 1, :], FILE_COUNT_INDICATOR+1)
+        else:
+            clear_full_spectrum()
 
     if event.key == 'left':
-        Plotted_Node += 1
-        if (Plotted_Node > (numberOfNodes-1)):
-            Plotted_Node = 0
-        clear_full_spectrum()
-        clear_node_plots()
-        for j in range(numberOfNodes):
-            if (j!=Plotted_Node):
-                plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
-        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 0, :], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 1, :], FILE_COUNT_INDICATOR+1)
+        CHECKING_NODE += 1
+        if (CHECKING_BANK == 1):
+            if (CHECKING_NODE > numberOfNodes):
+                CHECKING_NODE = 0
+        else:
+            if (CHECKING_NODE > (numberOfNodes - 1)):
+                CHECKING_NODE = 0
+
+        if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
+            Plotted_Node += 1
+            if (Plotted_Node > (numberOfNodes-1)):
+                Plotted_Node = 0
+            clear_full_spectrum()
+            clear_node_plots()
+            for j in range(numberOfNodes):
+                if (j!=Plotted_Node):
+                    plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
+            plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 0, :], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 1, :], FILE_COUNT_INDICATOR+1)
+
+        else:
+            clear_full_spectrum()
 
     plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
@@ -486,21 +511,21 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     global SESSION_IDENTIFIER, desiredFrequencyResolution, desiredTimeResolution
     global Plotted_Bank, Plotted_Node, colorbar4, colorbar5, PFA_Nita, sk_lower_threshold, sk_upper_threshold
 
-    axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "{0..7} Spectrum (X)")
+    axis1_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node][0]) + "* Spectrum (X)")
     axis1_desired.plot(current_axis, 10*np.log10(bandPass_x), color = 'red')
     axis1_desired.set_ylabel("Power (dB)")
     axis1_desired.set_xlabel("Frequency (MHz)")
     axis1_desired.margins(x=0)
 
     axis2_desired.clear()
-    axis2_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: X")
+    axis2_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectrum: X")
     axis2_desired.set_xlabel("Frequency (MHz)")
     axis2_desired.set_ylabel("Power (dB)")
     axis2_desired.margins(x=0)
     axis2_desired.plot(current_axis, 10*np.log10(bandPass_x), color = 'C0')
 
     axis3_desired.clear()
-    axis3_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: Y")
+    axis3_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectrum: Y")
     axis3_desired.set_xlabel("Frequency (MHz)")
     axis3_desired.set_ylabel("Power (dB)")
     axis3_desired.margins(x=0)
@@ -512,7 +537,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis4_desired.set_xlabel("Frequency (MHz)")
     axis4_desired.set_yticks([0,1])
     axis4_desired.set_yticklabels(["Now", "~Hr Ago"])
-    axis4_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: X")
+    axis4_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Waterfall: X")
     if (colorbar4==0):
         colorbar4 = plt.colorbar(im4, cax=cax4, orientation = 'vertical')
         colorbar4.set_label("Power (dB)")
@@ -525,7 +550,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     divider5 = make_axes_locatable(axis5_desired)
     cax5 = divider5.append_axes('right', size = '5%', pad = 0.05)
     axis5_desired.set_xlabel("Frequency (MHz)")
-    axis5_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: Y")
+    axis5_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Waterfall: Y")
     axis5_desired.set_yticks([0,1])
     axis5_desired.set_yticklabels(["Now", "~Hr Ago"])
     if (colorbar5==0):
@@ -538,7 +563,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     axis6_desired.clear()
     axis6_desired.plot(current_axis, SK_x, color = 'C0')
-    axis6_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: X")
+    axis6_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectral Kurtosis: X")
     axis6_desired.margins(x=0)
     axis6_desired.set_ylim(-0.5, 5)
     axis6_desired.axhline(y=sk_upper_threshold, color = 'y')
@@ -560,7 +585,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
 
     axis7_desired.clear()
     axis7_desired.plot(current_axis, SK_y, color = 'C0')
-    axis7_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Y")
+    axis7_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectral Kurtosis: Y")
     axis7_desired.margins(x=0)
     axis7_desired.set_ylim(-0.5, 5)
     axis7_desired.axhline(y=sk_upper_threshold, color = 'y')
@@ -582,14 +607,14 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     # Cross Spectrum and SK of cross spectrum
     axis8_desired.clear()
     axis8_desired.plot(current_axis, 10*np.log10(bandPass_cross), color = 'C0')
-    axis8_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Cross-Spectrum")
+    axis8_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Cross-Spectrum")
     axis8_desired.margins(x=0)
     axis8_desired.set_xlabel("Frequency (MHz)")
     axis8_desired.set_ylabel("Power (dB)")
 
     axis9_desired.clear()
     axis9_desired.plot(current_axis, SK_cross, color = 'C0')
-    axis9_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Cross-Spectrum")
+    axis9_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectral Kurtosis: Cross-Spectrum")
     axis9_desired.margins(x=0)
     axis9_desired.set_ylim(0, 5)
     axis9_desired.set_xlabel("Frequency (MHz)")
@@ -695,11 +720,11 @@ if __name__ == "__main__":
     global Plotted_Bank, Plotted_Node
     global node_Frequency_Ranges, node_spectra_storage
     global FILE_COUNT_INDICATOR, TBIN, Polarization_Plot, colorbar4, colorbar5
-    global most_possible_files_read, BANK_OFFSET, numberOfNodes, numberOfBanks
+    global most_possible_files_read, numberOfNodes, numberOfBanks
     global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER, PFA_Nita
     global OBSERVATION_IS_RUNNING, desiredFrequencyResolution, desiredTimeResolution
     #GBT - 6 hours; 20s files
-
+    #global BANK_OFFSET
     most_possible_files_read = 60
 
     colorbar4 = 0
@@ -716,6 +741,7 @@ if __name__ == "__main__":
 
     OBSNCHAN = 64
     dualPolarization = 2
+    numberOfNodes = 8
 
     sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration, PFA_Nita)
 
@@ -730,14 +756,14 @@ if __name__ == "__main__":
         ### Shell commands
 
         #Find the nodes
-        p = subprocess.check_output(['cat', '/home/obs/triggers/hosts_running'])
-        p = p.split()
-        BANK_OFFSET = int(p[0][-2])
-        numberOfBanks = (int(p[len(p)-1][-2]) - BANK_OFFSET) + 1
-        numberOfNodes = int(len(p)/numberOfBanks)
+        p = subprocess.check_output(['cat', '/home/obs/triggers/hosts_running']).replace('blc','').split()
+        ACTIVE_COMPUTE_NODES = np.array(p).reshape(-1, numberOfNodes)
+        numberOfBanks = ACTIVE_COMPUTE_NODES.shape[0]
+        CHECKING_BANK = int(ACTIVE_COMPUTE_NODES[0,0][0])
+        CHECKING_NODE = int(ACTIVE_COMPUTE_NODES[0,0][1])
 
         #Find the session
-        string_for_session = 'ls -trd /mnt_blc' + p[0][-2:] + '/datax/dibas/* | tail -1'
+        string_for_session = 'ls -trd /mnt_blc' + ACTIVE_COMPUTE_NODES[0,0] + '/datax/dibas/* | tail -1'
         SESSION_IDENTIFIER = subprocess.check_output(string_for_session, shell = True)[23:-1]
 
         ########################
@@ -754,38 +780,38 @@ if __name__ == "__main__":
 
         # Full observational range
         axis1_desired = plt.subplot2grid((19,15), (0,3), colspan=9, rowspan=3)
-        axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "{0..7} Spectrum (X)")
+        axis1_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node][0]) + "* Spectrum (X)")
         axis1_desired.set_ylabel("Power (dB)")
         axis1_desired.set_xlabel("Frequency (MHz)")
         axis1_desired.margins(x=0)
 
         # Spectra of compute node
         axis2_desired = plt.subplot2grid((19,15), (5,3), colspan=4, rowspan=3)
-        axis2_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: X")
+        axis2_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectrum: X")
         axis2_desired.set_xlabel("Frequency (MHz)")
         axis2_desired.set_ylabel("Power (dB)")
         axis2_desired.margins(x=0)
 
         axis3_desired = plt.subplot2grid((19,15), (5, 8), colspan=4, rowspan=3)
-        axis3_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectrum: Y")
+        axis3_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectrum: Y")
         axis3_desired.set_xlabel("Frequency (MHz)")
         axis3_desired.set_ylabel("Power (dB)")
         axis3_desired.margins(x=0)
 
         # Waterfall of compute node
         axis4_desired = plt.subplot2grid((19,15), (0, 0), colspan=2, rowspan=19)
-        axis4_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: X")
+        axis4_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Waterfall: X")
         axis4_desired.set_xlabel("Frequency (MHz)")
         axis4_desired.margins(x=0)
 
         axis5_desired = plt.subplot2grid((19,15), (0, 13), colspan=2, rowspan=19)
-        axis5_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Waterfall: Y")
+        axis5_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Waterfall: Y")
         axis5_desired.set_xlabel("Frequency (MHz)")
         axis5_desired.margins(x=0)
 
         # Spectral Kurtosis of compute node
         axis6_desired = plt.subplot2grid((19,15), (10,3), colspan=4, rowspan=3)
-        axis6_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: X")
+        axis6_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectral Kurtosis: X")
         axis6_desired.margins(x=0)
         axis6_desired.set_ylim(-0.5, 5)
         axis6_desired.set_xlabel("Frequency (MHz)")
@@ -800,7 +826,7 @@ if __name__ == "__main__":
         axis6_desired_twin.margins(x=0)
 
         axis7_desired = plt.subplot2grid((19,15), (10, 8), colspan=4, rowspan=3)
-        axis7_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Y")
+        axis7_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectral Kurtosis: Y")
         axis7_desired.margins(x=0)
         axis7_desired.set_ylim(-0.5, 5)
         axis7_desired.set_xlabel("Frequency (MHz)")
@@ -816,13 +842,13 @@ if __name__ == "__main__":
 
         # Cross Spectrum and SK of cross spectrum
         axis8_desired = plt.subplot2grid((19,15), (15, 3), colspan=4, rowspan=3)
-        axis8_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Cross-Spectrum")
+        axis8_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Cross-Spectrum")
         axis8_desired.margins(x=0)
         axis8_desired.set_xlabel("Frequency (MHz)")
         axis8_desired.set_ylabel("Power (dB)")
 
         axis9_desired = plt.subplot2grid((19,15), (15, 8), colspan=4, rowspan=3)
-        axis9_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + str(Plotted_Node) + " Spectral Kurtosis: Cross-Spectrum")
+        axis9_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectral Kurtosis: Cross-Spectrum")
         axis9_desired.margins(x=0)
         axis9_desired.set_ylim(0, 5)
         axis9_desired.set_xlabel("Frequency (MHz)")
@@ -837,9 +863,8 @@ if __name__ == "__main__":
         while(OBSERVATION_IS_RUNNING):
 
             for bank in range(numberOfBanks):
-                bank = bank + BANK_OFFSET
                 for node in range(numberOfNodes):
-                    test_Number_Files_String = 'ls /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | wc -l'
+                    test_Number_Files_String = 'ls /mnt_blc' + str(ACTIVE_COMPUTE_NODES[bank, node]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank) + str(node) + '/*.raw | wc -l'
                     waiting_for_written_file = True
 
                     while(waiting_for_written_file):
@@ -853,7 +878,7 @@ if __name__ == "__main__":
                     if (OBSERVATION_IS_RUNNING == False):
                         break
 
-                    test_input_file_string = 'ls -trd /mnt_blc' + str(bank) + str(node) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank - BANK_OFFSET) + str(node) + '/*.raw | tail -2 | head -1'
+                    test_input_file_string = 'ls -trd /mnt_blc' + str(ACTIVE_COMPUTE_NODES[bank, node]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank) + str(node) + '/*.raw | tail -2 | head -1'
                     inputFileName = subprocess.check_output(test_input_file_string, shell = True)[:-1]
                     readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
                     currentBytesPassed = 0
@@ -867,16 +892,16 @@ if __name__ == "__main__":
                     dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
                     NDIMsmall = samplesPerTransform * fftsPerIntegration
 
-                    temp_spec_x, temp_spec_y, temp_spec_cross, node_Frequency_Ranges[bank - BANK_OFFSET, node, 0], node_Frequency_Ranges[bank - BANK_OFFSET, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
+                    temp_spec_x, temp_spec_y, temp_spec_cross, node_Frequency_Ranges[bank, node, 0], node_Frequency_Ranges[bank, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
 
-                    node_spectra_storage[:, bank - BANK_OFFSET, node, 0, :, :, :] = np.insert(node_spectra_storage[:, bank - BANK_OFFSET, node, 0, :, :, :], 0, temp_spec_x, axis = 0)[:-1, :, :, :]
-                    node_spectra_storage[:, bank - BANK_OFFSET, node, 1, :, :, :] = np.insert(node_spectra_storage[:, bank - BANK_OFFSET, node, 1, :, :, :], 0, temp_spec_y, axis = 0)[:-1, :, :, :]
-                    node_spectra_storage[:, bank - BANK_OFFSET, node, 2, :, :, :] = np.insert(node_spectra_storage[:, bank - BANK_OFFSET, node, 2, :, :, :], 0, temp_spec_cross, axis = 0)[:-1, :, :, :]
+                    node_spectra_storage[:, bank, node, 0, :, :, :] = np.insert(node_spectra_storage[:, bank, node, 0, :, :, :], 0, temp_spec_x, axis = 0)[:-1, :, :, :]
+                    node_spectra_storage[:, bank, node, 1, :, :, :] = np.insert(node_spectra_storage[:, bank, node, 1, :, :, :], 0, temp_spec_y, axis = 0)[:-1, :, :, :]
+                    node_spectra_storage[:, bank, node, 2, :, :, :] = np.insert(node_spectra_storage[:, bank, node, 2, :, :, :], 0, temp_spec_cross, axis = 0)[:-1, :, :, :]
 
-                    x_temp_indices = find_SK_threshold_hits(node_spectra_storage[0, bank - BANK_OFFSET, node, 0, :, :, :], fftsPerIntegration)
-                    np.add.at(THRESHOLD_PERCENTAGES[bank - BANK_OFFSET, node, 0, :], x_temp_indices, 1)
-                    y_temp_indices = find_SK_threshold_hits(node_spectra_storage[0, bank - BANK_OFFSET, node, 1, :, :, :], fftsPerIntegration)
-                    np.add.at(THRESHOLD_PERCENTAGES[bank - BANK_OFFSET, node, 1, :], y_temp_indices, 1)
+                    x_temp_indices = find_SK_threshold_hits(node_spectra_storage[0, bank, node, 0, :, :, :], fftsPerIntegration)
+                    np.add.at(THRESHOLD_PERCENTAGES[bank, node, 0, :], x_temp_indices, 1)
+                    y_temp_indices = find_SK_threshold_hits(node_spectra_storage[0, bank, node, 1, :, :, :], fftsPerIntegration)
+                    np.add.at(THRESHOLD_PERCENTAGES[bank, node, 1, :], y_temp_indices, 1)
 
                     del readIn
 
