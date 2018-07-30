@@ -348,10 +348,10 @@ def press(event):
     global Polarization_Plot
     global node_Frequency_Ranges, node_spectra_storage
     global THRESHOLD_PERCENTAGES
-    global FILE_COUNT_INDICATOR, TBIN, BANK_OFFSET, numberOfNodes, numberOfBanks
+    global FILE_COUNT_INDICATOR, TBIN, numberOfNodes, numberOfBanks
     global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER
     global OBSERVATION_IS_RUNNING, PROGRAM_IS_RUNNING
-    global CHECKING_BANK, CHECKING_NODE, ACTIVE_COMPUTE_NODES
+    global CHECKING_BANK, CHECKING_NODE, ACTIVE_COMPUTE_NODES, PLOTTING_A_COMPUTE_NODE
 
     sys.stdout.flush()
     plt.pause(0.1)
@@ -364,46 +364,78 @@ def press(event):
         OBSERVATION_IS_RUNNING = False
 
     if event.key == 'x':
-        Polarization_Plot += 1
-        del axis1_desired.lines[:]
-        if (Polarization_Plot%2 == 0):
-            for j in range(numberOfNodes):
-                if(j!=Plotted_Node):
-                    plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
-                else:
-                    plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
-            axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "* Spectrum (X)")
+        if (PLOTTING_A_COMPUTE_NODE):
+            Polarization_Plot += 1
+            del axis1_desired.lines[:]
+            if (Polarization_Plot%2 == 0):
+                for j in range(numberOfNodes):
+                    if(j!=Plotted_Node):
+                        plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
+                    else:
+                        plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
+                axis1_desired.set_title("blc" + str(CHECKING_BANK) + "* Spectrum (X)")
 
-        else:
-            for j in range(numberOfNodes):
-                if(j!=Plotted_Node):
-                    plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
-                else:
-                    plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
-            axis1_desired.set_title("blc" + str(Plotted_Bank + BANK_OFFSET) + "* Spectrum (Y)")
-        plt.pause(0.25)
+            else:
+                for j in range(numberOfNodes):
+                    if(j!=Plotted_Node):
+                        plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
+                    else:
+                        plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
+                axis1_desired.set_title("blc" + str(CHECKING_BANK) + "* Spectrum (Y)")
+
+            plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
     if event.key == 'up':
-        Plotted_Bank += 1
-        if (Plotted_Bank > (numberOfBanks-1)):
-            Plotted_Bank = 0
-        clear_full_spectrum()
-        clear_node_plots()
-        for j in range(numberOfNodes):
-            if (j!=Plotted_Node):
-                plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
-        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 0, :], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 1, :], FILE_COUNT_INDICATOR+1)
+        if (CHECKING_BANK == 1 and CHECKING_NODE == numberOfNodes):
+            CHECKING_NODE = numberOfNodes - 1
+
+        CHECKING_BANK += 1
+        if (CHECKING_BANK > (numberOfBanks - 1)):
+            CHECKING_BANK = 0
+
+        if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
+            PLOTTING_A_COMPUTE_NODE = True
+            Plotted_Bank += 1
+            if (Plotted_Bank > (numberOfBanks-1)):
+                Plotted_Bank = 0
+            clear_full_spectrum()
+            clear_node_plots()
+            for j in range(numberOfNodes):
+                if (j!=Plotted_Node):
+                    plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
+            plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 0, :], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 1, :], FILE_COUNT_INDICATOR+1)
+            plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
+        else:
+            PLOTTING_A_COMPUTE_NODE = False
+            clear_node_plots()
+            clear_full_spectrum()
+            plt.suptitle("Not currently collecting data from blc" + str(CHECKING_BANK) + str(CHECKING_NODE))
 
     if event.key == 'down':
-        Plotted_Bank -= 1
-        if (Plotted_Bank < 0):
-            Plotted_Bank = (numberOfBanks -1)
-        clear_full_spectrum()
-        clear_node_plots()
-        for j in range(numberOfNodes):
-            if (j!=Plotted_Node):
-                plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
-        plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 0, :], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 1, :], FILE_COUNT_INDICATOR+1)
+        if (CHECKING_BANK == 1 and CHECKING_NODE == numberOfNodes):
+            CHECKING_NODE = numberOfNodes - 1
+
+        CHECKING_BANK -= 1
+        if (CHECKING_BANK < 0):
+            CHECKING_BANK = (numberOfBanks - 1)
+
+        if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
+            PLOTTING_A_COMPUTE_NODE = True
+            Plotted_Bank -= 1
+            if (Plotted_Bank < 0):
+                Plotted_Bank = (numberOfBanks -1)
+            clear_full_spectrum()
+            clear_node_plots()
+            for j in range(numberOfNodes):
+                if (j!=Plotted_Node):
+                    plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
+            plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 0, :], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 1, :], FILE_COUNT_INDICATOR+1)
+            plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
+        else:
+            PLOTTING_A_COMPUTE_NODE = False
+            clear_node_plots()
+            clear_full_spectrum()
+            plt.suptitle("Not currently collecting data from blc" + str(CHECKING_BANK) + str(CHECKING_NODE))
 
     #spectral flip for seemingly opposite increment on nodes
     if event.key == 'right':
@@ -416,6 +448,7 @@ def press(event):
                 CHECKING_NODE = numberOfNodes - 1
 
         if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
+            PLOTTING_A_COMPUTE_NODE = True
             Plotted_Node -= 1
             if (Plotted_Node < 0):
                 Plotted_Node = (numberOfNodes-1)
@@ -425,8 +458,13 @@ def press(event):
                 if (j!=Plotted_Node):
                     plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
             plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 0, :], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 1, :], FILE_COUNT_INDICATOR+1)
+            plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
+
         else:
+            PLOTTING_A_COMPUTE_NODE = False
+            clear_node_plots()
             clear_full_spectrum()
+            plt.suptitle("Not currently collecting data from blc" + str(CHECKING_BANK) + str(CHECKING_NODE))
 
     if event.key == 'left':
         CHECKING_NODE += 1
@@ -438,6 +476,7 @@ def press(event):
                 CHECKING_NODE = 0
 
         if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
+            PLOTTING_A_COMPUTE_NODE = True
             Plotted_Node += 1
             if (Plotted_Node > (numberOfNodes-1)):
                 Plotted_Node = 0
@@ -447,11 +486,15 @@ def press(event):
                 if (j!=Plotted_Node):
                     plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
             plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 0, :], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 1, :], FILE_COUNT_INDICATOR+1)
+            plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
         else:
+            PLOTTING_A_COMPUTE_NODE = False
+            clear_node_plots()
             clear_full_spectrum()
+            plt.suptitle("Not currently collecting data from blc" + str(CHECKING_BANK) + str(CHECKING_NODE))
 
-    plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
+    plt.pause(0.25)
 
 ######## Non - interactive
 
@@ -761,6 +804,7 @@ if __name__ == "__main__":
         numberOfBanks = ACTIVE_COMPUTE_NODES.shape[0]
         CHECKING_BANK = int(ACTIVE_COMPUTE_NODES[0,0][0])
         CHECKING_NODE = int(ACTIVE_COMPUTE_NODES[0,0][1])
+        PLOTTING_A_COMPUTE_NODE = True
 
         #Find the session
         string_for_session = 'ls -trd /mnt_blc' + ACTIVE_COMPUTE_NODES[0,0] + '/datax/dibas/* | tail -1'
@@ -915,16 +959,18 @@ if __name__ == "__main__":
             if (FILE_COUNT_INDICATOR>0):
                 clear_full_spectrum()
 
-            ## Done with spectra collection; plot
-            for i in range(numberOfNodes):
-                if (i!=Plotted_Node):
-                    plot_otherNodes(node_spectra_storage[0, Plotted_Bank, i, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, i, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, i, 0], node_Frequency_Ranges[Plotted_Bank, i, 1])
-
             FILE_COUNT_INDICATOR += 1
 
-            plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 0, :], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 1, :], FILE_COUNT_INDICATOR)
+            if (PLOTTING_A_COMPUTE_NODE):
+                ## Done with spectra collection; plot
+                for i in range(numberOfNodes):
+                    if (i!=Plotted_Node):
+                        plot_otherNodes(node_spectra_storage[0, Plotted_Bank, i, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, i, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, i, 0], node_Frequency_Ranges[Plotted_Bank, i, 1])
 
-            plt.pause(0.25)
+
+                plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 0, :], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 1, :], FILE_COUNT_INDICATOR)
+
+            plt.pause(0.2)
             print(datetime.now().strftime('%H:%M:%S'))
 
             if (FILE_COUNT_INDICATOR%most_possible_files_read==0):
@@ -944,7 +990,7 @@ if __name__ == "__main__":
 
                         ###### Set up plot
                         export_fig = plt.figure()
-                        plt.suptitle("blc" + str(export_bank + BANK_OFFSET) + str(export_node) + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
+                        plt.suptitle("blc" + str(ACTIVE_COMPUTE_NODES[export_bank,export_node]) + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
                         export_axis1 = plt.subplot2grid((14,8), (0, 0), colspan=2, rowspan=14)
                         export_axis1.set_title("X")
@@ -1023,7 +1069,7 @@ if __name__ == "__main__":
 
                 ###### Set up plot
                 export_fig = plt.figure()
-                plt.suptitle("blc" + str(export_bank + BANK_OFFSET) + str(export_node) + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
+                plt.suptitle("blc" + str(ACTIVE_COMPUTE_NODES[export_bank,export_node]) + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
                 export_axis1 = plt.subplot2grid((14,8), (0, 0), colspan=2, rowspan=14)
                 export_axis1.set_title("X")
@@ -1095,14 +1141,14 @@ if __name__ == "__main__":
                 export_fig = plt.figure()
 
                 export_axis1 = plt.subplot2grid((2,1), (0, 0))
-                export_axis1.set_title("blc" + str(export_bank + BANK_OFFSET) + str(export_node) + " X | Percent RFI")
+                export_axis1.set_title("blc" + str(ACTIVE_COMPUTE_NODES[export_bank,export_node]) + " X | Percent RFI")
                 export_axis1.set_xlabel("Frequency (MHz)")
                 export_axis1.set_ylabel("%")
                 export_axis1.margins(x=0)
                 export_axis1.plot(export_current_axis, 100*(export_RFI_x/(FILE_COUNT_INDICATOR + 1)))
 
                 export_axis2 = plt.subplot2grid((2,1), (1, 0))
-                export_axis2.set_title("blc" + str(export_bank + BANK_OFFSET) + str(export_node) + " Y | Percent RFI")
+                export_axis2.set_title("blc" + str(ACTIVE_COMPUTE_NODES[export_bank,export_node]) + " Y | Percent RFI")
                 export_axis2.set_xlabel("Frequency (MHz)")
                 export_axis2.set_ylabel("%")
                 export_axis2.margins(x=0)
@@ -1116,9 +1162,7 @@ if __name__ == "__main__":
 
         pp.close()
 
-
         startTime = datetime.now().strftime('%H:%M')
-
 
         if (raw_input("New Observation? (y/n): ") == 'n'):
             plt.close()
