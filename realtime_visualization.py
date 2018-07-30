@@ -836,21 +836,25 @@ if __name__ == "__main__":
         plt.connect('key_press_event', press)
 
         OBSERVATION_IS_RUNNING = True
-        #START_NUMBER_FILES = int(subprocess.check_output('ls /mnt_blc' + str(0 + BANK_OFFSET) + '0/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(0 + BANK_OFFSET) + '0/*.raw | wc -l', shell=True)[:-1])
         FILE_COUNT_INDICATOR = 0
         startTime = datetime.now().strftime('%H:%M')
+        START_NUMBER_FILES = int(subprocess.check_output('ls /mnt_blc' + str(ACTIVE_COMPUTE_NODES[0,0]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP00/*.raw | wc -l', shell=True)[:-1])
+
 
         while(OBSERVATION_IS_RUNNING):
-
+            endOfObservationCounter = 0
             for bank in range(numberOfBanks):
                 for node in range(numberOfNodes):
                     test_Number_Files_String = 'ls /mnt_blc' + str(ACTIVE_COMPUTE_NODES[bank, node]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank) + str(node) + '/*.raw | wc -l'
                     waiting_for_written_file = True
 
                     while(waiting_for_written_file):
-                        if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > (FILE_COUNT_INDICATOR + 1)):
+                        if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > (START_NUMBER_FILES + 1)):
                             waiting_for_written_file = False
                         else:
+                            endOfObservationCounter += 1
+                            if (endOfObservationCounter == 1800):
+                                OBSERVATION_IS_RUNNING = False
                             if (OBSERVATION_IS_RUNNING == False):
                                 break
                             plt.pause(2)
@@ -891,6 +895,8 @@ if __name__ == "__main__":
                     break
             if (OBSERVATION_IS_RUNNING == False):
                 break
+
+            START_NUMBER_FILES = int(subprocess.check_output('ls /mnt_blc' + str(ACTIVE_COMPUTE_NODES[0,0]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP00/*.raw | wc -l', shell=True)[:-1]) - 1
 
             if (FILE_COUNT_INDICATOR>0):
                 clear_full_spectrum()
@@ -998,9 +1004,9 @@ if __name__ == "__main__":
             for export_node in range(numberOfNodes):
 
                 #### Set up data
-                export_waterfall_spectrum_x = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 0, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
-                export_waterfall_spectrum_y = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 1, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
-                export_waterfall_spectrum_cross = np.flip(np.sum(node_spectra_storage[:, export_bank, export_node, 2, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
+                export_waterfall_spectrum_x = np.flip(np.sum(node_spectra_storage[:FILE_COUNT_INDICATOR%most_possible_files_read, export_bank, export_node, 0, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
+                export_waterfall_spectrum_y = np.flip(np.sum(node_spectra_storage[:FILE_COUNT_INDICATOR%most_possible_files_read, export_bank, export_node, 1, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
+                export_waterfall_spectrum_cross = np.flip(np.sum(node_spectra_storage[:FILE_COUNT_INDICATOR%most_possible_files_read, export_bank, export_node, 2, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
                 ########
 
                 ###### Set up plot
