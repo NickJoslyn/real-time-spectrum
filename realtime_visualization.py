@@ -13,6 +13,7 @@ from scipy import special
 from scipy import optimize
 from scipy import signal
 
+from argparse import ArgumentParser
 from matplotlib.colors import LogNorm
 from matplotlib.collections import LineCollection
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -369,22 +370,22 @@ def press(event):
             Polarization_Plot += 1
             del axis1_desired.lines[:]
             if (Polarization_Plot%2 == 0):
+                plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :])
                 for j in range(numberOfNodes):
                     if(j!=Plotted_Node):
                         plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
                     else:
                         plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
                 axis1_desired.set_title("blc" + str(CHECKING_BANK) + "* Spectrum (X)")
-                plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :])
 
             else:
+                plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :], 'Y')
                 for j in range(numberOfNodes):
                     if(j!=Plotted_Node):
                         plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
                     else:
                         plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
                 axis1_desired.set_title("blc" + str(CHECKING_BANK) + "* Spectrum (Y)")
-                plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :], 'Y')
 
             plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
@@ -396,6 +397,8 @@ def press(event):
         if (CHECKING_BANK > (TOTAL_RACKS - 1)):
             CHECKING_BANK = 0
 
+        plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :])
+
         if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
             PLOTTING_A_COMPUTE_NODE = True
             Plotted_Bank = np.where(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))[0][0]
@@ -412,9 +415,6 @@ def press(event):
             clear_node_plots()
             clear_full_spectrum()
             plt.suptitle("Not currently collecting data from blc" + str(CHECKING_BANK) + str(CHECKING_NODE))
-
-        plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :])
-
 
 
     if event.key == 'down':
@@ -425,6 +425,8 @@ def press(event):
         if (CHECKING_BANK < 0):
             CHECKING_BANK = (TOTAL_RACKS - 1)
 
+        plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :])
+
         if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
             PLOTTING_A_COMPUTE_NODE = True
             Plotted_Bank = np.where(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))[0][0]
@@ -441,9 +443,6 @@ def press(event):
             clear_node_plots()
             clear_full_spectrum()
             plt.suptitle("Not currently collecting data from blc" + str(CHECKING_BANK) + str(CHECKING_NODE))
-
-        plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :])
-
 
 
     #spectral flip for seemingly opposite increment on nodes
@@ -456,6 +455,8 @@ def press(event):
             if (CHECKING_NODE < 0):
                 CHECKING_NODE = numberOfNodes - 1
 
+        plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :])
+
         if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
             PLOTTING_A_COMPUTE_NODE = True
             Plotted_Bank = np.where(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))[0][0]
@@ -473,9 +474,6 @@ def press(event):
             clear_node_plots()
             clear_full_spectrum()
             plt.suptitle("Not currently collecting data from blc" + str(CHECKING_BANK) + str(CHECKING_NODE))
-
-        plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :])
-
 
     if event.key == 'left':
         CHECKING_NODE += 1
@@ -486,6 +484,8 @@ def press(event):
             if (CHECKING_NODE > (numberOfNodes - 1)):
                 CHECKING_NODE = 0
 
+        plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :])
+
         if (np.any(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))):
             PLOTTING_A_COMPUTE_NODE = True
             Plotted_Bank = np.where(ACTIVE_COMPUTE_NODES == str(CHECKING_BANK) + str(CHECKING_NODE))[0][0]
@@ -503,7 +503,6 @@ def press(event):
             clear_node_plots()
             clear_full_spectrum()
             plt.suptitle("Not currently collecting data from blc" + str(CHECKING_BANK) + str(CHECKING_NODE))
-        plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :])
 
     plt.pause(0.25)
 
@@ -714,7 +713,7 @@ def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransfor
 
     current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
 
-    plot_real_time_visualization_general(current_RAW_axis, bandPass_x)
+    plot_real_time_visualization_general(current_RAW_axis, bandPass_x, plot_color)
 
 def plot_full_bandpass(dataForBandpass, bank_currently_highlighting, range_information, polarization_title = 'X'):
     global axis0_desired, numberOfBanks, numberOfNodes
@@ -742,24 +741,39 @@ def plot_full_bandpass(dataForBandpass, bank_currently_highlighting, range_infor
 
 if __name__ == "__main__":
 
-    most_possible_files_read = 60
-    TBIN = 0
+    parser = ArgumentParser(description="Produces real-time spectral information display. Creates summary waterfall and RFI pdfs.")
+    parser.add_argument('-f', action='store',  default=60, dest='files_per_export', type=int,
+                        help="Files Per Export. The number of raw files analyzed before exporting waterfall plots. Default: 60")
+    parser.add_argument('-b', action='store',  default=8, dest='nodes_in_bank', type=int,
+                        help="Nodes per bank. Program assumes total number of compute nodes is multiple of this value. Default: 8 (unlikely to change from default)")
+    parser.add_argument('-c', action='store',  default=64, dest='channels_per_node', type=int,
+                        help="Channels per node. Default: 64 (standard for GBT - Parkes is different)")
+    parser.add_argument('-s', action='store',  default=16, dest='samples_per_transform', type=int,
+                        help="Time Samples per FFT. Default: 16 (Gives 0.183MHz resolution)")
+    parser.add_argument('-i', action='store',  default=50, dest='ffts_per_integration', type=int,
+                        help="Number FFTs to accumulate. Default: 50 (Gives 0.273ms integration time)")
+
+    parse_args = parser.parse_args()
+
+    most_possible_files_read = parse_args.files_per_export
+    numberOfNodes = parse_args.nodes_in_bank
+    OBSNCHAN = parse_args.channels_per_node
+    samplesPerTransform = parse_args.samples_per_transform
+    fftsPerIntegration = parse_args.ffts_per_integration
+
+    #Temps for initial plot, will be overwritten
     colorbar4 = 0
     colorbar5 = 0
-
     desiredTimeResolution = 0
     desiredFrequencyResolution = 0
 
+    # Standard 3sigma false alarm error rate
     PFA_Nita = 0.0013499
 
-    #command line args, with defaults
-    samplesPerTransform = 16
-    fftsPerIntegration = 50
+    # Adjust if the number of compute racks changes
     TOTAL_RACKS = 4
-    OBSNCHAN = 64
-    dualPolarization = 2
-    numberOfNodes = 8
 
+    # Gaussian limits for Spectral Kurtosis
     sk_lower_threshold, sk_upper_threshold = spectralKurtosis_thresholds(fftsPerIntegration, PFA_Nita)
 
     PROGRAM_IS_RUNNING = True
@@ -987,16 +1001,14 @@ if __name__ == "__main__":
 
             FILE_COUNT_INDICATOR += 1
 
+            plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], Plotted_Bank, node_Frequency_Ranges[:, :, :])
             if (PLOTTING_A_COMPUTE_NODE):
                 ## Done with spectra collection; plot
                 for i in range(numberOfNodes):
                     if (i!=Plotted_Node):
                         plot_otherNodes(node_spectra_storage[0, Plotted_Bank, i, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, i, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, i, 0], node_Frequency_Ranges[Plotted_Bank, i, 1])
 
-
                 plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 0, :], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 1, :], FILE_COUNT_INDICATOR)
-
-            plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], Plotted_Bank, node_Frequency_Ranges[:, :, :])
 
             plt.pause(0.2)
             print(datetime.now().strftime('%H:%M:%S'))
