@@ -543,7 +543,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     """
 
     global axis1_desired, axis2_desired, axis3_desired, axis4_desired, axis5_desired, axis6_desired, axis7_desired, axis8_desired, axis9_desired
-    global axis6_desired_twin, axis7_desired_twin
+    global axis6_desired_twin, axis7_desired_twin, axis0_desired
     global SESSION_IDENTIFIER, desiredFrequencyResolution, desiredTimeResolution
     global Plotted_Bank, Plotted_Node, colorbar4, colorbar5, PFA_Nita, sk_lower_threshold, sk_upper_threshold
     global CURRENT_TIME_STAMP
@@ -700,7 +700,27 @@ def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransfor
 
     current_RAW_axis = np.linspace(lowerBound, upperBound, OBSNCHAN *samplesPerTransform)
 
-    plot_real_time_visualization_general(current_RAW_axis, bandPass_x, plot_color)
+    plot_real_time_visualization_general(current_RAW_axis, bandPass_x)
+
+def plot_full_bandpass(dataForBandpass, bank_currently_highlighting, range_information):
+    global axis0_desired, numberOfBanks, numberOfNodes
+
+    axis0_desired.clear()
+    axis0_desired.set_title("Full Frequency Range: (X)")
+    axis0_desired.set_ylabel("Power (dB)")
+    axis0_desired.set_xlabel("Frequency (MHz)")
+    axis0_desired.margins(x=0)
+
+    for eachBank in range(numberOfBanks):
+        for eachNode in range(numberOfNodes):
+            current_RAW_axis = np.linspace(range_information[eachBank, eachNode, 0], range_information[eachBank, eachNode, 1], OBSNCHAN *samplesPerTransform)
+            individualNode_data = np.flip(np.sum(dataForBandpass[eachBank, eachNode, :, :, :], 1),0).reshape(-1)
+            if (eachBank == bank_currently_highlighting):
+                axis0_desired.plot(current_RAW_axis, 10*np.log10(individualNode_data), color = 'red')
+            else:
+                axis0_desired.plot(current_RAW_axis, 10*np.log10(individualNode_data), color = 'black')
+
+
 
 ################################################################################
 #######################---Program---############################################
@@ -768,39 +788,46 @@ if __name__ == "__main__":
         plt.ion()
         plt.show()
 
-        # Full observational range
-        axis1_desired = plt.subplot2grid((19,15), (0,3), colspan=9, rowspan=3)
+        # Full observation range
+        axis0_desired = plt.subplot2grid((24,15), (0,3), colspan=9, rowspan=3)
+        axis0_desired.set_title("Full Frequency Range: (X)")
+        axis0_desired.set_ylabel("Power (dB)")
+        axis0_desired.set_xlabel("Frequency (MHz)")
+        axis0_desired.margins(x=0)
+
+        # Full bank range
+        axis1_desired = plt.subplot2grid((24,15), (5,3), colspan=9, rowspan=3)
         axis1_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node][0]) + "* Spectrum (X)")
         axis1_desired.set_ylabel("Power (dB)")
         axis1_desired.set_xlabel("Frequency (MHz)")
         axis1_desired.margins(x=0)
 
         # Spectra of compute node
-        axis2_desired = plt.subplot2grid((19,15), (5,3), colspan=4, rowspan=3)
+        axis2_desired = plt.subplot2grid((24,15), (10,3), colspan=4, rowspan=3)
         axis2_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectrum: X")
         axis2_desired.set_xlabel("Frequency (MHz)")
         axis2_desired.set_ylabel("Power (dB)")
         axis2_desired.margins(x=0)
 
-        axis3_desired = plt.subplot2grid((19,15), (5, 8), colspan=4, rowspan=3)
+        axis3_desired = plt.subplot2grid((24,15), (10, 8), colspan=4, rowspan=3)
         axis3_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectrum: Y")
         axis3_desired.set_xlabel("Frequency (MHz)")
         axis3_desired.set_ylabel("Power (dB)")
         axis3_desired.margins(x=0)
 
         # Waterfall of compute node
-        axis4_desired = plt.subplot2grid((19,15), (0, 0), colspan=2, rowspan=19)
+        axis4_desired = plt.subplot2grid((24,15), (0, 0), colspan=2, rowspan=24)
         axis4_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Waterfall: X")
         axis4_desired.set_xlabel("Frequency (MHz)")
         axis4_desired.margins(x=0)
 
-        axis5_desired = plt.subplot2grid((19,15), (0, 13), colspan=2, rowspan=19)
+        axis5_desired = plt.subplot2grid((24,15), (0, 13), colspan=2, rowspan=19)
         axis5_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Waterfall: Y")
         axis5_desired.set_xlabel("Frequency (MHz)")
         axis5_desired.margins(x=0)
 
         # Spectral Kurtosis of compute node
-        axis6_desired = plt.subplot2grid((19,15), (10,3), colspan=4, rowspan=3)
+        axis6_desired = plt.subplot2grid((24,15), (15,3), colspan=4, rowspan=3)
         axis6_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectral Kurtosis: X")
         axis6_desired.margins(x=0)
         axis6_desired.set_ylim(-0.5, 5)
@@ -815,7 +842,7 @@ if __name__ == "__main__":
         axis6_desired_twin.tick_params('y', colors='m')
         axis6_desired_twin.margins(x=0)
 
-        axis7_desired = plt.subplot2grid((19,15), (10, 8), colspan=4, rowspan=3)
+        axis7_desired = plt.subplot2grid((24,15), (15, 8), colspan=4, rowspan=3)
         axis7_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectral Kurtosis: Y")
         axis7_desired.margins(x=0)
         axis7_desired.set_ylim(-0.5, 5)
@@ -831,13 +858,13 @@ if __name__ == "__main__":
         axis7_desired_twin.margins(x=0)
 
         # Cross Spectrum and SK of cross spectrum
-        axis8_desired = plt.subplot2grid((19,15), (15, 3), colspan=4, rowspan=3)
+        axis8_desired = plt.subplot2grid((24,15), (20, 3), colspan=4, rowspan=3)
         axis8_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Cross-Spectrum")
         axis8_desired.margins(x=0)
         axis8_desired.set_xlabel("Frequency (MHz)")
         axis8_desired.set_ylabel("Power (dB)")
 
-        axis9_desired = plt.subplot2grid((19,15), (15, 8), colspan=4, rowspan=3)
+        axis9_desired = plt.subplot2grid((24,15), (20, 8), colspan=4, rowspan=3)
         axis9_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectral Kurtosis: Cross-Spectrum")
         axis9_desired.margins(x=0)
         axis9_desired.set_ylim(0, 5)
@@ -929,7 +956,7 @@ if __name__ == "__main__":
                     y_temp_indices = find_SK_threshold_hits(node_spectra_storage[0, bank, node, 1, :, :, :], fftsPerIntegration)
                     np.add.at(THRESHOLD_PERCENTAGES[bank, node, 1, :], y_temp_indices, 1)
 
-                    del readIn
+                    del readInlowerBound
 
                     plt.pause(0.05)
 
@@ -954,6 +981,8 @@ if __name__ == "__main__":
 
 
                 plot_desired_from_click(node_spectra_storage[:, Plotted_Bank, Plotted_Node, 0, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 1, :, :, :], node_spectra_storage[:, Plotted_Bank, Plotted_Node, 2, :, :, :], OBSNCHAN, TBIN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 0], node_Frequency_Ranges[Plotted_Bank, Plotted_Node, 1], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 0, :], THRESHOLD_PERCENTAGES[Plotted_Bank, Plotted_Node, 1, :], FILE_COUNT_INDICATOR)
+
+            plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], Plotted_Bank, node_Frequency_Ranges[:, :, :])
 
             plt.pause(0.2)
             print(datetime.now().strftime('%H:%M:%S'))
@@ -1112,7 +1141,7 @@ if __name__ == "__main__":
             pp.close()
 
 
-            exportPath = "../ObservationRFI/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(startTime.replace(":", "")) + "-" + str(endTime.replace(":", "")) + "_RFI.pdf"
+            exportPath = "../ObservationRFI/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(endTime.replace(":", "")) + "_RFI.pdf"
             pp = PdfPages(exportPath)
             for export_bank in range(numberOfBanks):
                 for export_node in range(numberOfNodes):
@@ -1153,6 +1182,16 @@ if __name__ == "__main__":
 
         waiting_counter = 0
         waiting_for_new_observation = True
+
+        if (pCLICKED == True):
+            if (raw_input("New Observation? (y/n): ") == 'n'):
+                plt.close()
+                PROGRAM_IS_RUNNING = False
+            else:
+                plt.close()
+            pCLICKED = False
+            waiting_for_new_observation = False
+
         ### automatic restart check in comparison to CURRENT_NUMBER_OF_OBS
         while (waiting_for_new_observation):
             if (np.array_equal(np.array(subprocess.check_output(['cat', '/home/obs/triggers/hosts_running']).replace('blc','').split()).reshape(-1, numberOfNodes), ACTIVE_COMPUTE_NODES) == False):
@@ -1165,11 +1204,3 @@ if __name__ == "__main__":
             if (waiting_counter%60==0):
                 print("Since session " + str(SESSION_IDENTIFIER) + ": " + str(round((waiting_counter//60)/6, 2)) + " hours")
             waiting_counter+=1
-	#maybe keep this with p click
-        if (pCLICKED == True):
-            if (raw_input("New Observation? (y/n): ") == 'n'):
-                plt.close()
-                PROGRAM_IS_RUNNING = False
-            else:
-                plt.close()
-            pCLICKED = False
