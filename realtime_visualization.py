@@ -176,9 +176,9 @@ def calculate_spectra(No_DC_BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTrans
     cross_pol_spectra = np.zeros((OBSNCHAN, fftsPerIntegration, samplesPerTransform))
 
     for channel in range(OBSNCHAN):
-        x_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration))))**2/fftsPerIntegration
-        y_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration))))**2/fftsPerIntegration
-        cross_pol_spectra[channel, :, :] = np.fft.fftshift(signal.csd(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration), np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration), nperseg=samplesPerTransform, scaling='density')[1])
+        x_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration))))**2
+        y_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration))))**2
+        cross_pol_spectra[channel, :, :] = np.fft.fftshift(signal.csd(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration), np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration), nperseg=samplesPerTransform, scaling='spectrum')[1])
     return x_pol_spectra, y_pol_spectra, np.abs(cross_pol_spectra)
 
 def spectra_Find_All(BLOCK, OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW):
@@ -245,8 +245,8 @@ def calculate_spectralKurtosis(SPECTRA, fftsPerIntegration):
     SK_estimate (array):   Array of SK estimates for the channels present in the input array
     """
 
-    S_1 = np.sum(SPECTRA, axis = 1)
-    S_2 = np.sum(SPECTRA**2, axis = 1)
+    S_1 = np.sum((SPECTRA/fftsPerIntegration), axis = 1)
+    S_2 = np.sum((SPECTRA/fftsPerIntegration)**2, axis = 1)
     SK_estimate = ((fftsPerIntegration + 1)/(fftsPerIntegration - 1)) * ((fftsPerIntegration * S_2)/(S_1**2) - 1)
 
     return SK_estimate
@@ -375,6 +375,7 @@ def press(event):
                     else:
                         plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 0, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
                 axis1_desired.set_title("blc" + str(CHECKING_BANK) + "* Spectrum (X)")
+                plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :])
 
             else:
                 for j in range(numberOfNodes):
@@ -383,6 +384,7 @@ def press(event):
                     else:
                         plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1], 'red')
                 axis1_desired.set_title("blc" + str(CHECKING_BANK) + "* Spectrum (Y)")
+                plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :], 'Y')
 
             plt.suptitle(SESSION_IDENTIFIER + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
@@ -411,6 +413,10 @@ def press(event):
             clear_full_spectrum()
             plt.suptitle("Not currently collecting data from blc" + str(CHECKING_BANK) + str(CHECKING_NODE))
 
+        plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :])
+
+
+
     if event.key == 'down':
         if (CHECKING_BANK == 1 and CHECKING_NODE == numberOfNodes):
             CHECKING_NODE = numberOfNodes - 1
@@ -435,6 +441,10 @@ def press(event):
             clear_node_plots()
             clear_full_spectrum()
             plt.suptitle("Not currently collecting data from blc" + str(CHECKING_BANK) + str(CHECKING_NODE))
+
+        plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :])
+
+
 
     #spectral flip for seemingly opposite increment on nodes
     if event.key == 'right':
@@ -464,6 +474,9 @@ def press(event):
             clear_full_spectrum()
             plt.suptitle("Not currently collecting data from blc" + str(CHECKING_BANK) + str(CHECKING_NODE))
 
+        plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :])
+
+
     if event.key == 'left':
         CHECKING_NODE += 1
         if (CHECKING_BANK == 1):
@@ -490,6 +503,7 @@ def press(event):
             clear_node_plots()
             clear_full_spectrum()
             plt.suptitle("Not currently collecting data from blc" + str(CHECKING_BANK) + str(CHECKING_NODE))
+        plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :])
 
     plt.pause(0.25)
 
@@ -702,11 +716,11 @@ def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransfor
 
     plot_real_time_visualization_general(current_RAW_axis, bandPass_x)
 
-def plot_full_bandpass(dataForBandpass, bank_currently_highlighting, range_information):
+def plot_full_bandpass(dataForBandpass, bank_currently_highlighting, range_information, polarization_title = 'X'):
     global axis0_desired, numberOfBanks, numberOfNodes
 
     axis0_desired.clear()
-    axis0_desired.set_title("Full Frequency Range: (X)")
+    axis0_desired.set_title("Full Frequency Range: (" + str(polarization_title) + ")")
     axis0_desired.set_ylabel("Power (dB)")
     axis0_desired.set_xlabel("Frequency (MHz)")
     axis0_desired.margins(x=0)
@@ -789,45 +803,45 @@ if __name__ == "__main__":
         plt.show()
 
         # Full observation range
-        axis0_desired = plt.subplot2grid((24,15), (0,3), colspan=9, rowspan=3)
+        axis0_desired = plt.subplot2grid((23,15), (0,3), colspan=9, rowspan=3)
         axis0_desired.set_title("Full Frequency Range: (X)")
         axis0_desired.set_ylabel("Power (dB)")
         axis0_desired.set_xlabel("Frequency (MHz)")
         axis0_desired.margins(x=0)
 
         # Full bank range
-        axis1_desired = plt.subplot2grid((24,15), (5,3), colspan=9, rowspan=3)
+        axis1_desired = plt.subplot2grid((23,15), (5,3), colspan=9, rowspan=3)
         axis1_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node][0]) + "* Spectrum (X)")
         axis1_desired.set_ylabel("Power (dB)")
         axis1_desired.set_xlabel("Frequency (MHz)")
         axis1_desired.margins(x=0)
 
         # Spectra of compute node
-        axis2_desired = plt.subplot2grid((24,15), (10,3), colspan=4, rowspan=3)
+        axis2_desired = plt.subplot2grid((23,15), (10,3), colspan=4, rowspan=3)
         axis2_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectrum: X")
         axis2_desired.set_xlabel("Frequency (MHz)")
         axis2_desired.set_ylabel("Power (dB)")
         axis2_desired.margins(x=0)
 
-        axis3_desired = plt.subplot2grid((24,15), (10, 8), colspan=4, rowspan=3)
+        axis3_desired = plt.subplot2grid((23,15), (10, 8), colspan=4, rowspan=3)
         axis3_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectrum: Y")
         axis3_desired.set_xlabel("Frequency (MHz)")
         axis3_desired.set_ylabel("Power (dB)")
         axis3_desired.margins(x=0)
 
         # Waterfall of compute node
-        axis4_desired = plt.subplot2grid((24,15), (0, 0), colspan=2, rowspan=24)
+        axis4_desired = plt.subplot2grid((23,15), (0, 0), colspan=2, rowspan=23)
         axis4_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Waterfall: X")
         axis4_desired.set_xlabel("Frequency (MHz)")
         axis4_desired.margins(x=0)
 
-        axis5_desired = plt.subplot2grid((24,15), (0, 13), colspan=2, rowspan=19)
+        axis5_desired = plt.subplot2grid((23,15), (0, 13), colspan=2, rowspan=23)
         axis5_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Waterfall: Y")
         axis5_desired.set_xlabel("Frequency (MHz)")
         axis5_desired.margins(x=0)
 
         # Spectral Kurtosis of compute node
-        axis6_desired = plt.subplot2grid((24,15), (15,3), colspan=4, rowspan=3)
+        axis6_desired = plt.subplot2grid((23,15), (15,3), colspan=4, rowspan=3)
         axis6_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectral Kurtosis: X")
         axis6_desired.margins(x=0)
         axis6_desired.set_ylim(-0.5, 5)
@@ -842,7 +856,7 @@ if __name__ == "__main__":
         axis6_desired_twin.tick_params('y', colors='m')
         axis6_desired_twin.margins(x=0)
 
-        axis7_desired = plt.subplot2grid((24,15), (15, 8), colspan=4, rowspan=3)
+        axis7_desired = plt.subplot2grid((23,15), (15, 8), colspan=4, rowspan=3)
         axis7_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectral Kurtosis: Y")
         axis7_desired.margins(x=0)
         axis7_desired.set_ylim(-0.5, 5)
@@ -858,13 +872,13 @@ if __name__ == "__main__":
         axis7_desired_twin.margins(x=0)
 
         # Cross Spectrum and SK of cross spectrum
-        axis8_desired = plt.subplot2grid((24,15), (20, 3), colspan=4, rowspan=3)
+        axis8_desired = plt.subplot2grid((23,15), (20, 3), colspan=4, rowspan=3)
         axis8_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Cross-Spectrum")
         axis8_desired.margins(x=0)
         axis8_desired.set_xlabel("Frequency (MHz)")
         axis8_desired.set_ylabel("Power (dB)")
 
-        axis9_desired = plt.subplot2grid((24,15), (20, 8), colspan=4, rowspan=3)
+        axis9_desired = plt.subplot2grid((23,15), (20, 8), colspan=4, rowspan=3)
         axis9_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Spectral Kurtosis: Cross-Spectrum")
         axis9_desired.margins(x=0)
         axis9_desired.set_ylim(0, 5)
