@@ -956,7 +956,7 @@ if __name__ == "__main__":
                     y_temp_indices = find_SK_threshold_hits(node_spectra_storage[0, bank, node, 1, :, :, :], fftsPerIntegration)
                     np.add.at(THRESHOLD_PERCENTAGES[bank, node, 1, :], y_temp_indices, 1)
 
-                    del readInlowerBound
+                    del readIn
 
                     plt.pause(0.05)
 
