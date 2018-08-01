@@ -916,9 +916,15 @@ if __name__ == "__main__":
                     check_for_raw = False
                     startTime = datetime.now().strftime('%H:%M')
                     START_NUMBER_FILES = int(subprocess.check_output('ls /mnt_blc' + str(ACTIVE_COMPUTE_NODES[0,0]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP00/*.raw | wc -l', shell=True)[:-1])
+
+                    #make session directory for outputs
+                    if (subprocess.check_output("find -maxdepth 2 -type d -name " + SESSION_IDENTIFIER + " | wc -l", shell=True) == 0):
+                        subprocess.Popen("mkdir ObservationWaterfalls/" + SESSION_IDENTIFIER, shell=True)
+
+
                 else:
                     raw_count_temp += 1
-                    if (raw_count_temp == 15):
+                    if (raw_count_temp == 60):
                         OBSERVATION_IS_RUNNING = False
                         break
                     plt.pause(5)
@@ -927,12 +933,12 @@ if __name__ == "__main__":
         while(OBSERVATION_IS_RUNNING):
             endOfObservationCounter = 0
 
-            #Did compute nodes change?
+            #Check if compute nodes changed
             if (np.array_equal(np.array(subprocess.check_output(['cat', '/home/obs/triggers/hosts_running']).replace('blc','').split()).reshape(-1, numberOfNodes), ACTIVE_COMPUTE_NODES) == False):
                 OBSERVATION_IS_RUNNING = False
                 break
 
-            #Did session number change?
+            #Check if session number changed
             tempNumberofSessions = int(subprocess.check_output("ls /mnt_blc" + ACTIVE_COMPUTE_NODES[0,0] + "/datax/dibas | wc -l", shell=True)[:-1])
             if (tempNumberofSessions > CURRENT_NUMBER_OF_OBS):
                 OBSERVATION_IS_RUNNING = False
@@ -1017,7 +1023,7 @@ if __name__ == "__main__":
                 endTime = datetime.now().strftime('%H:%M')
                 ################Export Waterfalls###################################
                 BAND_IDENTIFIER = findBand()
-                exportPath = "../ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(startTime.replace(":", "")) + "-" + str(endTime.replace(":", "")) + "_waterfall.pdf"
+                exportPath = "ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(startTime.replace(":", "")) + "-" + str(endTime.replace(":", "")) + "_waterfall.pdf"
                 pp = PdfPages(exportPath)
                 for export_bank in range(numberOfBanks):
                     for export_node in range(numberOfNodes):
@@ -1098,7 +1104,7 @@ if __name__ == "__main__":
         if (FILE_COUNT_INDICATOR != 0):
             last_non_exported_spectra = FILE_COUNT_INDICATOR%most_possible_files_read
             BAND_IDENTIFIER = findBand()
-            exportPath = "../ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(startTime.replace(":", "")) + "-" + str(endTime.replace(":", "")) + "_waterfall.pdf"
+            exportPath = "ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(startTime.replace(":", "")) + "-" + str(endTime.replace(":", "")) + "_waterfall.pdf"
             pp = PdfPages(exportPath)
             for export_bank in range(numberOfBanks):
                 for export_node in range(numberOfNodes):
@@ -1167,7 +1173,7 @@ if __name__ == "__main__":
             pp.close()
 
 
-            exportPath = "../ObservationRFI/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(endTime.replace(":", "")) + "_RFI.pdf"
+            exportPath = "ObservationRFI/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(endTime.replace(":", "")) + "_RFI.pdf"
             pp = PdfPages(exportPath)
             for export_bank in range(numberOfBanks):
                 for export_node in range(numberOfNodes):
