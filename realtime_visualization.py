@@ -956,7 +956,7 @@ if __name__ == "__main__":
                             waiting_for_written_file = False
                         else:
                             endOfObservationCounter += 1
-                            if (endOfObservationCounter == 1800):
+                            if (endOfObservationCounter == 450):
                                 OBSERVATION_IS_RUNNING = False
                             if (OBSERVATION_IS_RUNNING == False):
                                 break
