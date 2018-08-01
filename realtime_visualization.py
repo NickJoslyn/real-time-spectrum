@@ -918,7 +918,7 @@ if __name__ == "__main__":
                     START_NUMBER_FILES = int(subprocess.check_output('ls /mnt_blc' + str(ACTIVE_COMPUTE_NODES[0,0]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP00/*.raw | wc -l', shell=True)[:-1])
 
                     #make session directory for outputs
-                    if (subprocess.check_output("find -maxdepth 2 -type d -name " + SESSION_IDENTIFIER + " | wc -l", shell=True) == 0):
+                    if (int(subprocess.check_output("find -maxdepth 2 -type d -name " + SESSION_IDENTIFIER + " | wc -l", shell=True)) == 0):
                         subprocess.Popen("mkdir ObservationWaterfalls/" + SESSION_IDENTIFIER, shell=True)
 
 
@@ -1212,6 +1212,26 @@ if __name__ == "__main__":
 
             pp.close()
 
+            #### Monthly RFI stuff
+            monthly_RFI_file_x = "monthlyRFI_" + str(BAND_IDENTIFIER) + "_X.npy"
+            monthly_RFI_file_y = "monthlyRFI_" + str(BAND_IDENTIFIER) + "_Y.npy"
+            monthly_RFI_counter_file = "ObservationRFI/monthlyRFI_" + str(BAND_IDENTIFIER) + "_Counter.npy"
+            if (int(subprocess.check_output("find -maxdepth 2 -name " + monthly_RFI_file_x + " | wc -l", shell=True)) == 0):
+                np.save("ObservationRFI/" + monthly_RFI_file_x, 100*(THRESHOLD_PERCENTAGES[:,:,0,:]/(FILE_COUNT_INDICATOR + 1)))
+                np.save("ObservationRFI/" + monthly_RFI_file_y, 100*(THRESHOLD_PERCENTAGES[:,:,1,:]/(FILE_COUNT_INDICATOR + 1)))
+                np.save(monthly_RFI_counter_file, 1)
+                np.save("ObservationRFI/" + str(BAND_IDENTIFIER) + "_FrequencyRange.npy", [node_Frequency_Ranges[numberOfBanks-1, numberOfNodes-1, 0], node_Frequency_Ranges[0,0,1]])
+
+            else:
+                temp_RFI_load_x = np.load("ObservationRFI/" + monthly_RFI_file_x)
+                temp_RFI_load_y = np.load("ObservationRFI/" + monthly_RFI_file_y)
+
+                np.save("ObservationRFI/" + monthly_RFI_file_x, 100*(THRESHOLD_PERCENTAGES[:,:,0,:]/(FILE_COUNT_INDICATOR + 1)) + temp_RFI_load_x)
+                np.save("ObservationRFI/" + monthly_RFI_file_y, 100*(THRESHOLD_PERCENTAGES[:,:,1,:]/(FILE_COUNT_INDICATOR + 1)) + temp_RFI_load_y)
+
+                temp_RFI_counter = np.load(monthly_RFI_counter_file)
+                np.save(monthly_RFI_counter_file, temp_RFI_counter+1)
+
         waiting_counter = 0
         waiting_for_new_observation = True
 
@@ -1226,6 +1246,8 @@ if __name__ == "__main__":
 
         ### automatic restart check in comparison to CURRENT_NUMBER_OF_OBS
         while (waiting_for_new_observation):
+            if (PROGRAM_IS_RUNNING == False):
+                break
             if (np.array_equal(np.array(subprocess.check_output(['cat', '/home/obs/triggers/hosts_running']).replace('blc','').split()).reshape(-1, numberOfNodes), ACTIVE_COMPUTE_NODES) == False):
                 break
             if (int(subprocess.check_output("ls /mnt_blc" + ACTIVE_COMPUTE_NODES[0,0] + "/datax/dibas | wc -l", shell=True)[:-1]) > CURRENT_NUMBER_OF_OBS):
