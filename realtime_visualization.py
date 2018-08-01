@@ -974,7 +974,7 @@ if __name__ == "__main__":
                         ########
 
                         ###### Set up plot
-                        export_fig = plt.figure()
+                        export_fig = plt.figure(figsize=(12,10))
                         plt.suptitle("blc" + str(ACTIVE_COMPUTE_NODES[export_bank,export_node]) + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
                         export_axis1 = plt.subplot2grid((14,8), (0, 0), colspan=2, rowspan=14)
@@ -1041,6 +1041,7 @@ if __name__ == "__main__":
 
         endTime = datetime.now().strftime('%H:%M')
         if (FILE_COUNT_INDICATOR != 0):
+            last_non_exported_spectra = FILE_COUNT_INDICATOR%most_possible_files_read
             BAND_IDENTIFIER = findBand()
             exportPath = "../ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(startTime.replace(":", "")) + "-" + str(endTime.replace(":", "")) + "_waterfall.pdf"
             pp = PdfPages(exportPath)
@@ -1048,13 +1049,13 @@ if __name__ == "__main__":
                 for export_node in range(numberOfNodes):
 
                     #### Set up data
-                    export_waterfall_spectrum_x = np.flip(np.sum(node_spectra_storage[:FILE_COUNT_INDICATOR%most_possible_files_read, export_bank, export_node, 0, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
-                    export_waterfall_spectrum_y = np.flip(np.sum(node_spectra_storage[:FILE_COUNT_INDICATOR%most_possible_files_read, export_bank, export_node, 1, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
-                    export_waterfall_spectrum_cross = np.flip(np.sum(node_spectra_storage[:FILE_COUNT_INDICATOR%most_possible_files_read, export_bank, export_node, 2, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
+                    export_waterfall_spectrum_x = np.flip(np.sum(node_spectra_storage[:last_non_exported_spectra, export_bank, export_node, 0, :, :, :], axis = 2), 1).reshape(last_non_exported_spectra, -1)
+                    export_waterfall_spectrum_y = np.flip(np.sum(node_spectra_storage[:last_non_exported_spectra, export_bank, export_node, 1, :, :, :], axis = 2), 1).reshape(last_non_exported_spectra, -1)
+                    export_waterfall_spectrum_cross = np.flip(np.sum(node_spectra_storage[:last_non_exported_spectra, export_bank, export_node, 2, :, :, :], axis = 2), 1).reshape(last_non_exported_spectra, -1)
                     ########
 
                     ###### Set up plot
-                    export_fig = plt.figure()
+                    export_fig = plt.figure(figsize=(12,10))
                     plt.suptitle("blc" + str(ACTIVE_COMPUTE_NODES[export_bank,export_node]) + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
                     export_axis1 = plt.subplot2grid((14,8), (0, 0), colspan=2, rowspan=14)
@@ -1124,12 +1125,13 @@ if __name__ == "__main__":
                     ########
 
                     ###### Set up plot
-                    export_fig = plt.figure()
+                    export_fig = plt.figure(figsize=(12,10))
 
                     export_axis1 = plt.subplot2grid((2,1), (0, 0))
                     export_axis1.set_title("blc" + str(ACTIVE_COMPUTE_NODES[export_bank,export_node]) + " X | Percent RFI")
                     export_axis1.set_xlabel("Frequency (MHz)")
                     export_axis1.set_ylabel("%")
+                    export_axis1.set_ylim(0,100)
                     export_axis1.margins(x=0)
                     export_axis1.plot(export_current_axis, 100*(export_RFI_x/(FILE_COUNT_INDICATOR + 1)))
 
@@ -1138,6 +1140,7 @@ if __name__ == "__main__":
                     export_axis2.set_xlabel("Frequency (MHz)")
                     export_axis2.set_ylabel("%")
                     export_axis2.margins(x=0)
+                    export_axis2.set_ylim(0,100)
                     export_axis2.plot(export_current_axis, 100*(export_RFI_y/(FILE_COUNT_INDICATOR + 1)))
                     ########
 
