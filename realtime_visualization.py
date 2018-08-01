@@ -351,6 +351,7 @@ def press(event):
     global OBSNCHAN, fftsPerIntegration, samplesPerTransform, SESSION_IDENTIFIER
     global OBSERVATION_IS_RUNNING, PROGRAM_IS_RUNNING
     global CHECKING_BANK, CHECKING_NODE, ACTIVE_COMPUTE_NODES, PLOTTING_A_COMPUTE_NODE, TOTAL_RACKS
+    global pCLICKED
 
     sys.stdout.flush()
     plt.pause(0.1)
@@ -361,6 +362,7 @@ def press(event):
 
     if event.key == 'p':
         OBSERVATION_IS_RUNNING = False
+        pCLICKED = True
 
     if event.key == 'x':
         if (PLOTTING_A_COMPUTE_NODE):
@@ -544,6 +546,8 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     global axis6_desired_twin, axis7_desired_twin
     global SESSION_IDENTIFIER, desiredFrequencyResolution, desiredTimeResolution
     global Plotted_Bank, Plotted_Node, colorbar4, colorbar5, PFA_Nita, sk_lower_threshold, sk_upper_threshold
+    global CURRENT_TIME_STAMP
+
 
     axis1_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node][0]) + "* Spectrum (X)")
     axis1_desired.plot(current_axis, 10*np.log10(bandPass_x), color = 'red')
@@ -570,7 +574,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     cax4 = divider4.append_axes('right', size = '5%', pad = 0.05)
     axis4_desired.set_xlabel("Frequency (MHz)")
     axis4_desired.set_yticks([0,1])
-    axis4_desired.set_yticklabels(["Now", "~Hr Ago"])
+    axis4_desired.set_yticklabels([CURRENT_TIME_STAMP, "~Hr Ago"])
     axis4_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Waterfall: X")
     if (colorbar4==0):
         colorbar4 = plt.colorbar(im4, cax=cax4, orientation = 'vertical')
@@ -586,7 +590,7 @@ def plot_real_time_visualization_desired(integrated_spectrum_x, integrated_spect
     axis5_desired.set_xlabel("Frequency (MHz)")
     axis5_desired.set_title("blc" + str(ACTIVE_COMPUTE_NODES[Plotted_Bank,Plotted_Node]) + " Waterfall: Y")
     axis5_desired.set_yticks([0,1])
-    axis5_desired.set_yticklabels(["Now", "~Hr Ago"])
+    axis5_desired.set_yticklabels([CURRENT_TIME_STAMP, "~Hr Ago"])
     if (colorbar5==0):
         colorbar5 = plt.colorbar(im5, cax=cax5, orientation='vertical')
         colorbar5.set_label("Power (dB)")
@@ -714,7 +718,7 @@ if __name__ == "__main__":
 
     PFA_Nita = 0.0013499
 
-    #User input
+    #command line args, with defaults
     samplesPerTransform = 16
     fftsPerIntegration = 50
     TOTAL_RACKS = 4
@@ -727,6 +731,8 @@ if __name__ == "__main__":
     PROGRAM_IS_RUNNING = True
 
     while(PROGRAM_IS_RUNNING):
+
+        pCLICKED = False
 
         Polarization_Plot = 0
         Plotted_Bank = 0
@@ -742,10 +748,14 @@ if __name__ == "__main__":
         CHECKING_NODE = int(ACTIVE_COMPUTE_NODES[0,0][1])
         PLOTTING_A_COMPUTE_NODE = True
 
-        #Find the session
-        string_for_session = 'ls -trd /mnt_blc' + ACTIVE_COMPUTE_NODES[0,0] + '/datax/dibas/* | tail -1'
-        SESSION_IDENTIFIER = subprocess.check_output(string_for_session, shell = True)[23:-1]
+        CURRENT_NUMBER_OF_OBS = int(subprocess.check_output("ls /mnt_blc" + ACTIVE_COMPUTE_NODES[0,0] + "/datax/dibas | wc -l", shell=True)[:-1])
 
+        #Find the session
+        if (CURRENT_NUMBER_OF_OBS > 0):
+            string_for_session = 'ls -trd /mnt_blc' + ACTIVE_COMPUTE_NODES[0,0] + '/datax/dibas/* | tail -1'
+            SESSION_IDENTIFIER = subprocess.check_output(string_for_session, shell = True)[23:-1]
+        else:
+            SESSION_IDENTIFIER = 'No Sessions'
         ########################
         node_Frequency_Ranges = np.zeros((numberOfBanks, numberOfNodes, 2))
         node_spectra_storage = np.zeros((most_possible_files_read, numberOfBanks, numberOfNodes, 3, OBSNCHAN, fftsPerIntegration, samplesPerTransform))
@@ -835,14 +845,46 @@ if __name__ == "__main__":
 
         plt.connect('key_press_event', press)
 
-        OBSERVATION_IS_RUNNING = True
+
+        CURRENT_TIME_STAMP = datetime.now().strftime('%H:%M')
         FILE_COUNT_INDICATOR = 0
-        startTime = datetime.now().strftime('%H:%M')
-        START_NUMBER_FILES = int(subprocess.check_output('ls /mnt_blc' + str(ACTIVE_COMPUTE_NODES[0,0]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP00/*.raw | wc -l', shell=True)[:-1])
+
+        if (SESSION_IDENTIFIER = 'No Sessions'):
+            OBSERVATION_IS_RUNNING = False
+        else:
+            check_for_raw = True
+            raw_count_temp = 0
+            test_raw_count_string = '[ -f /mnt_blc' + str(ACTIVE_COMPUTE_NODES[0,0]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP00/*.raw ] && echo "True" || echo "False"'
+            while(check_for_raw):
+                if (subprocess.check_output(test_raw_count_string)[:-1] == True):
+                    OBSERVATION_IS_RUNNING = True
+                    check_for_raw = False
+                    startTime = datetime.now().strftime('%H:%M')
+                    START_NUMBER_FILES = int(subprocess.check_output('ls /mnt_blc' + str(ACTIVE_COMPUTE_NODES[0,0]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP00/*.raw | wc -l', shell=True)[:-1])
+                else:
+                    raw_count_temp += 1
+                    if (raw_count_temp == 15):
+                        OBSERVATION_IS_RUNNING = False
+                        break
+                    plt.pause(5)
 
 
         while(OBSERVATION_IS_RUNNING):
             endOfObservationCounter = 0
+
+            #Did compute nodes change?
+            if (np.array_equal(np.array(subprocess.check_output(['cat', '/home/obs/triggers/hosts_running']).replace('blc','').split()).reshape(-1, numberOfNodes), ACTIVE_COMPUTE_NODES) == False):
+                OBSERVATION_IS_RUNNING = False
+                break
+
+            #Did session number change?
+            tempNumberofSessions = int(subprocess.check_output("ls /mnt_blc" + ACTIVE_COMPUTE_NODES[0,0] + "/datax/dibas | wc -l", shell=True)[:-1])
+            if (tempNumberofSessions > CURRENT_NUMBER_OF_OBS):
+                OBSERVATION_IS_RUNNING = False
+                break
+            else:
+                CURRENT_NUMBER_OF_OBS = tempNumberofSessions
+
             for bank in range(numberOfBanks):
                 for node in range(numberOfNodes):
                     test_Number_Files_String = 'ls /mnt_blc' + str(ACTIVE_COMPUTE_NODES[bank, node]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank) + str(node) + '/*.raw | wc -l'
@@ -896,6 +938,7 @@ if __name__ == "__main__":
             if (OBSERVATION_IS_RUNNING == False):
                 break
 
+            CURRENT_TIME_STAMP = datetime.now().strftime('%H:%M')
             START_NUMBER_FILES = int(subprocess.check_output('ls /mnt_blc' + str(ACTIVE_COMPUTE_NODES[0,0]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP00/*.raw | wc -l', shell=True)[:-1]) - 1
 
             if (FILE_COUNT_INDICATOR>0):
@@ -997,117 +1040,131 @@ if __name__ == "__main__":
             break
 
         endTime = datetime.now().strftime('%H:%M')
-        BAND_IDENTIFIER = findBand()
-        exportPath = "../ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(startTime.replace(":", "")) + "-" + str(endTime.replace(":", "")) + "_waterfall.pdf"
-        pp = PdfPages(exportPath)
-        for export_bank in range(numberOfBanks):
-            for export_node in range(numberOfNodes):
+        if (FILE_COUNT_INDICATOR != 0):
+            BAND_IDENTIFIER = findBand()
+            exportPath = "../ObservationWaterfalls/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(startTime.replace(":", "")) + "-" + str(endTime.replace(":", "")) + "_waterfall.pdf"
+            pp = PdfPages(exportPath)
+            for export_bank in range(numberOfBanks):
+                for export_node in range(numberOfNodes):
 
-                #### Set up data
-                export_waterfall_spectrum_x = np.flip(np.sum(node_spectra_storage[:FILE_COUNT_INDICATOR%most_possible_files_read, export_bank, export_node, 0, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
-                export_waterfall_spectrum_y = np.flip(np.sum(node_spectra_storage[:FILE_COUNT_INDICATOR%most_possible_files_read, export_bank, export_node, 1, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
-                export_waterfall_spectrum_cross = np.flip(np.sum(node_spectra_storage[:FILE_COUNT_INDICATOR%most_possible_files_read, export_bank, export_node, 2, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
-                ########
+                    #### Set up data
+                    export_waterfall_spectrum_x = np.flip(np.sum(node_spectra_storage[:FILE_COUNT_INDICATOR%most_possible_files_read, export_bank, export_node, 0, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
+                    export_waterfall_spectrum_y = np.flip(np.sum(node_spectra_storage[:FILE_COUNT_INDICATOR%most_possible_files_read, export_bank, export_node, 1, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
+                    export_waterfall_spectrum_cross = np.flip(np.sum(node_spectra_storage[:FILE_COUNT_INDICATOR%most_possible_files_read, export_bank, export_node, 2, :, :, :], axis = 2), 1).reshape(most_possible_files_read, -1)
+                    ########
 
-                ###### Set up plot
-                export_fig = plt.figure()
-                plt.suptitle("blc" + str(ACTIVE_COMPUTE_NODES[export_bank,export_node]) + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
+                    ###### Set up plot
+                    export_fig = plt.figure()
+                    plt.suptitle("blc" + str(ACTIVE_COMPUTE_NODES[export_bank,export_node]) + " | " + str(desiredFrequencyResolution/(10**6)) + " MHz, " + str(desiredTimeResolution*(10**3)) + " ms Resolution")
 
-                export_axis1 = plt.subplot2grid((14,8), (0, 0), colspan=2, rowspan=14)
-                export_axis1.set_title("X")
-                export_axis1.set_xlabel("Frequency (MHz)")
-                #export_axis1.set_ylabel("Time (Hours)")
-                export_axis1.margins(x=0)
+                    export_axis1 = plt.subplot2grid((14,8), (0, 0), colspan=2, rowspan=14)
+                    export_axis1.set_title("X")
+                    export_axis1.set_xlabel("Frequency (MHz)")
+                    #export_axis1.set_ylabel("Time (Hours)")
+                    export_axis1.margins(x=0)
 
-                export_axis2 = plt.subplot2grid((14,8), (0, 6), colspan=2, rowspan=14)
-                export_axis2.set_title("Y")
-                export_axis2.set_xlabel("Frequency (MHz)")
-                #export_axis2.set_ylabel("Time (Hours)")
-                export_axis2.margins(x=0)
+                    export_axis2 = plt.subplot2grid((14,8), (0, 6), colspan=2, rowspan=14)
+                    export_axis2.set_title("Y")
+                    export_axis2.set_xlabel("Frequency (MHz)")
+                    #export_axis2.set_ylabel("Time (Hours)")
+                    export_axis2.margins(x=0)
 
-                export_axis3 = plt.subplot2grid((14,8), (0, 3), colspan=2, rowspan=14)
-                export_axis3.set_title("Cross-Spectrum")
-                export_axis3.set_xlabel("Frequency (MHz)")
-                #export_axis3.set_ylabel("Time (Hours)")
-                export_axis3.margins(x=0)
-                ########
+                    export_axis3 = plt.subplot2grid((14,8), (0, 3), colspan=2, rowspan=14)
+                    export_axis3.set_title("Cross-Spectrum")
+                    export_axis3.set_xlabel("Frequency (MHz)")
+                    #export_axis3.set_ylabel("Time (Hours)")
+                    export_axis3.margins(x=0)
+                    ########
 
-                ####### Plot data
-                export_im_x = export_axis1.imshow(10*np.log10(export_waterfall_spectrum_x), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
-                export_divider_x = make_axes_locatable(export_axis1)
-                export_cax_x = export_divider_x.append_axes('right', size = '5%', pad = 0.05)
-                export_colorbar_x = plt.colorbar(export_im_x, cax=export_cax_x, orientation = 'vertical')
-                #export_colorbar_x.set_label("Power (dB)")
-                export_axis1.set_yticks([0,1])
-                export_axis1.set_yticklabels([endTime, startTime])
-                export_axis1.get_xaxis().set_ticks([round(node_Frequency_Ranges[export_bank, export_node, 0],0), round(node_Frequency_Ranges[export_bank, export_node, 1],0)])
+                    ####### Plot data
+                    export_im_x = export_axis1.imshow(10*np.log10(export_waterfall_spectrum_x), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
+                    export_divider_x = make_axes_locatable(export_axis1)
+                    export_cax_x = export_divider_x.append_axes('right', size = '5%', pad = 0.05)
+                    export_colorbar_x = plt.colorbar(export_im_x, cax=export_cax_x, orientation = 'vertical')
+                    #export_colorbar_x.set_label("Power (dB)")
+                    export_axis1.set_yticks([0,1])
+                    export_axis1.set_yticklabels([endTime, startTime])
+                    export_axis1.get_xaxis().set_ticks([round(node_Frequency_Ranges[export_bank, export_node, 0],0), round(node_Frequency_Ranges[export_bank, export_node, 1],0)])
 
-                export_im_y = export_axis2.imshow(10*np.log10(export_waterfall_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
-                export_divider_y = make_axes_locatable(export_axis2)
-                export_cax_y = export_divider_y.append_axes('right', size = '5%', pad = 0.05)
-                export_colorbar_y = plt.colorbar(export_im_y, cax=export_cax_y, orientation = 'vertical')
-                export_colorbar_y.set_label("Power (dB)")
-                export_axis2.get_yaxis().set_ticks([])
-                export_axis2.get_xaxis().set_ticks([round(node_Frequency_Ranges[export_bank, export_node, 0],0), round(node_Frequency_Ranges[export_bank, export_node, 1],0)])
+                    export_im_y = export_axis2.imshow(10*np.log10(export_waterfall_spectrum_y), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
+                    export_divider_y = make_axes_locatable(export_axis2)
+                    export_cax_y = export_divider_y.append_axes('right', size = '5%', pad = 0.05)
+                    export_colorbar_y = plt.colorbar(export_im_y, cax=export_cax_y, orientation = 'vertical')
+                    export_colorbar_y.set_label("Power (dB)")
+                    export_axis2.get_yaxis().set_ticks([])
+                    export_axis2.get_xaxis().set_ticks([round(node_Frequency_Ranges[export_bank, export_node, 0],0), round(node_Frequency_Ranges[export_bank, export_node, 1],0)])
 
-                export_im_cross = export_axis3.imshow(10*np.log10(export_waterfall_spectrum_cross), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
-                export_divider_cross = make_axes_locatable(export_axis3)
-                export_cax_cross = export_divider_cross.append_axes('right', size = '5%', pad = 0.05)
-                export_colorbar_cross = plt.colorbar(export_im_cross, cax=export_cax_cross, orientation = 'vertical')
-                #export_colorbar_cross.set_label("Power (dB)")
-                export_axis3.get_yaxis().set_ticks([])
-                export_axis3.get_xaxis().set_ticks([round(node_Frequency_Ranges[export_bank, export_node, 0],0), round(node_Frequency_Ranges[export_bank, export_node, 1],0)])
-                ########
+                    export_im_cross = export_axis3.imshow(10*np.log10(export_waterfall_spectrum_cross), cmap = 'viridis', aspect = 'auto', extent = [node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], 1, 0])
+                    export_divider_cross = make_axes_locatable(export_axis3)
+                    export_cax_cross = export_divider_cross.append_axes('right', size = '5%', pad = 0.05)
+                    export_colorbar_cross = plt.colorbar(export_im_cross, cax=export_cax_cross, orientation = 'vertical')
+                    #export_colorbar_cross.set_label("Power (dB)")
+                    export_axis3.get_yaxis().set_ticks([])
+                    export_axis3.get_xaxis().set_ticks([round(node_Frequency_Ranges[export_bank, export_node, 0],0), round(node_Frequency_Ranges[export_bank, export_node, 1],0)])
+                    ########
 
-                ######## Write to PDF
+                    ######## Write to PDF
+                    plt.close()
+                    pp.savefig(export_fig)
+                    ########
+
+            pp.close()
+
+
+            exportPath = "../ObservationRFI/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(startTime.replace(":", "")) + "-" + str(endTime.replace(":", "")) + "_RFI.pdf"
+            pp = PdfPages(exportPath)
+            for export_bank in range(numberOfBanks):
+                for export_node in range(numberOfNodes):
+
+                    #### Set up data
+                    export_RFI_x = THRESHOLD_PERCENTAGES[export_bank, export_node, 0, :]
+                    export_RFI_y = THRESHOLD_PERCENTAGES[export_bank, export_node, 1, :]
+                    export_current_axis = np.linspace(node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], OBSNCHAN *samplesPerTransform)
+
+                    ########
+
+                    ###### Set up plot
+                    export_fig = plt.figure()
+
+                    export_axis1 = plt.subplot2grid((2,1), (0, 0))
+                    export_axis1.set_title("blc" + str(ACTIVE_COMPUTE_NODES[export_bank,export_node]) + " X | Percent RFI")
+                    export_axis1.set_xlabel("Frequency (MHz)")
+                    export_axis1.set_ylabel("%")
+                    export_axis1.margins(x=0)
+                    export_axis1.plot(export_current_axis, 100*(export_RFI_x/(FILE_COUNT_INDICATOR + 1)))
+
+                    export_axis2 = plt.subplot2grid((2,1), (1, 0))
+                    export_axis2.set_title("blc" + str(ACTIVE_COMPUTE_NODES[export_bank,export_node]) + " Y | Percent RFI")
+                    export_axis2.set_xlabel("Frequency (MHz)")
+                    export_axis2.set_ylabel("%")
+                    export_axis2.margins(x=0)
+                    export_axis2.plot(export_current_axis, 100*(export_RFI_y/(FILE_COUNT_INDICATOR + 1)))
+                    ########
+
+                    ######## Write to PDF
+                    plt.tight_layout()
+                    plt.close()
+                    pp.savefig(export_fig)
+
+            pp.close()
+
+
+        waiting_for_new_observation = True
+        ### automatic restart check in comparison to CURRENT_NUMBER_OF_OBS
+        while (waiting_for_new_observation):
+            if (np.array_equal(np.array(subprocess.check_output(['cat', '/home/obs/triggers/hosts_running']).replace('blc','').split()).reshape(-1, numberOfNodes), ACTIVE_COMPUTE_NODES) == False):
+                break
+            if (int(subprocess.check_output("ls /mnt_blc" + ACTIVE_COMPUTE_NODES[0,0] + "/datax/dibas | wc -l", shell=True)[:-1]) > CURRENT_NUMBER_OF_OBS):
+                break
+            else:
+                CURRENT_NUMBER_OF_OBS = int(subprocess.check_output("ls /mnt_blc" + ACTIVE_COMPUTE_NODES[0,0] + "/datax/dibas | wc -l", shell=True)[:-1])
+            plt.pause(10)
+
+        #maybe keep this with p click
+        if (pCLICKED == True):
+            if (raw_input("New Observation? (y/n): ") == 'n'):
                 plt.close()
-                pp.savefig(export_fig)
-                ########
-
-        pp.close()
-
-
-        exportPath = "../ObservationRFI/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(startTime.replace(":", "")) + "-" + str(endTime.replace(":", "")) + "_RFI.pdf"
-        pp = PdfPages(exportPath)
-        for export_bank in range(numberOfBanks):
-            for export_node in range(numberOfNodes):
-
-                #### Set up data
-                export_RFI_x = THRESHOLD_PERCENTAGES[export_bank, export_node, 0, :]
-                export_RFI_y = THRESHOLD_PERCENTAGES[export_bank, export_node, 1, :]
-                export_current_axis = np.linspace(node_Frequency_Ranges[export_bank, export_node, 0], node_Frequency_Ranges[export_bank, export_node, 1], OBSNCHAN *samplesPerTransform)
-
-                ########
-
-                ###### Set up plot
-                export_fig = plt.figure()
-
-                export_axis1 = plt.subplot2grid((2,1), (0, 0))
-                export_axis1.set_title("blc" + str(ACTIVE_COMPUTE_NODES[export_bank,export_node]) + " X | Percent RFI")
-                export_axis1.set_xlabel("Frequency (MHz)")
-                export_axis1.set_ylabel("%")
-                export_axis1.margins(x=0)
-                export_axis1.plot(export_current_axis, 100*(export_RFI_x/(FILE_COUNT_INDICATOR + 1)))
-
-                export_axis2 = plt.subplot2grid((2,1), (1, 0))
-                export_axis2.set_title("blc" + str(ACTIVE_COMPUTE_NODES[export_bank,export_node]) + " Y | Percent RFI")
-                export_axis2.set_xlabel("Frequency (MHz)")
-                export_axis2.set_ylabel("%")
-                export_axis2.margins(x=0)
-                export_axis2.plot(export_current_axis, 100*(export_RFI_y/(FILE_COUNT_INDICATOR + 1)))
-                ########
-
-                ######## Write to PDF
-                plt.tight_layout()
+                PROGRAM_IS_RUNNING = False
+            else:
                 plt.close()
-                pp.savefig(export_fig)
-
-        pp.close()
-
-        startTime = datetime.now().strftime('%H:%M')
-
-        if (raw_input("New Observation? (y/n): ") == 'n'):
-            plt.close()
-            PROGRAM_IS_RUNNING = False
-        else:
-            plt.close()
+            pCLICKED = False
