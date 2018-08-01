@@ -176,8 +176,8 @@ def calculate_spectra(No_DC_BLOCK, OBSNCHAN, fftsPerIntegration, samplesPerTrans
     cross_pol_spectra = np.zeros((OBSNCHAN, fftsPerIntegration, samplesPerTransform))
 
     for channel in range(OBSNCHAN):
-        x_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration))))**2
-        y_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration))))**2
+        x_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration))))**2/fftsPerIntegration
+        y_pol_spectra[channel, :, :] = np.abs(np.fft.fftshift(np.fft.fft(np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration))))**2/fftsPerIntegration
         cross_pol_spectra[channel, :, :] = np.fft.fftshift(signal.csd(np.split(No_DC_BLOCK[channel,:, 0] + 1j*No_DC_BLOCK[channel,:,1], fftsPerIntegration), np.split(No_DC_BLOCK[channel,:,2] + 1j*No_DC_BLOCK[channel,:, 3], fftsPerIntegration), nperseg=samplesPerTransform, scaling='spectrum')[1])
     return x_pol_spectra, y_pol_spectra, np.abs(cross_pol_spectra)
 
@@ -709,7 +709,7 @@ def plot_otherNodes(spectralData_x, spectralData_y, OBSNCHAN, samplesPerTransfor
 if __name__ == "__main__":
 
     most_possible_files_read = 60
-
+    TBIN = 0
     colorbar4 = 0
     colorbar5 = 0
 
@@ -731,7 +731,7 @@ if __name__ == "__main__":
     PROGRAM_IS_RUNNING = True
 
     while(PROGRAM_IS_RUNNING):
-
+        print('Checking for new session')
         pCLICKED = False
 
         Polarization_Plot = 0
@@ -848,16 +848,16 @@ if __name__ == "__main__":
 
         CURRENT_TIME_STAMP = datetime.now().strftime('%H:%M')
         FILE_COUNT_INDICATOR = 0
-
-        if (SESSION_IDENTIFIER = 'No Sessions'):
+        if (SESSION_IDENTIFIER == 'No Sessions'):
             OBSERVATION_IS_RUNNING = False
         else:
             check_for_raw = True
             raw_count_temp = 0
-            test_raw_count_string = '[ -f /mnt_blc' + str(ACTIVE_COMPUTE_NODES[0,0]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP00/*.raw ] && echo "True" || echo "False"'
+            test_raw_count_string = 'find /mnt_blc' + str(ACTIVE_COMPUTE_NODES[0,0]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + ' -name "*.raw" | wc -l'
             while(check_for_raw):
-                if (subprocess.check_output(test_raw_count_string)[:-1] == True):
+                if (int(subprocess.check_output(test_raw_count_string, shell = True)[:-1]) > 0):
                     OBSERVATION_IS_RUNNING = True
+                    print('Starting session ' + str(SESSION_IDENTIFIER))
                     check_for_raw = False
                     startTime = datetime.now().strftime('%H:%M')
                     START_NUMBER_FILES = int(subprocess.check_output('ls /mnt_blc' + str(ACTIVE_COMPUTE_NODES[0,0]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP00/*.raw | wc -l', shell=True)[:-1])
@@ -1148,7 +1148,7 @@ if __name__ == "__main__":
 
             pp.close()
 
-
+        waiting_counter = 0
         waiting_for_new_observation = True
         ### automatic restart check in comparison to CURRENT_NUMBER_OF_OBS
         while (waiting_for_new_observation):
@@ -1159,8 +1159,10 @@ if __name__ == "__main__":
             else:
                 CURRENT_NUMBER_OF_OBS = int(subprocess.check_output("ls /mnt_blc" + ACTIVE_COMPUTE_NODES[0,0] + "/datax/dibas | wc -l", shell=True)[:-1])
             plt.pause(10)
-
-        #maybe keep this with p click
+            if (waiting_counter%60==0):
+                print("Since session " + str(SESSION_IDENTIFIER) + ": " + str(round((waiting_counter//60)/6, 2)) + " hours")
+            waiting_counter+=1
+	#maybe keep this with p click
         if (pCLICKED == True):
             if (raw_input("New Observation? (y/n): ") == 'n'):
                 plt.close()
