@@ -246,8 +246,8 @@ def calculate_spectralKurtosis(SPECTRA, fftsPerIntegration):
     SK_estimate (array):   Array of SK estimates for the channels present in the input array
     """
 
-    S_1 = np.sum((SPECTRA/fftsPerIntegration), axis = 1)
-    S_2 = np.sum((SPECTRA/fftsPerIntegration)**2, axis = 1)
+    S_1 = np.sum((SPECTRA), axis = 1)
+    S_2 = np.sum((SPECTRA)**2, axis = 1)
     SK_estimate = ((fftsPerIntegration + 1)/(fftsPerIntegration - 1)) * ((fftsPerIntegration * S_2)/(S_1**2) - 1)
 
     return SK_estimate
@@ -956,7 +956,7 @@ if __name__ == "__main__":
                             waiting_for_written_file = False
                         else:
                             endOfObservationCounter += 1
-                            if (endOfObservationCounter == 450):
+                            if (endOfObservationCounter == 1800):
                                 OBSERVATION_IS_RUNNING = False
                             if (OBSERVATION_IS_RUNNING == False):
                                 break
