@@ -19,6 +19,8 @@ from matplotlib.collections import LineCollection
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.backends.backend_pdf import PdfPages
 
+from slacker import Slacker
+
 ################################################################################
 ######################---Functions---###########################################
 ################################################################################
@@ -246,8 +248,8 @@ def calculate_spectralKurtosis(SPECTRA, fftsPerIntegration):
     SK_estimate (array):   Array of SK estimates for the channels present in the input array
     """
 
-    S_1 = np.sum((SPECTRA), axis = 1)
-    S_2 = np.sum((SPECTRA)**2, axis = 1)
+    S_1 = np.sum(SPECTRA, axis = 1)
+    S_2 = np.sum(SPECTRA**2, axis = 1)
     SK_estimate = ((fftsPerIntegration + 1)/(fftsPerIntegration - 1)) * ((fftsPerIntegration * S_2)/(S_1**2) - 1)
 
     return SK_estimate
@@ -752,7 +754,10 @@ if __name__ == "__main__":
                         help="Time Samples per FFT. Default: 16 (Gives 0.183MHz resolution)")
     parser.add_argument('-i', action='store',  default=50, dest='ffts_per_integration', type=int,
                         help="Number FFTs to accumulate. Default: 50 (Gives 0.273ms integration time)")
-
+    parser.add_argument('-t', action='store',  default='No', dest='slack_token', type=str,
+                        help="Slack token. Specifying token allows PDFs to be exported to Slack. Default: No")
+    parser.add_argument('-u', action='store',  default='No', dest='slack_channel', type=str,
+                        help="Slack channel username. Specify active_observations channel. Default: No")
     parse_args = parser.parse_args()
 
     most_possible_files_read = parse_args.files_per_export
@@ -760,6 +765,11 @@ if __name__ == "__main__":
     OBSNCHAN = parse_args.channels_per_node
     samplesPerTransform = parse_args.samples_per_transform
     fftsPerIntegration = parse_args.ffts_per_integration
+    slackToken = parse_args.slack_token
+    SLACK_CHANNEL = parse_args.slack_token
+
+    if (slackToken != 'No'):
+        slack = Slacker(token)
 
     #Temps for initial plot, will be overwritten
     colorbar4 = 0
@@ -956,6 +966,8 @@ if __name__ == "__main__":
                             waiting_for_written_file = False
                         else:
                             endOfObservationCounter += 1
+                            if (endOfObservationCounter == 60):
+                                export_time_final = datetime.now().strftime('%H:%M')
                             if (endOfObservationCounter == 1800):
                                 OBSERVATION_IS_RUNNING = False
                             if (OBSERVATION_IS_RUNNING == False):
@@ -1090,6 +1102,10 @@ if __name__ == "__main__":
                         ########
 
                 pp.close()
+
+                if (slackToken != 'No'):
+                    slack.files.upload(exportPath, channels = SLACK_CHANNEL)
+
                 startTime = datetime.now().strftime('%H:%M')
 
 
@@ -1101,6 +1117,9 @@ if __name__ == "__main__":
             break
 
         endTime = datetime.now().strftime('%H:%M')
+        if (endOfObservationCounter == 1800):
+            endTime = export_time_final
+        
         if (FILE_COUNT_INDICATOR != 0):
             last_non_exported_spectra = FILE_COUNT_INDICATOR%most_possible_files_read
             BAND_IDENTIFIER = findBand()
@@ -1172,6 +1191,8 @@ if __name__ == "__main__":
 
             pp.close()
 
+            if (slackToken != 'No'):
+                slack.files.upload(exportPath, channels = SLACK_CHANNEL)
 
             exportPath = "ObservationRFI/" + str(SESSION_IDENTIFIER) + "_" + str(BAND_IDENTIFIER) + "-band_" + str(endTime.replace(":", "")) + "_RFI.pdf"
             pp = PdfPages(exportPath)
@@ -1212,6 +1233,9 @@ if __name__ == "__main__":
 
             pp.close()
 
+            if (slackToken != 'No'):
+                slack.files.upload(exportPath, channels = SLACK_CHANNEL)
+
             #### Monthly RFI stuff
             monthly_RFI_file_x = "monthlyRFI_" + str(BAND_IDENTIFIER) + "_X.npy"
             monthly_RFI_file_y = "monthlyRFI_" + str(BAND_IDENTIFIER) + "_Y.npy"
@@ -1232,8 +1256,9 @@ if __name__ == "__main__":
                 temp_RFI_counter = np.load(monthly_RFI_counter_file)
                 np.save(monthly_RFI_counter_file, temp_RFI_counter+1)
 
-        waiting_counter = 0
         waiting_for_new_observation = True
+
+        print("End of session " + str(SESSION_IDENTIFIER) + ": " + str(datetime.now().strftime('%Y %B %d | %H:%M'))
 
         if (pCLICKED == True):
             if (raw_input("New Observation? (y/n): ") == 'n'):
@@ -1255,6 +1280,3 @@ if __name__ == "__main__":
             else:
                 CURRENT_NUMBER_OF_OBS = int(subprocess.check_output("ls /mnt_blc" + ACTIVE_COMPUTE_NODES[0,0] + "/datax/dibas | wc -l", shell=True)[:-1])
             plt.pause(10)
-            if (waiting_counter%60==0):
-                print("Since session " + str(SESSION_IDENTIFIER) + ": " + str(round((waiting_counter//60)/6, 2)) + " hours")
-            waiting_counter+=1
