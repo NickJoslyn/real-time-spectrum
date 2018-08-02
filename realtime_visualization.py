@@ -968,6 +968,7 @@ if __name__ == "__main__":
                             endOfObservationCounter += 1
                             if (endOfObservationCounter == 60):
                                 export_time_final = datetime.now().strftime('%H:%M')
+                                print_time_final = datetime.now().strftime('%Y %B %d | %H:%M')
                             if (endOfObservationCounter == 1800):
                                 OBSERVATION_IS_RUNNING = False
                             if (OBSERVATION_IS_RUNNING == False):
@@ -1119,7 +1120,7 @@ if __name__ == "__main__":
         endTime = datetime.now().strftime('%H:%M')
         if (endOfObservationCounter == 1800):
             endTime = export_time_final
-        
+
         if (FILE_COUNT_INDICATOR != 0):
             last_non_exported_spectra = FILE_COUNT_INDICATOR%most_possible_files_read
             BAND_IDENTIFIER = findBand()
@@ -1258,7 +1259,10 @@ if __name__ == "__main__":
 
         waiting_for_new_observation = True
 
-        print("End of session " + str(SESSION_IDENTIFIER) + ": " + str(datetime.now().strftime('%Y %B %d | %H:%M'))
+        print_time = datetime.now().strftime('%Y %B %d | %H:%M')
+        if (endOfObservationCounter == 1800):
+            print_time = print_time_final
+        print("End of session " + str(SESSION_IDENTIFIER) + ": " + str(print_time))
 
         if (pCLICKED == True):
             if (raw_input("New Observation? (y/n): ") == 'n'):
