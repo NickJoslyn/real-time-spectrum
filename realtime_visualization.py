@@ -770,6 +770,7 @@ if __name__ == "__main__":
 
     if (slackToken != 'No'):
         slack = Slacker(slackToken)
+        SLACK_CHANNEL = "#" + SLACK_CHANNEL
 
     #Temps for initial plot, will be overwritten
     colorbar4 = 0
