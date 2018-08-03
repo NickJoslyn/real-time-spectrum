@@ -51,7 +51,7 @@ After the observation, the following numpy binary (.npy) files are exported
 * If it does not exist, the frequency range for the observing band
 * A counter of how many times this observing band has been used in the past month
 
-These exported binary files will be used in a monthly cron job to produce monthly RFI statistics 
+These exported binary files will be used in a monthly cron job to produce monthly RFI statistics
 
 ---
 
@@ -85,5 +85,5 @@ optional arguments:
   -t SLACK_TOKEN        Slack token. Specifying token allows PDFs to be
                         exported to Slack. Default: No
   -u SLACK_CHANNEL      Slack channel username. Specify active_observations
-                        channel. Default: No
+                        channel. Must specify if using Slack. Default: No
  ```

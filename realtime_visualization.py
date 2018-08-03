@@ -757,7 +757,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', action='store',  default='No', dest='slack_token', type=str,
                         help="Slack token. Specifying token allows PDFs to be exported to Slack. Default: No")
     parser.add_argument('-u', action='store',  default='No', dest='slack_channel', type=str,
-                        help="Slack channel username. Specify active_observations channel. Default: No")
+                        help="Slack channel username. Specify active_observations channel. Must specify if using Slack. Default: No")
     parse_args = parser.parse_args()
 
     most_possible_files_read = parse_args.files_per_export
@@ -769,7 +769,7 @@ if __name__ == "__main__":
     SLACK_CHANNEL = parse_args.slack_token
 
     if (slackToken != 'No'):
-        slack = Slacker(token)
+        slack = Slacker(slackToken)
 
     #Temps for initial plot, will be overwritten
     colorbar4 = 0
