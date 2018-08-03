@@ -766,7 +766,7 @@ if __name__ == "__main__":
     samplesPerTransform = parse_args.samples_per_transform
     fftsPerIntegration = parse_args.ffts_per_integration
     slackToken = parse_args.slack_token
-    SLACK_CHANNEL = parse_args.slack_token
+    SLACK_CHANNEL = parse_args.slack_channel
 
     if (slackToken != 'No'):
         slack = Slacker(slackToken)
