@@ -46,7 +46,6 @@ def extractHeader(RAW_file, byteLocation):
     NBITS (int):        Number of bits per real/imaginary value
     BLOCSIZE (int):     The size of the data block in bytes
     OBSFREQ (float):    The central frequency observed (MHz)
-    CHAN_BW (float):    The bandwidth of a channel (MHz)
     OBSBW (float):      The bandwidth of the observation (MHz)
     TBIN (float):       The sampling period (seconds)
     headerOffset (int): The number of bytes (padding included) in the header
@@ -89,9 +88,6 @@ def extractHeader(RAW_file, byteLocation):
         elif(cardString[:7] == 'OBSFREQ'):
           OBSFREQ = float(cardString[9:].strip())
 
-        elif(cardString[:7] == 'CHAN_BW'):
-          CHAN_BW = float(cardString[9:].strip())
-
         elif(cardString[:5] == 'OBSBW'):
           OBSBW = float(cardString[9:].strip())
 
@@ -109,7 +105,7 @@ def extractHeader(RAW_file, byteLocation):
     # Number of bytes in the header
     headerOffset = cardLength * lineCounter + DIRECTIO_offset
 
-    return OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset
+    return OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, OBSBW, TBIN, headerOffset
 
 def convert_resolution(customFrequencyResolution, customTimeResolution, TBIN):
     """
@@ -922,7 +918,7 @@ if __name__ == "__main__":
                     readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
                     currentBytesPassed = 0
 
-                    OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
+                    OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
                     if (FILE_COUNT_INDICATOR == 0):
                         desiredFrequencyResolution, desiredTimeResolution = convert_to_resolution(samplesPerTransform, fftsPerIntegration, TBIN)
 
