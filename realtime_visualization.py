@@ -1,6 +1,6 @@
 # Nicholas Joslyn
 # Breakthrough Listen (BL) UC-Berkeley SETI Intern 2018
-# Quasi-real-time BL RAW data visualization for BL observations
+# Quasi-real-time BL RAW data visualization for BL observations at GB
 
 from __future__ import division
 import numpy as np
