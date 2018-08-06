@@ -935,12 +935,26 @@ if __name__ == "__main__":
 
                 else:
                     raw_count_temp += 1
-                    if (raw_count_temp == 60):
+                    if (raw_count_temp == 720):
                         OBSERVATION_IS_RUNNING = False
                         break
                     plt.pause(5)
 
+                #Check if compute nodes changed
+                if (np.array_equal(np.array(subprocess.check_output(['cat', '/home/obs/triggers/hosts_running']).replace('blc','').split()).reshape(-1, numberOfNodes), ACTIVE_COMPUTE_NODES) == False):
+                    OBSERVATION_IS_RUNNING = False
+                    break
 
+                #Check if session number changed
+                tempNumberofSessions = int(subprocess.check_output("ls /mnt_blc" + ACTIVE_COMPUTE_NODES[0,0] + "/datax/dibas | wc -l", shell=True)[:-1])
+                if (tempNumberofSessions > CURRENT_NUMBER_OF_OBS):
+                    OBSERVATION_IS_RUNNING = False
+                    break
+                else:
+                    CURRENT_NUMBER_OF_OBS = tempNumberofSessions
+
+
+        # Start while loop
         while(OBSERVATION_IS_RUNNING):
             endOfObservationCounter = 0
 
