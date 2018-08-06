@@ -62,7 +62,7 @@ def extractHeader(RAW_file, byteLocation):
         #Get the ASCII value of the card and convert to char
         for index in range(cardLength):
           cardString += chr(RAW_file[byteLocation + index + lineCounter * cardLength])
-
+	print(cardString)
         #Identify the end of the header
         #If not the end, find other useful parameters from header
         if (cardString[:3] == 'END'):   #reached end of header
@@ -749,7 +749,7 @@ if __name__ == "__main__":
 
     HI_BAND = ['01', '03', '05', '07', '11', '13', '15', '17', '21', '23', '25', '27', '31']
     LOW_BAND = ['02', '04', '06', '10', '12', '14', '16', '20', '22', '24', '26', '00', '32']
-    ACTIVE_COMPUTE_NODES = np.array(HI_BAND, LOW_BAND)
+    ACTIVE_COMPUTE_NODES = np.array([HI_BAND, LOW_BAND])
 
 
     while(PROGRAM_IS_RUNNING):
