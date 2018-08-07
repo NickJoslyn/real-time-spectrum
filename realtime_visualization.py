@@ -381,7 +381,7 @@ def press(event):
                 axis1_desired.set_title("blc" + str(CHECKING_BANK) + "* Spectrum (X)")
 
             else:
-                plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :], 'Y')
+                plot_full_bandpass(node_spectra_storage[0, :, :, 1, :, :, :], CHECKING_BANK, node_Frequency_Ranges[:, :, :], 'Y')
                 for j in range(numberOfNodes):
                     if(j!=Plotted_Node):
                         plot_otherNodes(node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], node_spectra_storage[0, Plotted_Bank, j, 1, :, :, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, node_Frequency_Ranges[Plotted_Bank, j, 0], node_Frequency_Ranges[Plotted_Bank, j, 1])
