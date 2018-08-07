@@ -61,7 +61,6 @@ def extractHeader(RAW_file, byteLocation):
         #Get the ASCII value of the card and convert to char
         for index in range(cardLength):
           cardString += chr(RAW_file[byteLocation + index + lineCounter * cardLength])
-	print(cardString)
         #Identify the end of the header
         #If not the end, find other useful parameters from header
         if (cardString[:3] == 'END'):   #reached end of header
@@ -699,14 +698,14 @@ if __name__ == "__main__":
     parser = ArgumentParser(description="Produces real-time spectral information display. Creates summary waterfall and RFI pdfs.")
     parser.add_argument('-f', action='store',  default=60, dest='files_per_export', type=int,
                         help="Files Per Export. The number of raw files analyzed before exporting waterfall plots. Default: 60")
-    parser.add_argument('-b', action='store',  default=8, dest='nodes_in_bank', type=int,
+    parser.add_argument('-b', action='store',  default=13, dest='nodes_in_bank', type=int,
                         help="Nodes per bank. Program assumes total number of compute nodes is multiple of this value. Default: 13")
-    parser.add_argument('-c', action='store',  default=64, dest='channels_per_node', type=int,
+    parser.add_argument('-c', action='store',  default=44, dest='channels_per_node', type=int,
                         help="Channels per node. Default: 44 (standard for Parkes)")
-    parser.add_argument('-s', action='store',  default=16, dest='samples_per_transform', type=int,
-                        help="Time Samples per FFT. Default: 16 (Gives 0.183MHz resolution)")
+    parser.add_argument('-s', action='store',  default=4, dest='samples_per_transform', type=int,
+                        help="Time Samples per FFT. Default: 4")
     parser.add_argument('-i', action='store',  default=50, dest='ffts_per_integration', type=int,
-                        help="Number FFTs to accumulate. Default: 50 (Gives 0.273ms integration time)")
+                        help="Number FFTs to accumulate. Default: 50")
     parser.add_argument('-t', action='store',  default='No', dest='slack_token', type=str,
                         help="Slack token. Specifying token allows PDFs to be exported to Slack. Default: No")
     parser.add_argument('-u', action='store',  default='No', dest='slack_channel', type=str,
