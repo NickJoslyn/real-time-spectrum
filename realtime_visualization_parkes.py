@@ -899,6 +899,7 @@ if __name__ == "__main__":
                         if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > (START_NUMBER_FILES + 1)):
                             waiting_for_written_file = False
                         else:
+                            START_NUMBER_FILES = int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) - 1
                             endOfObservationCounter += 1
                             if (endOfObservationCounter == 60):
                                 export_time_final = datetime.now().strftime('%H:%M')
@@ -908,6 +909,7 @@ if __name__ == "__main__":
                             if (OBSERVATION_IS_RUNNING == False):
                                 break
                             plt.pause(2)
+
 
                     if (OBSERVATION_IS_RUNNING == False):
                         break
