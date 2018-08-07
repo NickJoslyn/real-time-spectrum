@@ -24,6 +24,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 BAND_NAMES = ['L', 'S', 'C', 'X']
 
 samplesPerTransform = 16
+OBSNCHAN = 64
 
 exportPath = "ObservationRFI/" + str(datetime.now().strftime('%b%d%Y')) + "_RFI.pdf"
 pp = PdfPages(exportPath)
@@ -50,14 +51,14 @@ for individualBand in BAND_NAMES:
             numberOfNodes = 8
 
         #Convert to 1D w/ Spectral flip
-        monthly_RFI_hits_x = monthly_RFI_hits_x/monthly_RFI_counter[0]
+        monthly_RFI_hits_x = monthly_RFI_hits_x/monthly_RFI_counter
         monthly_RFI_hits_x = np.flip(monthly_RFI_hits_x[::-1],1).reshape(-1)
 
         #Convert to 1D w/ Spectral flip
-        monthly_RFI_hits_y = monthly_RFI_hits_y/monthly_RFI_counter[0]
+        monthly_RFI_hits_y = monthly_RFI_hits_y/monthly_RFI_counter
         monthly_RFI_hits_y = np.flip(monthly_RFI_hits_y[::-1],1).reshape(-1)
 
-        raw_axis = np.linspace(monthly_RFI_freq_range[0], monthly_RFI_freq_range[1], numberOfBanks*numberOfNodes)
+        raw_axis = np.linspace(monthly_RFI_freq_range[0], monthly_RFI_freq_range[1], numberOfBanks*numberOfNodes*samplesPerTransform*OBSNCHAN)
 
         export_fig = plt.figure(figsize=(12,10))
 
