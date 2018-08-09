@@ -749,7 +749,7 @@ if __name__ == "__main__":
     parser.add_argument('-b', action='store',  default=8, dest='nodes_in_bank', type=int,
                         help="Nodes per bank. Program assumes total number of compute nodes is multiple of this value. Default: 8 (unlikely to change from default)")
     parser.add_argument('-c', action='store',  default=64, dest='channels_per_node', type=int,
-                        help="Channels per node. Default: 64 (standard for GBT - Parkes is different)")
+                        help="Channels per node. Default: 64 (standard for GBT)")
     parser.add_argument('-s', action='store',  default=16, dest='samples_per_transform', type=int,
                         help="Time Samples per FFT. Default: 16 (Gives 0.183MHz resolution)")
     parser.add_argument('-i', action='store',  default=50, dest='ffts_per_integration', type=int,
