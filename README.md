@@ -63,7 +63,7 @@ After the observation, the following numpy binary (.npy) files are exported
 * If it does not exist, the frequency range for the observing band
 * A counter of how many times this observing band has been used in the past month
 
-These exported binary files will be used in a monthly cron job to produce monthly RFI statistics
+These exported binary files will be used in a monthly cron job (which calls **RFI_monthly_summary.py**) to produce monthly RFI statistics.
 
 ---
 
