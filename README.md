@@ -69,6 +69,7 @@ These exported binary files will be used in a monthly cron job (which calls **RF
 
 ---
 
+### Green Bank
  ```
  >>>  python realtime_visualization.py -h
 
@@ -100,7 +101,7 @@ optional arguments:
   -u SLACK_CHANNEL      Slack channel username. Specify active_observations
                         channel. Must specify if using Slack. Default: No
 ```
-
+### Parkes
 ```
 >>> python realtime_visualization_parkes.py -h
 
