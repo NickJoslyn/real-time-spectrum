@@ -21,6 +21,8 @@ Parkes Version
 
 Run this program from a storage node (**_or any node with all compute nodes mounted_**)
 
+Both versions follow a very similar strategy, but have slight differences. More verbose comments are located in the Green Bank version, but Parkes is well documented as well.
+
 ## Visualization Interface
 
 This automated program produces 10 plot figure for real-time visualization of Breakthrough Listen observations
@@ -68,9 +70,9 @@ These exported binary files will be used in a monthly cron job (which calls **RF
 ---
 
  ```
- >>> python realtime_visualization.py -h
+ >>>  python realtime_visualization.py -h
 
- usage: realtime_visualization.py [-h] [-f FILES_PER_EXPORT] [-b NODES_IN_BANK]
+usage: realtime_visualization.py [-h] [-f FILES_PER_EXPORT] [-b NODES_IN_BANK]
                                  [-c CHANNELS_PER_NODE]
                                  [-s SAMPLES_PER_TRANSFORM]
                                  [-i FFTS_PER_INTEGRATION] [-t SLACK_TOKEN]
@@ -86,8 +88,7 @@ optional arguments:
   -b NODES_IN_BANK      Nodes per bank. Program assumes total number of
                         compute nodes is multiple of this value. Default: 8
                         (unlikely to change from default)
-  -c CHANNELS_PER_NODE  Channels per node. Default: 64 (standard for GBT -
-                        Parkes is different)
+  -c CHANNELS_PER_NODE  Channels per node. Default: 64 (standard for GBT)
   -s SAMPLES_PER_TRANSFORM
                         Time Samples per FFT. Default: 16 (Gives 0.183MHz
                         resolution)
@@ -98,4 +99,34 @@ optional arguments:
                         exported to Slack. Default: No
   -u SLACK_CHANNEL      Slack channel username. Specify active_observations
                         channel. Must specify if using Slack. Default: No
- ```
+```
+
+```
+>>> python realtime_visualization_parkes.py -h
+
+usage: realtime_visualization_parkes.py [-h] [-f FILES_PER_EXPORT]
+                                        [-b NODES_IN_BANK]
+                                        [-c CHANNELS_PER_NODE]
+                                        [-s SAMPLES_PER_TRANSFORM]
+                                        [-i FFTS_PER_INTEGRATION]
+                                        [-t SLACK_TOKEN] [-u SLACK_CHANNEL]
+
+Produces real-time spectral information display. Creates summary waterfall and
+RFI pdfs.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f FILES_PER_EXPORT   Files Per Export. The number of raw files analyzed
+                        before exporting waterfall plots. Default: 60
+  -b NODES_IN_BANK      Nodes per bank. Program assumes total number of
+                        compute nodes is multiple of this value. Default: 13
+  -c CHANNELS_PER_NODE  Channels per node. Default: 44 (standard for Parkes)
+  -s SAMPLES_PER_TRANSFORM
+                        Time Samples per FFT. Default: 16
+  -i FFTS_PER_INTEGRATION
+                        Number FFTs to accumulate. Default: 50
+  -t SLACK_TOKEN        Slack token. Specifying token allows PDFs to be
+                        exported to Slack. Default: No
+  -u SLACK_CHANNEL      Slack channel username. Specify active_observations
+                        channel. Must specify if using Slack. Default: No
+```
