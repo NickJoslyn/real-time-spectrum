@@ -702,8 +702,8 @@ if __name__ == "__main__":
                         help="Nodes per bank. Program assumes total number of compute nodes is multiple of this value. Default: 13")
     parser.add_argument('-c', action='store',  default=44, dest='channels_per_node', type=int,
                         help="Channels per node. Default: 44 (standard for Parkes)")
-    parser.add_argument('-s', action='store',  default=4, dest='samples_per_transform', type=int,
-                        help="Time Samples per FFT. Default: 4")
+    parser.add_argument('-s', action='store',  default=16, dest='samples_per_transform', type=int,
+                        help="Time Samples per FFT. Default: 16")
     parser.add_argument('-i', action='store',  default=50, dest='ffts_per_integration', type=int,
                         help="Number FFTs to accumulate. Default: 50")
     parser.add_argument('-t', action='store',  default='No', dest='slack_token', type=str,
