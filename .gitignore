@@ -1,4 +1,12 @@
 # Files
+spectrumEstimation.py
+spectrumIntegration.py
+main.py
+interactivePlotting.py
+RealTime.py
+header.py
+SKThresholds.py
+RealTime.py
 rfiMit.py
 spectrumEstimators.py
 waterfall.py
