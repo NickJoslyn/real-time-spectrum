@@ -33,52 +33,67 @@ for individualBand in BAND_NAMES:
     have_we_observed_that_band = "monthlyRFI_" + str(individualBand) + "_X.npy"
     if (int(subprocess.check_output("find -maxdepth 2 -name " + have_we_observed_that_band + " | wc -l", shell=True)) > 0):
         monthly_RFI_hits_x = np.load("ObservationRFI/monthlyRFI_" + str(individualBand) + "_X.npy")
+        export_monthly_x = np.copy(monthly_RFI_hits_x)
+        export_monthly_x.fill(0)
+
         monthly_RFI_hits_y = np.load("ObservationRFI/monthlyRFI_" + str(individualBand) + "_Y.npy")
+        export_monthly_y = np.copy(monthly_RFI_hits_y)
+        export_monthly_y.fill(0)
+
         monthly_RFI_counter = np.load("ObservationRFI/monthlyRFI_" + str(individualBand) + "_Counter.npy")
+        export_monthly_counter = np.copy(monthly_RFI_counter)
+        export_monthly_counter.fill(0)
+
         monthly_RFI_freq_range = np.load("ObservationRFI/" + str(individualBand) + "_FrequencyRange.npy")
 
-        if (individualBand == 'L'):
-            numberOfBanks = 1
-            numberOfNodes = 8
-        elif (individualBand == 'S'):
-            numberOfBanks = 1
-            numberOfNodes = 8
-        elif (individualBand == 'C'):
-            numberOfBanks = 4
-            numberOfNodes = 8
-        else:
-            numberOfBanks = 3
-            numberOfNodes = 8
+        if (monthly_RFI_counter > 0):
+            if (individualBand == 'L'):
+                numberOfBanks = 1
+                numberOfNodes = 8
+            elif (individualBand == 'S'):
+                numberOfBanks = 1
+                numberOfNodes = 8
+            elif (individualBand == 'C'):
+                numberOfBanks = 4
+                numberOfNodes = 8
+            else:
+                numberOfBanks = 3
+                numberOfNodes = 8
 
-        #Convert to 1D w/ Spectral flip
-        monthly_RFI_hits_x = monthly_RFI_hits_x/monthly_RFI_counter
-        monthly_RFI_hits_x = np.flip(monthly_RFI_hits_x[::-1],1).reshape(-1)
+            #Convert to 1D w/ Spectral flip
+            monthly_RFI_hits_x = monthly_RFI_hits_x/monthly_RFI_counter
+            monthly_RFI_hits_x = np.flip(monthly_RFI_hits_x[::-1],1).reshape(-1)
 
-        #Convert to 1D w/ Spectral flip
-        monthly_RFI_hits_y = monthly_RFI_hits_y/monthly_RFI_counter
-        monthly_RFI_hits_y = np.flip(monthly_RFI_hits_y[::-1],1).reshape(-1)
+            #Convert to 1D w/ Spectral flip
+            monthly_RFI_hits_y = monthly_RFI_hits_y/monthly_RFI_counter
+            monthly_RFI_hits_y = np.flip(monthly_RFI_hits_y[::-1],1).reshape(-1)
 
-        raw_axis = np.linspace(monthly_RFI_freq_range[0], monthly_RFI_freq_range[1], numberOfBanks*numberOfNodes*samplesPerTransform*OBSNCHAN)
+            raw_axis = np.linspace(monthly_RFI_freq_range[0], monthly_RFI_freq_range[1], numberOfBanks*numberOfNodes*samplesPerTransform*OBSNCHAN)
 
-        export_fig = plt.figure(figsize=(12,10))
+            export_fig = plt.figure(figsize=(12,10))
 
-        export_axis1 = plt.subplot2grid((2,1), (0, 0))
-        export_axis1.set_title(str(individualBand) + " | X")
-        export_axis1.set_xlabel("Frequency (MHz)")
-        export_axis1.set_ylabel("%")
-        export_axis1.set_ylim(0,100)
-        export_axis1.margins(x=0)
-        export_axis1.plot(raw_axis, monthly_RFI_hits_x)
+            export_axis1 = plt.subplot2grid((2,1), (0, 0))
+            export_axis1.set_title(str(individualBand) + " | X")
+            export_axis1.set_xlabel("Frequency (MHz)")
+            export_axis1.set_ylabel("%")
+            export_axis1.set_ylim(0,100)
+            export_axis1.margins(x=0)
+            export_axis1.plot(raw_axis, monthly_RFI_hits_x)
 
-        export_axis2 = plt.subplot2grid((2,1), (1, 0))
-        export_axis2.set_title(str(individualBand) + " | Y")
-        export_axis2.set_xlabel("Frequency (MHz)")
-        export_axis2.set_ylabel("%")
-        export_axis2.margins(x=0)
-        export_axis2.set_ylim(0,100)
-        export_axis2.plot(raw_axis, monthly_RFI_hits_y)
+            export_axis2 = plt.subplot2grid((2,1), (1, 0))
+            export_axis2.set_title(str(individualBand) + " | Y")
+            export_axis2.set_xlabel("Frequency (MHz)")
+            export_axis2.set_ylabel("%")
+            export_axis2.margins(x=0)
+            export_axis2.set_ylim(0,100)
+            export_axis2.plot(raw_axis, monthly_RFI_hits_y)
 
-        plt.close()
-        pp.savefig(export_fig)
+            plt.close()
+            pp.savefig(export_fig)
+
+            # Save as 0s to not influence next month's statistics
+            np.save("ObservationRFI/monthlyRFI_" + str(individualBand) + "_X.npy", export_monthly_x)
+            np.save("ObservationRFI/monthlyRFI_" + str(individualBand) + "_Y.npy", export_monthly_y)
+            np.save("ObservationRFI/monthlyRFI_" + str(individualBand) + "_Counter.npy", export_monthly_counter)
 
 pp.close()
