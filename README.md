@@ -7,7 +7,19 @@ Breakthrough Listen observations utilize multiple compute nodes (organized in ba
 
 **There must be ObservationRFI and ObservationWaterfalls sub-directories in the same directory as the program.** These sub-directories are where the .pdf's are saved.
 
+### realtime_visualization.py
+
+Green Bank Version
+
 Run this program from a storage node (**_or any node with all compute nodes -- include blc18 -- mounted_**)
+
+Program is most effective if VNC to GBO gateway, then ssh -X to the storage node.
+
+### realtime_visualization_parkes.py
+
+Parkes Version
+
+Run this program from a storage node (**_or any node with all compute nodes mounted_**)
 
 ## Visualization Interface
 
