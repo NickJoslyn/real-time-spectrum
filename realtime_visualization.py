@@ -768,6 +768,7 @@ if __name__ == "__main__":
     slackToken = parse_args.slack_token
     SLACK_CHANNEL = parse_args.slack_channel
 
+    # Set up slack
     if (slackToken != 'No'):
         slack = Slacker(slackToken)
         SLACK_CHANNEL = "#" + SLACK_CHANNEL
@@ -793,6 +794,7 @@ if __name__ == "__main__":
         print('Checking for new session')
         pCLICKED = False
 
+        # Polarization plot
         Polarization_Plot = 0
         Plotted_Bank = 0
         Plotted_Node = 0
@@ -914,8 +916,11 @@ if __name__ == "__main__":
 
         CURRENT_TIME_STAMP = datetime.now().strftime('%H:%M')
         FILE_COUNT_INDICATOR = 0
+
         if (SESSION_IDENTIFIER == 'No Sessions'):
             OBSERVATION_IS_RUNNING = False
+
+        # Check for RAW files in most recent session
         else:
             check_for_raw = True
             raw_count_temp = 0
@@ -935,6 +940,7 @@ if __name__ == "__main__":
 
                 else:
                     raw_count_temp += 1
+                    # Give ~ an hour in case autopeak focus has issues
                     if (raw_count_temp == 720):
                         OBSERVATION_IS_RUNNING = False
                         break
@@ -954,7 +960,7 @@ if __name__ == "__main__":
                     CURRENT_NUMBER_OF_OBS = tempNumberofSessions
 
 
-        # Start while loop
+        # Start while loop for interface update
         while(OBSERVATION_IS_RUNNING):
             endOfObservationCounter = 0
 
@@ -971,11 +977,13 @@ if __name__ == "__main__":
             else:
                 CURRENT_NUMBER_OF_OBS = tempNumberofSessions
 
+            # Collect spectral data for all active banks
             for bank in range(numberOfBanks):
                 for node in range(numberOfNodes):
                     test_Number_Files_String = 'ls /mnt_blc' + str(ACTIVE_COMPUTE_NODES[bank, node]) + '/datax/dibas/' + str(SESSION_IDENTIFIER) + '/GUPPI/BLP' + str(bank) + str(node) + '/*.raw | wc -l'
                     waiting_for_written_file = True
 
+                    # If no new RAW files in ~ an hour, assume observation is complete
                     while(waiting_for_written_file):
                         if (int(subprocess.check_output(test_Number_Files_String, shell=True)[:-1]) > (START_NUMBER_FILES + 1)):
                             waiting_for_written_file = False
@@ -998,21 +1006,25 @@ if __name__ == "__main__":
                     readIn = np.memmap(inputFileName, dtype = 'int8', mode = 'r')
                     currentBytesPassed = 0
 
+                    # Header metadata
                     OBSNCHAN, NPOL, NBITS, BLOCSIZE, OBSFREQ, CHAN_BW, OBSBW, TBIN, headerOffset = extractHeader(readIn, currentBytesPassed)
                     if (FILE_COUNT_INDICATOR == 0):
                         desiredFrequencyResolution, desiredTimeResolution = convert_to_resolution(samplesPerTransform, fftsPerIntegration, TBIN)
 
                     NDIM = int(BLOCSIZE/(OBSNCHAN*NPOL*(NBITS/8)))
                     #samplesPerTransform, fftsPerIntegration = convert_resolution(desiredFrequencyResolution, desiredTimeResolution, TBIN)
+                    # Read one block
                     dataBuffer = readIn[(currentBytesPassed + headerOffset):(currentBytesPassed + headerOffset + BLOCSIZE)].reshape(OBSNCHAN, NDIM, NPOL)
+                    # Analyze small bit of first block
                     NDIMsmall = samplesPerTransform * fftsPerIntegration
 
+                    # First-in, first-out storage of spectral information
                     temp_spec_x, temp_spec_y, temp_spec_cross, node_Frequency_Ranges[bank, node, 0], node_Frequency_Ranges[bank, node, 1] = spectra_Find_All(dataBuffer[:, 0:NDIMsmall, :], OBSNCHAN, samplesPerTransform, fftsPerIntegration, OBSFREQ, OBSBW)
-
                     node_spectra_storage[:, bank, node, 0, :, :, :] = np.insert(node_spectra_storage[:, bank, node, 0, :, :, :], 0, temp_spec_x, axis = 0)[:-1, :, :, :]
                     node_spectra_storage[:, bank, node, 1, :, :, :] = np.insert(node_spectra_storage[:, bank, node, 1, :, :, :], 0, temp_spec_y, axis = 0)[:-1, :, :, :]
                     node_spectra_storage[:, bank, node, 2, :, :, :] = np.insert(node_spectra_storage[:, bank, node, 2, :, :, :], 0, temp_spec_cross, axis = 0)[:-1, :, :, :]
 
+                    # Running counter of above Gaussian threshold events
                     x_temp_indices = find_SK_threshold_hits(node_spectra_storage[0, bank, node, 0, :, :, :], fftsPerIntegration)
                     np.add.at(THRESHOLD_PERCENTAGES[bank, node, 0, :], x_temp_indices, 1)
                     y_temp_indices = find_SK_threshold_hits(node_spectra_storage[0, bank, node, 1, :, :, :], fftsPerIntegration)
@@ -1035,6 +1047,7 @@ if __name__ == "__main__":
 
             FILE_COUNT_INDICATOR += 1
 
+            # Plot full bandpass, then plot bank and node specific information if user specifies active node
             plot_full_bandpass(node_spectra_storage[0, :, :, 0, :, :, :], Plotted_Bank, node_Frequency_Ranges[:, :, :])
             if (PLOTTING_A_COMPUTE_NODE):
                 ## Done with spectra collection; plot
@@ -1047,6 +1060,7 @@ if __name__ == "__main__":
             plt.pause(0.2)
             print(datetime.now().strftime('%H:%M:%S'))
 
+            # Hourly export of waterfall plots for each active node and both polarizations
             if (FILE_COUNT_INDICATOR%most_possible_files_read==0):
                 endTime = datetime.now().strftime('%H:%M')
                 ################Export Waterfalls###################################
@@ -1136,6 +1150,7 @@ if __name__ == "__main__":
         if (endOfObservationCounter == 1800):
             endTime = export_time_final
 
+        # If there was an observation, export RFI information and final waterfalls of each compute node and polarization
         if (FILE_COUNT_INDICATOR != 0):
             last_non_exported_spectra = FILE_COUNT_INDICATOR%most_possible_files_read
             BAND_IDENTIFIER = findBand()
@@ -1252,7 +1267,9 @@ if __name__ == "__main__":
             if (slackToken != 'No'):
                 slack.files.upload(exportPath, channels = SLACK_CHANNEL)
 
-            #### Monthly RFI stuff
+            #### Monthly RFI information
+            ## Save as percentages. Add to current percentages if we have observed that band this month
+            ## Save a counter of how many times that band has been observed this month
             monthly_RFI_file_x = "monthlyRFI_" + str(BAND_IDENTIFIER) + "_X.npy"
             monthly_RFI_file_y = "monthlyRFI_" + str(BAND_IDENTIFIER) + "_Y.npy"
             monthly_RFI_counter_file = "ObservationRFI/monthlyRFI_" + str(BAND_IDENTIFIER) + "_Counter.npy"
@@ -1274,11 +1291,13 @@ if __name__ == "__main__":
 
         waiting_for_new_observation = True
 
+        # Print to terminal approximate time of end of observation with session name
         print_time = datetime.now().strftime('%Y %B %d | %H:%M')
         if (endOfObservationCounter == 1800):
             print_time = print_time_final
         print("End of session " + str(SESSION_IDENTIFIER) + ": " + str(print_time))
 
+        # If user paused, ask if they want to start up the program again
         if (pCLICKED == True):
             if (raw_input("New Observation? (y/n): ") == 'n'):
                 plt.close()
@@ -1288,7 +1307,7 @@ if __name__ == "__main__":
             pCLICKED = False
             waiting_for_new_observation = False
 
-        ### automatic restart check in comparison to CURRENT_NUMBER_OF_OBS
+        ### automatic restart -- check in comparison to CURRENT_NUMBER_OF_OBS and if compute nodes change
         while (waiting_for_new_observation):
             if (PROGRAM_IS_RUNNING == False):
                 break
