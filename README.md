@@ -5,7 +5,7 @@ During a Breakthrough Listen Observation, this program can be run to both monito
 
 Breakthrough Listen observations utilize multiple compute nodes (organized in banks) to process the very large bandwidth of their observations. Simultaneously, different compute nodes handle different frequency ranges. Thus, in the following discussions, by looking at different compute nodes/banks, the observer looks at different spectral windows.
 
-**There must be ObservationRFI and ObservationWaterfalls sub-directories in the same directory as the program.** These sub-directories are where the .pdf's are saved.
+ObservationRFI and ObservationWaterfalls sub-directories will be created in the same location as the program is called from if they do not previously exist. These sub-directories are where the .pdf's are saved.
 
 ### realtime_visualization.py
 

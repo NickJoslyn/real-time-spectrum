@@ -712,6 +712,7 @@ if __name__ == "__main__":
                         help="Slack channel username. Specify active_observations channel. Must specify if using Slack. Default: No")
     parse_args = parser.parse_args()
 
+    # Initialize
     most_possible_files_read = parse_args.files_per_export
     numberOfNodes = parse_args.nodes_in_bank
     OBSNCHAN = parse_args.channels_per_node
@@ -719,6 +720,12 @@ if __name__ == "__main__":
     fftsPerIntegration = parse_args.ffts_per_integration
     slackToken = parse_args.slack_token
     SLACK_CHANNEL = parse_args.slack_channel
+
+    DIRECTORY_NAMES = ['ObservationRFI', 'ObservationWaterfalls']
+    # Make folder for .pdf's if it doesn't exist
+    for individualDirectory in DIRECTORY_NAMES:
+        if (int(subprocess.check_output("find -maxdepth 1 -type d -name " + individualDirectory + " | wc -l", shell=True)) == 0):
+            subprocess.Popen("mkdir " + individualDirectory, shell=True)
 
     if (slackToken != 'No'):
         slack = Slacker(slackToken)
